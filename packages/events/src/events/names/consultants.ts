@@ -1,0 +1,8 @@
+// consultant.ts (message queue events names)
+export const consultantEventsNames = {
+  CONSULTANT_ONBOARDED: 'CONSULTANT_ONBOARDED',
+  CONSULTANT_PROFILE_UPDATED: 'CONSULTANT_PROFILE_UPDATED',
+  TOPIC_ADDED: 'TOPIC_ADDED',
+  TOPIC_UPDATED: 'TOPIC_UPDATED',
+  TOPIC_REMOVED: 'TOPIC_REMOVED',
+} as const;

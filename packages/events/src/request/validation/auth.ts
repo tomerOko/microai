@@ -1,28 +1,24 @@
+// auth.ts (request and response validations)
 import { z } from 'zod';
-import { userValidationProps, userValidationWithoutPasswordProps } from '../../shared';
-
-export const loginMethods = {
-  PASSWORD: 'PASSWORD',
-  GOOGLE: 'GOOGLE',
-  FACEBOOK: 'FACEBOOK',
-  AUTHENTICATOR: 'AUTHENTICATOR',
-  APPLE: 'APPLE',
-} as const;
-
-export type LoginMethod = keyof typeof loginMethods;
 
 export const loginRequestValidation = z.object({
   body: z.object({
     email: z.string().email(),
-    loginMethod: z
-      .string()
-      .refine((value) => Object.keys(loginMethods).includes(value))
-      .transform((value) => value as LoginMethod),
-    methodSecret: z.string().describe('the secret for the login method, like the password or the OAuth token'),
+    password: z.string(),
   }),
 });
 
-export const loginRespondValidation = z.object({
+export const loginResponseValidation = z.object({
   token: z.string(),
-  user: z.object(userValidationWithoutPasswordProps),
+});
+
+export const oauthLoginRequestValidation = z.object({
+  body: z.object({
+    provider: z.string(),
+    providerToken: z.string(),
+  }),
+});
+
+export const oauthLoginResponseValidation = z.object({
+  token: z.string(),
 });

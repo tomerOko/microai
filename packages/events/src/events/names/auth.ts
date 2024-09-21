@@ -1,3 +1,5 @@
+// auth.ts (message queue events names)
 export const authEventsNames = {
-  USER_LOGGED_IN: 'USER_LOGGED_IN',
+  AUTH_SUCCESS: 'AUTH_SUCCESS',
+  AUTH_FAILURE: 'AUTH_FAILURE',
 } as const;
