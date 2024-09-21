@@ -1,0 +1,21 @@
+{
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#a33904",
+    "titleBar.activeBackground": "#6e3714",
+    "titleBar.activeForeground": "#FBFAFD"
+  },
+  "material-icon-theme.folders.customClones": [
+    {
+      "name": "request",
+      "base": "resource",
+      "color": "green-400",
+      "folderNames": ["request"]
+    },
+    {
+      "name": "dictionaries",
+      "base": "mappings",
+      "color": "blue-900",
+      "folderNames": ["dictionaries"]
+    }
+  ]
+}
