@@ -1,70 +1,66 @@
-import { AppError, functionWrapper, signToken } from 'common-lib-tomeroko3';
-import { LoginMethod, LoginRequest, LoginResponse, loginMethods } from 'events-tomeroko3';
-import { OAuth2Client } from 'google-auth-library';
-import { validate } from 'uuid';
+ // service.ts
+import { AppError, functionWrapper } from 'common-lib-tomeroko3';
+import {
+  loginRequestType,
+  loginResponseType,
+  oauthLoginRequestType,
+  oauthLoginResponseType,
+} from 'events-tomeroko3';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-import { ENVs } from '../configs/ENVs';
-import { User } from '../configs/mongoDB/initialization';
-import { userLoginPublisher } from '../configs/rabbitMQ';
+import { authSuccessPublisher, authFailurePublisher } from '../configs/rabbitMQ/initialization';
 
 import { appErrorCodes } from './appErrorCodes';
 import * as model from './dal';
 
-export const login = async (props: LoginRequest['body']): Promise<LoginResponse> => {
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+export const login = async (props: loginRequestType['body']): Promise<loginResponseType> => {
   return functionWrapper(async () => {
-    const { email, loginMethod, methodSecret } = props;
-
+    const { email, password } = props;
     const user = await model.getUserByEmail(email);
-    if (!user) {
-      throw new AppError(appErrorCodes.CANT_LOGIN_USER_NOT_FOUND, { email }, true);
+    if (!user || !user.passwordHash) {
+      authFailurePublisher({ email, reason: 'Invalid credentials' });
+      throw new AppError(appErrorCodes.INVALID_CREDENTIALS, { email });
     }
-    validateLoginByMethod(loginMethod, methodSecret, user);
-
-    const { ID, firstName, lastName } = user;
-    userLoginPublisher({
-      email,
-      ID,
-    });
-
-    const token = signToken({ ID }, ENVs.jwtSecret);
-    return {
-      token,
-      user: {
-        ID,
-        email,
-        firstName,
-        lastName,
-      },
-    };
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      authFailurePublisher({ email, reason: 'Invalid credentials' });
+      throw new AppError(appErrorCodes.INVALID_CREDENTIALS, { email });
+    }
+    const token = jwt.sign({ userID: user.ID }, JWT_SECRET, { expiresIn: '1h' });
+    authSuccessPublisher({ userID: user.ID });
+    return { token };
   });
 };
 
-const validateLoginByMethod = (loginMethod: LoginMethod, methodSecret: string, user: User) => {
-  switch (loginMethod) {
-    case loginMethods.PASSWORD:
-      return user.password === methodSecret;
-    case loginMethods.GOOGLE:
-      return validateGoolgeToken(methodSecret, user);
-    default:
-      throw new AppError(appErrorCodes.CANT_LOGIN_UNKNOWN_METHOD, { loginMethod }, true);
-  }
+export const oauthLogin = async (
+  props: oauthLoginRequestType['body'],
+): Promise<oauthLoginResponseType> => {
+  return functionWrapper(async () => {
+    const { provider, providerToken } = props;
+    // Verify the provider token with the OAuth provider.
+    // This is a placeholder for actual OAuth verification logic.
+    const providerID = await verifyOAuthToken(provider, providerToken);
+    if (!providerID) {
+      authFailurePublisher({ provider, reason: 'Invalid OAuth token' });
+      throw new AppError(appErrorCodes.INVALID_OAUTH_TOKEN, { provider });
+    }
+    const user = await model.getUserByOAuthProviderID(provider, providerID);
+    if (!user) {
+      authFailurePublisher({ provider, reason: 'User not found' });
+      throw new AppError(appErrorCodes.USER_NOT_FOUND, { provider, providerID });
+    }
+    const token = jwt.sign({ userID: user.ID }, JWT_SECRET, { expiresIn: '1h' });
+    authSuccessPublisher({ userID: user.ID });
+    return { token };
+  });
 };
 
-const validateGoolgeToken = async (token: string, user: User) => {
-  const client = new OAuth2Client();
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: 'YOUR_GOOGLE_CLIENT_ID',
-    });
-    const payload = ticket.getPayload();
-    const email = payload?.email;
-    if (email === user.email) {
-      return true;
-    } else {
-      throw new AppError(appErrorCodes.TOKEN_DOSE_NOT_MATCH_USER, {}, true);
-    }
-  } catch (error) {
-    throw new AppError(appErrorCodes.BAD_GOOGLE_TOKEN, {}, true);
-  }
-};
+// Placeholder function for OAuth token verification.
+async function verifyOAuthToken(provider: string, token: string): Promise<string | null> {
+  // Implement actual OAuth token verification logic here.
+  // Return the providerID (unique ID of the user in the OAuth provider's system) if valid.
+  return 'providerUniqueID';
+}

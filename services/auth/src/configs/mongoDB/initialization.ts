@@ -1,5 +1,11 @@
-import { CollectionInitializerProps, SafeCollection, collectionInitializer, functionWrapper } from 'common-lib-tomeroko3';
-import { authDbValidations, signupDbValidations } from 'events-tomeroko3';
+// configs/mongoDB/initialization.ts
+import {
+  CollectionInitializerProps,
+  SafeCollection,
+  collectionInitializer,
+  functionWrapper,
+} from 'common-lib-tomeroko3';
+import { authDbValidations } from 'events-tomeroko3';
 import { z } from 'zod';
 
 const { user } = authDbValidations;
