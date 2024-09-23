@@ -1,6 +1,7 @@
-amaizng!!! now let write the Sockets service code. in advance: implement placeholder functions yourself (add comments to explain the bussines logic you chosen if needed) and write the actual consumers logic.
 
-please generate the Auth service code according to all of this data: 
+please generate the 'Send service' code according to all of this data: 
+
+* implement placeholder functions yourself (add comments to explain the bussines logic you chosen if needed) and write the actual consumers logic.
 
 This prompt contains the main files of a service (the 'Teach' service, created only as an example for the rest of the services) written correctly according to the project standards
 along with MongoDB and RabbitMQ initializations, and 7 validation and types files from the shared validation package ('events-tomeroko3') each service will have his own 7 files inside the shared validation package. 

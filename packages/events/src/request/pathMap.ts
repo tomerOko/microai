@@ -44,8 +44,10 @@ const servicesNames = {
   availabilities: 'availabilities',
   auth: 'auth',
   call: 'call',
+  chat: 'chat',
   consultants: 'consultants',
   meet: 'meet',
+  notifications: 'notifications',
   paymnent: 'payment',
   search: 'search',
   signup: 'signup',
@@ -180,5 +182,71 @@ export const pathMap = {
     service: servicesNames.availabilities,
     requestValidation: checkAvailabilityRequestValidation,
     responseValidation: checkAvailabilityResponseValidation,
+  },
+  SEND_MESSAGE: {
+    path: '/send-message',
+    method: 'post',
+    service: servicesNames.chat,
+    requestValidation: sendMessageRequestValidation,
+    responseValidation: sendMessageResponseValidation,
+  },
+  GET_CHAT_ROOM_MESSAGES: {
+    path: '/chat-rooms/:chatRoomID/messages',
+    method: 'get',
+    service: servicesNames.chat,
+    requestValidation: getChatRoomMessagesRequestValidation,
+    responseValidation: getChatRoomMessagesResponseValidation,
+  },
+  GET_CHAT_ROOMS: {
+    path: '/chat-rooms',
+    method: 'get',
+    service: servicesNames.chat,
+    requestValidation: getChatRoomsRequestValidation,
+    responseValidation: getChatRoomsResponseValidation,
+  },
+  GET_NOTIFICATIONS: {
+    path: '/notifications',
+    method: 'get',
+    service: servicesNames.notifications,
+    requestValidation: getNotificationsRequestValidation,
+    responseValidation: getNotificationsResponseValidation,
+  },
+  MARK_NOTIFICATION_AS_READ: {
+    path: '/notifications/mark-as-read',
+    method: 'post',
+    service: servicesNames.notifications,
+    requestValidation: markNotificationAsReadRequestValidation,
+    responseValidation: markNotificationAsReadResponseValidation,
+  },
+  /**
+   * Get User Connections
+   * Retrieves all active WebSocket connections for a user, either as a student or consultant.
+   */
+  GET_USER_CONNECTIONS: {
+    path: '/connections/:type',
+    method: 'get',
+    service: servicesNames.sockets,
+    requestValidation: GetUserConnectionsRequestValidation,
+    responseValidation: GetUserConnectionsResponseValidation,
+  },
+
+  SEND_MESSAGE: {
+    path: '/messages',
+    method: 'post',
+    service: servicesNames.sockets,
+    requestValidation: SendMessageRequestValidation,
+    responseValidation: SendMessageResponseValidation,
+  },
+
+  /**
+   * Disconnect User
+   * Disconnects a user from a WebSocket session.
+   */
+  DISCONNECT: {
+    path: '/disconnect',
+    method: 'post',
+    service: servicesNames.sockets,
+    requestValidation: DisconnectRequestValidation,
+    responseValidation: DisconnectResponseValidation,
   },
 } as const;

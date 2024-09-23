@@ -1,3 +1,4 @@
+// configs/rabbitMQ/initialization.ts
 import {
   RabbitPublisherParams,
   RabbitSubscriberParams,
@@ -6,68 +7,61 @@ import {
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
+  BookingCreatedEventType,
+  BookingCancelledEventType,
+  UserUpdatedEventType,
   MessageSentEventType,
-  GroupCreatedEventType,
-  UserJoinedGroupEventType,
-  UserLeftGroupEventType,
-  UserCreatedEventType,
+  bookingEventsNames,
+  userEventsNames,
   chatEventsNames,
-  signupEventsNames,
+  bookingCreatedEventValidation,
+  bookingCancelledEventValidation,
+  userUpdatedEventValidation,
   messageSentEventValidation,
-  groupCreatedEventValidation,
-  userJoinedGroupEventValidation,
-  userLeftGroupEventValidation,
-  userCreatedEventValidation,
 } from 'events-tomeroko3';
 
-import { handleUserEvent, handleMessageSent } from '../logic/consumers';
+import {
+  handleBookingCreatedEvent,
+  handleBookingCancelledEvent,
+  handleUserUpdatedEvent,
+} from '../logic/consumers';
 
-export let messageSentPublisher: (message: MessageSentEventType['data']) => void;
-export let groupCreatedPublisher: (group: GroupCreatedEventType['data']) => void;
-export let userJoinedGroupPublisher: (data: UserJoinedGroupEventType['data']) => void;
-export let userLeftGroupPublisher: (data: UserLeftGroupEventType['data']) => void;
+export let messageSentPublisher: (data: MessageSentEventType['data']) => void;
 
 const messageSentPublisherParams: RabbitPublisherParams<MessageSentEventType> = {
   eventName: chatEventsNames.MESSAGE_SENT,
   eventSchema: messageSentEventValidation,
 };
 
-const groupCreatedPublisherParams: RabbitPublisherParams<GroupCreatedEventType> = {
-  eventName: chatEventsNames.GROUP_CREATED,
-  eventSchema: groupCreatedEventValidation,
-};
-
-const userJoinedGroupPublisherParams: RabbitPublisherParams<UserJoinedGroupEventType> = {
-  eventName: chatEventsNames.USER_JOINED_GROUP,
-  eventSchema: userJoinedGroupEventValidation,
-};
-
-const userLeftGroupPublisherParams: RabbitPublisherParams<UserLeftGroupEventType> = {
-  eventName: chatEventsNames.USER_LEFT_GROUP,
-  eventSchema: userLeftGroupEventValidation,
-};
-
-const userSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
+const bookingCreatedSubscriberParams: RabbitSubscriberParams<BookingCreatedEventType> = {
   thisServiceName: 'CHAT_SERVICE',
-  eventName: signupEventsNames.USER_CREATED,
-  eventSchema: userCreatedEventValidation,
-  handler: handleUserEvent,
+  eventName: bookingEventsNames.BOOKING_CREATED,
+  eventSchema: bookingCreatedEventValidation,
+  handler: handleBookingCreatedEvent,
 };
 
-const messageSentSubscriberParams: RabbitSubscriberParams<MessageSentEventType> = {
+const bookingCancelledSubscriberParams: RabbitSubscriberParams<BookingCancelledEventType> = {
   thisServiceName: 'CHAT_SERVICE',
-  eventName: chatEventsNames.MESSAGE_SENT,
-  eventSchema: messageSentEventValidation,
-  handler: handleMessageSent,
+  eventName: bookingEventsNames.BOOKING_CANCELLED,
+  eventSchema: bookingCancelledEventValidation,
+  handler: handleBookingCancelledEvent,
+};
+
+const userUpdatedSubscriberParams: RabbitSubscriberParams<UserUpdatedEventType> = {
+  thisServiceName: 'CHAT_SERVICE',
+  eventName: userEventsNames.USER_UPDATED,
+  eventSchema: userUpdatedEventValidation,
+  handler: handleUserUpdatedEvent,
 };
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    await initializeRabbitSubscriber(userSubscriberParams);
-    await initializeRabbitSubscriber(messageSentSubscriberParams);
+    // Initialize subscribers
+    await initializeRabbitSubscriber(bookingCreatedSubscriberParams);
+    await initializeRabbitSubscriber(bookingCancelledSubscriberParams);
+    await initializeRabbitSubscriber(userUpdatedSubscriberParams);
+
+    // Initialize publishers
     messageSentPublisher = await rabbitPublisherFactory(messageSentPublisherParams);
-    groupCreatedPublisher = await rabbitPublisherFactory(groupCreatedPublisherParams);
-    userJoinedGroupPublisher = await rabbitPublisherFactory(userJoinedGroupPublisherParams);
-    userLeftGroupPublisher = await rabbitPublisherFactory(userLeftGroupPublisherParams);
   });
 };

@@ -1,174 +1,121 @@
+/**
+Business Logic Explanation:
+
+sendMessage:
+
+Validates that the chat room exists and the user is a participant.
+Creates a message object and adds it to the chat room's messages array.
+Publishes a MESSAGE_SENT event for real-time updates or notifications.
+getChatRoomMessages:
+
+Retrieves messages from a chat room if the user is a participant.
+Ensures unauthorized users cannot access messages.
+getChatRooms:
+
+Retrieves all active chat rooms where the user is a participant.
+Excludes archived chat rooms.
+
+
+ * Final Notes
+Event Handling: The Chat Service listens to booking events to create or archive chat rooms automatically.
+
+Messaging Functionality: Users can send messages, retrieve chat history, and see all their active chat rooms.
+
+Security: Authentication middleware ensures that only authorized users can perform actions and access chat data.
+
+Event Publishing: When a message is sent, a MESSAGE_SENT event is published, which can be used for real-time updates or notifications in other services.
+
+Scalability: The service is designed with scalability in mind, using event-driven architecture and stateless controllers.
+
+Data Consistency: By handling events from other services, the Chat Service maintains data consistency across the system.
+ 
+*/
+
+// service.ts
 import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
 import {
   sendMessageRequestType,
   sendMessageResponseType,
-  createGroupRequestType,
-  createGroupResponseType,
-  joinGroupRequestType,
-  joinGroupResponseType,
-  leaveGroupRequestType,
-  leaveGroupResponseType,
-  getRecentChatsRequestType,
-  getRecentChatsResponseType,
-  getMessagesRequestType,
-  getMessagesResponseType,
-  searchMessagesRequestType,
-  searchMessagesResponseType,
+  getChatRoomMessagesRequestType,
+  getChatRoomMessagesResponseType,
+  getChatRoomsRequestType,
+  getChatRoomsResponseType,
 } from 'events-tomeroko3';
 
-import {
-  messageSentPublisher,
-  groupCreatedPublisher,
-  userJoinedGroupPublisher,
-  userLeftGroupPublisher,
-} from '../configs/rabbitMQ/initialization';
+import { messageSentPublisher } from '../configs/rabbitMQ/initialization';
 
 import { appErrorCodes } from './appErrorCodes';
 import * as model from './dal';
-import { uploadToS3, getS3Url } from '../utils/s3Utils';
 
-export const sendMessage = async (props: sendMessageRequestType['body']): Promise<sendMessageResponseType> => {
+export const sendMessage = async (
+  props: sendMessageRequestType['body'],
+): Promise<sendMessageResponseType> => {
   return functionWrapper(async () => {
-    const senderId = getAuthenticatedID() as string;
-    const { chatId, content, type } = props;
+    const userID = getAuthenticatedID() as string;
+    const { chatRoomID, content, messageType } = props;
 
-    let messageContent = content;
-    if (type === 'voice' || type === 'image') {
-      messageContent = await uploadToS3(content, type);
+    const chatRoom = await model.getChatRoomByID(chatRoomID);
+    if (!chatRoom) {
+      throw new AppError(appErrorCodes.CHAT_ROOM_NOT_FOUND, { chatRoomID });
+    }
+
+    // Check if user is a participant
+    if (!chatRoom.participants.includes(userID)) {
+      throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { chatRoomID, userID });
     }
 
     const message = {
-      senderId,
-      chatId,
-      content: messageContent,
-      type,
-      timestamp: new Date(),
+      senderID: userID,
+      content,
+      timestamp: new Date().toISOString(),
+      messageType,
     };
 
-    const messageId = await model.createMessage(message);
-    messageSentPublisher({ ...message, id: messageId });
+    await model.addMessageToChatRoom(chatRoomID, message);
 
-    return { messageId };
+    // Publish MESSAGE_SENT event
+    messageSentPublisher({ chatRoomID, message });
+
+    return { messageID: message.timestamp }; // Using timestamp as a unique identifier
   });
 };
 
-export const createGroup = async (props: createGroupRequestType['body']): Promise<createGroupResponseType> => {
+export const getChatRoomMessages = async (
+  props: getChatRoomMessagesRequestType['params'],
+): Promise<getChatRoomMessagesResponseType> => {
   return functionWrapper(async () => {
-    const adminId = getAuthenticatedID() as string;
-    const { name, participants } = props;
+    const userID = getAuthenticatedID() as string;
+    const { chatRoomID } = props;
 
-    const group = {
-      name,
-      adminId,
-      participants: [adminId, ...participants],
-      createdAt: new Date(),
-    };
+    const chatRoom = await model.getChatRoomByID(chatRoomID);
+    if (!chatRoom) {
+      throw new AppError(appErrorCodes.CHAT_ROOM_NOT_FOUND, { chatRoomID });
+    }
 
-    const groupId = await model.createGroup(group);
-    groupCreatedPublisher({ ...group, id: groupId });
+    // Check if user is a participant
+    if (!chatRoom.participants.includes(userID)) {
+      throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { chatRoomID, userID });
+    }
 
-    return { groupId };
+    return { messages: chatRoom.messages };
   });
 };
 
-export const joinGroup = async (props: joinGroupRequestType['body']): Promise<joinGroupResponseType> => {
+export const getChatRooms = async (): Promise<getChatRoomsResponseType> => {
   return functionWrapper(async () => {
-    const userId = getAuthenticatedID() as string;
-    const { groupId } = props;
+    const userID = getAuthenticatedID() as string;
 
-    const group = await model.getGroupById(groupId);
-    if (!group) {
-      throw new AppError(appErrorCodes.GROUP_NOT_FOUND, { groupId });
-    }
+    const chatRooms = await model.getChatRoomsForUser(userID);
 
-    if (group.participants.includes(userId)) {
-      throw new AppError(appErrorCodes.USER_ALREADY_IN_GROUP, { groupId, userId });
-    }
+    // Map chat rooms to desired response format
+    const chatRoomsResponse = chatRooms.map((chatRoom) => ({
+      ID: chatRoom._id.toString(),
+      bookingID: chatRoom.bookingID,
+      participants: chatRoom.participants,
+      createdAt: chatRoom.createdAt,
+      isArchived: chatRoom.isArchived,
+    }));
 
-    await model.addUserToGroup(groupId, userId);
-    userJoinedGroupPublisher({ groupId, userId });
-
-    return {};
-  });
-};
-
-export const leaveGroup = async (props: leaveGroupRequestType['body']): Promise<leaveGroupResponseType> => {
-  return functionWrapper(async () => {
-    const userId = getAuthenticatedID() as string;
-    const { groupId } = props;
-
-    const group = await model.getGroupById(groupId);
-    if (!group) {
-      throw new AppError(appErrorCodes.GROUP_NOT_FOUND, { groupId });
-    }
-
-    if (!group.participants.includes(userId)) {
-      throw new AppError(appErrorCodes.USER_NOT_IN_GROUP, { groupId, userId });
-    }
-
-    await model.removeUserFromGroup(groupId, userId);
-    userLeftGroupPublisher({ groupId, userId });
-
-    return {};
-  });
-};
-
-export const getRecentChats = async (props: getRecentChatsRequestType['query']): Promise<getRecentChatsResponseType> => {
-  return functionWrapper(async () => {
-    const userId = getAuthenticatedID() as string;
-    const { limit = 20 } = props;
-
-    const recentChats = await model.getRecentChats(userId, limit);
-
-    return {
-      chats: recentChats.map(chat => ({
-        ...chat,
-        lastMessage: chat.lastMessage ? {
-          ...chat.lastMessage,
-          content: chat.lastMessage.type !== 'text' ? getS3Url(chat.lastMessage.content) : chat.lastMessage.content
-        } : null
-      }))
-    };
-  });
-};
-
-export const getMessages = async (props: getMessagesRequestType['query']): Promise<getMessagesResponseType> => {
-  return functionWrapper(async () => {
-    const userId = getAuthenticatedID() as string;
-    const { chatId, limit = 50, offset = 0 } = props;
-
-    const chat = await model.getChatById(chatId);
-    if (!chat) {
-      throw new AppError(appErrorCodes.CHAT_NOT_FOUND, { chatId });
-    }
-
-    if (!chat.participants.includes(userId)) {
-      throw new AppError(appErrorCodes.USER_NOT_IN_CHAT, { chatId, userId });
-    }
-
-    const messages = await model.getMessagesByChatId(chatId, limit, offset);
-
-    return {
-      messages: messages.map(message => ({
-        ...message,
-        content: message.type !== 'text' ? getS3Url(message.content) : message.content
-      }))
-    };
-  });
-};
-
-export const searchMessages = async (props: searchMessagesRequestType['query']): Promise<searchMessagesResponseType> => {
-  return functionWrapper(async () => {
-    const userId = getAuthenticatedID() as string;
-    const { query, limit = 20 } = props;
-
-    const messages = await model.searchMessages(userId, query, limit);
-
-    return {
-      messages: messages.map(message => ({
-        ...message,
-        content: message.type !== 'text' ? getS3Url(message.content) : message.content
-      }))
-    };
+    return { chatRooms: chatRoomsResponse };
   });
 };

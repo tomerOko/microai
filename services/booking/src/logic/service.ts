@@ -21,6 +21,16 @@ cancelBooking:
 Allows either party to cancel a pending or approved booking.
 Updates the booking status and notifies other services.
 
+Final Notes
+Data Consistency: The Booking Service listens to events from the Availabilities Service to keep its local data consistent.
+
+Event-Driven Architecture: By publishing and subscribing to events, the Booking Service interacts seamlessly with other services without tight coupling.
+
+Security: The use of getAuthenticatedID() ensures that only authenticated and authorized users can perform actions.
+
+Error Handling: Comprehensive error handling ensures that invalid actions are appropriately managed.
+
+Scalability: The service is designed to be scalable, with clear separation of concerns and stateless controllers.
  */
 
 import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';

@@ -1,4 +1,4 @@
- // service.ts
+// service.ts
 import { AppError, functionWrapper } from 'common-lib-tomeroko3';
 import {
   loginRequestType,

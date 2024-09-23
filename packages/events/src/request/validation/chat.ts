@@ -1,77 +1,39 @@
+// chats.ts (request and response validations)
 import { z } from 'zod';
-import {
-  messageValidationPropsMinimal,
-  chatValidationPropsMinimal,
-  groupValidationPropsMinimal,
-} from '../../shared/validations/chat';
+import { messageValidationProps } from '../../shared/validations/chats';
 
 export const sendMessageRequestValidation = z.object({
   body: z.object({
-    chatId: z.string(),
-    ...messageValidationPropsMinimal,
+    chatRoomID: z.string(),
+    content: z.string(),
+    messageType: z.enum(['text', 'image', 'file']),
   }),
 });
 
 export const sendMessageResponseValidation = z.object({
-  messageId: z.string(),
+  messageID: z.string(),
 });
 
-export const createGroupRequestValidation = z.object({
-  body: z.object({
-    ...groupValidationPropsMinimal,
-    participants: z.array(z.string()),
+export const getChatRoomMessagesRequestValidation = z.object({
+  params: z.object({
+    chatRoomID: z.string(),
   }),
 });
 
-export const createGroupResponseValidation = z.object({
-  groupId: z.string(),
+export const getChatRoomMessagesResponseValidation = z.object({
+  messages: z.array(z.object(messageValidationProps)),
 });
 
-export const joinGroupRequestValidation = z.object({
-  body: z.object({
-    groupId: z.string(),
-  }),
-});
+export const getChatRoomsRequestValidation = z.object({});
 
-export const joinGroupResponseValidation = z.object({});
-
-export const leaveGroupRequestValidation = z.object({
-  body: z.object({
-    groupId: z.string(),
-  }),
-});
-
-export const leaveGroupResponseValidation = z.object({});
-
-export const getRecentChatsRequestValidation = z.object({
-  query: z.object({
-    limit: z.number().optional(),
-  }),
-});
-
-export const getRecentChatsResponseValidation = z.object({
-  chats: z.array(z.object(chatValidationPropsMinimal)),
-});
-
-export const getMessagesRequestValidation = z.object({
-  query: z.object({
-    chatId: z.string(),
-    limit: z.number().optional(),
-    offset: z.number().optional(),
-  }),
-});
-
-export const getMessagesResponseValidation = z.object({
-  messages: z.array(z.object(messageValidationPropsMinimal)),
-});
-
-export const searchMessagesRequestValidation = z.object({
-  query: z.object({
-    query: z.string(),
-    limit: z.number().optional(),
-  }),
-});
-
-export const searchMessagesResponseValidation = z.object({
-  messages: z.array(z.object(messageValidationPropsMinimal)),
+export const getChatRoomsResponseValidation = z.object({
+  chatRooms: z.array(
+    z.object({
+      ID: z.string(),
+      bookingID: z.string(),
+      participants: z.array(z.string()),
+      createdAt: z.string(),
+      isArchived: z.boolean().optional(),
+    }),
+  ),
 });
