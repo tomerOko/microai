@@ -5,7 +5,7 @@ import {
   loginResponseValidation,
   oauthLoginRequestValidation,
   oauthLoginResponseValidation,
-} from '../request/validation/auth';
+} from '../validation/auth';
 
 export type loginRequestType = z.infer<typeof loginRequestValidation>;
 export type loginResponseType = z.infer<typeof loginResponseValidation>;

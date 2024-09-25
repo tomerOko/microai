@@ -1,8 +1,9 @@
-// availabilities.ts (db documents validation)
+// consultant.ts (db documents validation)
 import { z } from 'zod';
-import { availabilityBlockValidationProps, consultantAvailabilityValidationProps } from '../shared/validations/availabilities';
+import { consultantValidationProps, topicValidationProps, userValidationProps } from '../shared';
 
-export const availabilitiesDbValidations = {
-  availabilityBlock: z.object(availabilityBlockValidationProps),
-  consultantAvailability: z.object(consultantAvailabilityValidationProps),
+export const consultantDbValidations = {
+  user: z.object(userValidationProps),
+  consultant: z.object(consultantValidationProps),
+  topic: z.object(topicValidationProps),
 };

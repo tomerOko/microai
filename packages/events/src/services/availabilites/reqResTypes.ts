@@ -1,14 +1,24 @@
-// auth.ts (request and response types)
+// availabilities.ts (request and response types)
 import * as z from 'zod';
 import {
-  loginRequestValidation,
-  loginResponseValidation,
-  oauthLoginRequestValidation,
-  oauthLoginResponseValidation,
-} from '../validation/auth';
+  setDefaultScheduleRequestValidation,
+  setDefaultScheduleResponseValidation,
+  updateWeeklyScheduleRequestValidation,
+  updateWeeklyScheduleResponseValidation,
+  toggleAvailableNowRequestValidation,
+  toggleAvailableNowResponseValidation,
+  checkAvailabilityRequestValidation,
+  checkAvailabilityResponseValidation,
+} from '../validation/availabilities';
 
-export type loginRequestType = z.infer<typeof loginRequestValidation>;
-export type loginResponseType = z.infer<typeof loginResponseValidation>;
+export type setDefaultScheduleRequestType = z.infer<typeof setDefaultScheduleRequestValidation>;
+export type setDefaultScheduleResponseType = z.infer<typeof setDefaultScheduleResponseValidation>;
 
-export type oauthLoginRequestType = z.infer<typeof oauthLoginRequestValidation>;
-export type oauthLoginResponseType = z.infer<typeof oauthLoginResponseValidation>;
+export type updateWeeklyScheduleRequestType = z.infer<typeof updateWeeklyScheduleRequestValidation>;
+export type updateWeeklyScheduleResponseType = z.infer<typeof updateWeeklyScheduleResponseValidation>;
+
+export type toggleAvailableNowRequestType = z.infer<typeof toggleAvailableNowRequestValidation>;
+export type toggleAvailableNowResponseType = z.infer<typeof toggleAvailableNowResponseValidation>;
+
+export type checkAvailabilityRequestType = z.infer<typeof checkAvailabilityRequestValidation>;
+export type checkAvailabilityResponseType = z.infer<typeof checkAvailabilityResponseValidation>;
