@@ -1,5 +1,0 @@
-export const reviewEventsNames = {
-  REVIEW_CREATED: 'REVIEW_CREATED',
-  REVIEW_UPDATED: 'REVIEW_UPDATED',
-  REVIEW_DELETED: 'REVIEW_DELETED',
-} as const;

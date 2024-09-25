@@ -1,44 +1,76 @@
-import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
+// dal.ts
+import { functionWrapper } from 'common-lib-tomeroko3';
 
-import { User, pincodesCollection, usersCollection } from '../configs/mongoDB/initialization';
+import {
+  ConsultantDocument,
+  TopicDocument,
+  consultantIndex,
+  topicIndex,
+} from '../configs/elasticsearch/initialization';
 
-export const cleanCollections = async () => {
+export const indexConsultant = async (consultant: ConsultantDocument) => {
   return functionWrapper(async () => {
-    await pincodesCollection.deleteMany({});
-    await usersCollection.deleteMany({});
-  });
-};
-
-export const setPincode = async (userEmail: string, pincode: string) => {
-  return functionWrapper(async () => {
-    await pincodesCollection.updateOne({
-      filter: { userEmail },
-      update: {
-        userEmail,
-        pincode,
-      },
-      options: { upsert: true },
+    await consultantIndex.index({
+      id: consultant.ID,
+      body: consultant,
     });
   });
 };
 
-export const getPincode = async (userEmail: string) => {
+export const updateConsultant = async (consultant: ConsultantDocument) => {
   return functionWrapper(async () => {
-    const pincodeDocument = await pincodesCollection.findOne({ userEmail });
-    return pincodeDocument;
+    await consultantIndex.update({
+      id: consultant.ID,
+      body: { doc: consultant },
+    });
   });
 };
 
-export const signup = async (props: OptionalID<User>) => {
+export const deleteConsultant = async (consultantID: string) => {
   return functionWrapper(async () => {
-    const userID = await usersCollection.insertOne(props);
-    return userID;
+    await consultantIndex.delete({
+      id: consultantID,
+    });
   });
 };
 
-export const getUserByEmail = async (email: string) => {
+export const indexTopic = async (topic: TopicDocument) => {
   return functionWrapper(async () => {
-    const userDocument = await usersCollection.findOne({ email });
-    return userDocument;
+    await topicIndex.index({
+      id: topic.ID,
+      body: topic,
+    });
+  });
+};
+
+export const updateTopic = async (topic: TopicDocument) => {
+  return functionWrapper(async () => {
+    await topicIndex.update({
+      id: topic.ID,
+      body: { doc: topic },
+    });
+  });
+};
+
+export const deleteTopic = async (topicID: string) => {
+  return functionWrapper(async () => {
+    await topicIndex.delete({
+      id: topicID,
+    });
+  });
+};
+
+export const searchConsultants = async (query: any) => {
+  return functionWrapper(async () => {
+    const results = await consultantIndex.search({ body: query });
+    return results.hits.hits.map((hit: any) => hit._source);
+  });
+};
+
+export const getRecommendationsForUser = async (userID: string, params: any) => {
+  return functionWrapper(async () => {
+    // Implement personalized recommendation logic here
+    const recommendations = []; // Placeholder
+    return recommendations;
   });
 };

@@ -1,4 +1,2 @@
-export * from './events';
-export * from './request';
+export * from './services';
 export * from './shared';
-export * from './db';

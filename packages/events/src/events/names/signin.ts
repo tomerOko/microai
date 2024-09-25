@@ -1,4 +1,0 @@
-export const signinEventsNames = {
-  SIGNED_IN_SUCCESSFULLY: 'SIGNED_IN_SUCCESSFULLY',
-  SIGNED_IN_FAILED: 'SIGNED_IN_FAILED',
-} as const;
