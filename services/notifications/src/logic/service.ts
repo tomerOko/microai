@@ -1,20 +1,19 @@
 /**
-Business Logic Explanation:
+ Business Logic Explanation:
 
 sendNotification:
-
 Creates a notification record in the database.
 Sends notifications via email and push notifications.
 Uses helper functions to generate the content based on the notification type.
-getNotifications:
 
+getNotifications:
 Retrieves all notifications for a user.
 Returns the notifications in a response format.
+
 markNotificationAsRead:
-
 Updates the notification status to 'read' in the database.
- */
 
+ */
 import { functionWrapper } from 'common-lib-tomeroko3';
 import {
   sendNotificationPropsType,

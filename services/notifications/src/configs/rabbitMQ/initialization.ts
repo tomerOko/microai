@@ -1,48 +1,83 @@
+// configs/rabbitMQ/initialization.ts
 import {
-  RabbitPublisherParams,
   RabbitSubscriberParams,
   functionWrapper,
   initializeRabbitSubscriber,
-  rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
-  UserCreatedEventType,
-  UserLoggedInEventType,
-  UserUpdatedEventType,
-  authEventsNames,
-  signupEventsNames,
-  userCreatedEventValidation,
-  userLoggedInEventValidation,
-  userUpdatedEventValidation,
+  BookingRequestedEventType,
+  BookingApprovedEventType,
+  BookingRejectedEventType,
+  BookingCancelledEventType,
+  BookingRescheduledEventType,
+  MessageSentEventType,
+  ConsultantOnboardedEventType,
+  bookingEventsNames,
+  chatEventsNames,
+  consultantEventsNames,
+  bookingRequestedEventValidation,
+  bookingApprovedEventValidation,
+  bookingRejectedEventValidation,
+  bookingCancelledEventValidation,
+  bookingRescheduledEventValidation,
+  messageSentEventValidation,
+  consultantOnboardedEventValidation,
 } from 'events-tomeroko3';
 
-import { handleNewUserEvent, handleUpdatedUserEvent } from '../../logic/consumers';
-
-export let userLoginPublisher: (user: UserLoggedInEventType['data']) => void;
-
-const userLoginPublisherParams: RabbitPublisherParams<UserLoggedInEventType> = {
-  eventName: authEventsNames.USER_LOGGED_IN,
-  eventSchema: userLoggedInEventValidation,
-};
-
-const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.USER_CREATED,
-  eventSchema: userCreatedEventValidation,
-  handler: handleNewUserEvent,
-};
-
-const userUpdatedSubscriberParams: RabbitSubscriberParams<UserUpdatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.USER_UPDATED,
-  eventSchema: userUpdatedEventValidation,
-  handler: handleUpdatedUserEvent,
-};
+import {
+  handleBookingRequestedEvent,
+  handleBookingApprovedEvent,
+  handleBookingRejectedEvent,
+  handleBookingCancelledEvent,
+  handleBookingRescheduledEvent,
+  handleMessageSentEvent,
+  handleConsultantOnboardedEvent,
+} from '../logic/consumers';
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    userLoginPublisher = await rabbitPublisherFactory(userLoginPublisherParams);
-    initializeRabbitSubscriber(userCreatedSubscriberParams);
-    initializeRabbitSubscriber(userUpdatedSubscriberParams);
+    // Initialize subscribers
+    await initializeRabbitSubscriber({
+      thisServiceName: 'NOTIFICATIONS_SERVICE',
+      eventName: bookingEventsNames.BOOKING_REQUESTED,
+      eventSchema: bookingRequestedEventValidation,
+      handler: handleBookingRequestedEvent,
+    });
+    await initializeRabbitSubscriber({
+      thisServiceName: 'NOTIFICATIONS_SERVICE',
+      eventName: bookingEventsNames.BOOKING_APPROVED,
+      eventSchema: bookingApprovedEventValidation,
+      handler: handleBookingApprovedEvent,
+    });
+    await initializeRabbitSubscriber({
+      thisServiceName: 'NOTIFICATIONS_SERVICE',
+      eventName: bookingEventsNames.BOOKING_REJECTED,
+      eventSchema: bookingRejectedEventValidation,
+      handler: handleBookingRejectedEvent,
+    });
+    await initializeRabbitSubscriber({
+      thisServiceName: 'NOTIFICATIONS_SERVICE',
+      eventName: bookingEventsNames.BOOKING_CANCELLED,
+      eventSchema: bookingCancelledEventValidation,
+      handler: handleBookingCancelledEvent,
+    });
+    await initializeRabbitSubscriber({
+      thisServiceName: 'NOTIFICATIONS_SERVICE',
+      eventName: bookingEventsNames.BOOKING_RESCHEDULED,
+      eventSchema: bookingRescheduledEventValidation,
+      handler: handleBookingRescheduledEvent,
+    });
+    await initializeRabbitSubscriber({
+      thisServiceName: 'NOTIFICATIONS_SERVICE',
+      eventName: chatEventsNames.MESSAGE_SENT,
+      eventSchema: messageSentEventValidation,
+      handler: handleMessageSentEvent,
+    });
+    await initializeRabbitSubscriber({
+      thisServiceName: 'NOTIFICATIONS_SERVICE',
+      eventName: consultantEventsNames.CONSULTANT_ONBOARDED,
+      eventSchema: consultantOnboardedEventValidation,
+      handler: handleConsultantOnboardedEvent,
+    });
   });
 };
