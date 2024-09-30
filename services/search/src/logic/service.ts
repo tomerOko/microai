@@ -1,5 +1,5 @@
 // service.ts
-import { functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
+import { functionWrapper } from 'common-lib-tomeroko3';
 import {
   searchRequestType,
   searchResponseType,
@@ -29,39 +29,69 @@ export const getRecommendations = async (
   });
 };
 
-// Placeholder function to build Elasticsearch query
+// Implementing buildSearchQuery
 function buildSearchQuery(query: string, filters: any): any {
-  // Implement query building logic here
-  return {
-    query: {
-      bool: {
-        must: [
-          {
-            multi_match: {
-              query,
-              fields: ['name^2', 'topics.name', 'description'],
-            },
-          },
-        ],
-        filter: buildFilters(filters),
-      },
+  const esQuery: any = {
+    bool: {
+      must: [],
+      filter: [],
     },
   };
+
+  if (query) {
+    esQuery.bool.must.push({
+      multi_match: {
+        query,
+        fields: ['name^2', 'topics.name^2', 'description', 'topics.description'],
+        fuzziness: 'AUTO',
+      },
+    });
+  } else {
+    esQuery.bool.must.push({
+      match_all: {},
+    });
+  }
+
+  // Apply filters
+  if (filters) {
+    if (filters.topic) {
+      esQuery.bool.filter.push({
+        term: { 'topics.name.keyword': filters.topic },
+      });
+    }
+    if (filters.rating) {
+      esQuery.bool.filter.push({
+        range: { rating: { gte: filters.rating } },
+      });
+    }
+    if (filters.hourlyRate) {
+      esQuery.bool.filter.push({
+        range: { hourlyRate: { lte: filters.hourlyRate } },
+      });
+    }
+    if (filters.availableNow) {
+      esQuery.bool.filter.push({
+        term: { availableNow: true },
+      });
+    }
+  }
+
+  return { query: esQuery };
 }
 
-function buildFilters(filters: any): any[] {
-  const filterArray = [];
-  if (filters.topic) {
-    filterArray.push({ term: { 'topics.name': filters.topic } });
-  }
-  if (filters.rating) {
-    filterArray.push({ range: { rating: { gte: filters.rating } } });
-  }
-  if (filters.hourlyRate) {
-    filterArray.push({ range: { hourlyRate: { lte: filters.hourlyRate } } });
-  }
-  if (filters.availableNow) {
-    filterArray.push({ term: { availableNow: true } });
-  }
-  return filterArray;
+// Implementing getRecommendationsForUser
+async function getRecommendationsForUser(userID: string, params: any): Promise<any[]> {
+  // Placeholder logic for personalized recommendations
+  // In a real-world scenario, you'd use collaborative filtering, user behavior analysis, etc.
+  // For simplicity, we'll recommend top-rated consultants
+  const esQuery = {
+    size: params.limit || 10,
+    sort: [{ rating: { order: 'desc' } }],
+    query: {
+      match_all: {},
+    },
+  };
+
+  const results = await model.searchConsultants(esQuery);
+  return results;
 }

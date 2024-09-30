@@ -74,3 +74,14 @@ export const getRecommendationsForUser = async (userID: string, params: any) => 
     return recommendations;
   });
 };
+
+export const getConsultantByID = async (consultantID: string) => {
+  return functionWrapper(async () => {
+    try {
+      const result = await consultantIndex.get({ id: consultantID });
+      return result.body._source as ConsultantDocument;
+    } catch (error) {
+      return null;
+    }
+  });
+};
