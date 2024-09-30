@@ -119,4 +119,18 @@ export const pathMap = {
     requestValidation: checkAvailabilityRequestValidation,
     responseValidation: checkAvailabilityResponseValidation,
   },
+  SEARCH: {
+    path: '/search',
+    method: 'post',
+    service: servicesNames.search,
+    requestValidation: searchRequestValidation,
+    responseValidation: searchResponseValidation,
+  },
+  GET_RECOMMENDATIONS: {
+    path: '/recommendations',
+    method: 'get',
+    service: servicesNames.search,
+    requestValidation: getRecommendationsRequestValidation,
+    responseValidation: getRecommendationsResponseValidation,
+  },
 } as const;

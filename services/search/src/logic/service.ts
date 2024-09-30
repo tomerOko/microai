@@ -1,48 +1,67 @@
-import { AppError, functionWrapper } from 'common-lib-tomeroko3';
+// service.ts
+import { functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
+import {
+  searchRequestType,
+  searchResponseType,
+  getRecommendationsRequestType,
+  getRecommendationsResponseType,
+} from 'events-tomeroko3';
 
-import { newUserPublisher } from '../configs/rabbitMQ';
-import { emailPublisher } from '../configs/rabbitMQ/initialization';
-
-import { appErrorCodes } from './appErrorCodes';
 import * as model from './dal';
-import { SendPincodePayload, SignupPayload } from './validations';
 
-export const sendPincode = async (props: SendPincodePayload) => {
+export const search = async (props: searchRequestType['body']): Promise<searchResponseType> => {
   return functionWrapper(async () => {
-    const sixDigitPincode = Math.floor(100000 + Math.random() * 900000).toString();
-    emailPublisher({
-      email: props.email,
-      subject: 'Pincode',
-      content: `here is your pin code to connect: ${sixDigitPincode}`,
-    });
-    console.log(`here is your pin code to connect: ${sixDigitPincode}`);
-    await model.setPincode(props.email, sixDigitPincode);
+    const { query, filters } = props;
+    // Build Elasticsearch query
+    const esQuery = buildSearchQuery(query, filters);
+    const results = await model.searchConsultants(esQuery);
+    return { results };
   });
 };
 
-export const signup = async (props: SignupPayload) => {
+export const getRecommendations = async (
+  userID: string,
+  props: getRecommendationsRequestType['query'],
+): Promise<getRecommendationsResponseType> => {
   return functionWrapper(async () => {
-    const { email, firstName, lastName, password, pincode } = props;
-    await validatePincode(email, pincode);
-    const ID = await model.signup({ email, firstName, lastName, password });
-    newUserPublisher({
-      email,
-      firstName,
-      lastName,
-      password,
-      ID,
-    });
+    const recommendations = await model.getRecommendationsForUser(userID, props);
+    return { recommendations };
   });
 };
 
-const validatePincode = async (email: string, pincode: string) => {
-  return functionWrapper(async () => {
-    const pincodeDocument = await model.getPincode(email);
-    if (!pincodeDocument) {
-      throw new AppError(appErrorCodes.PINCODE_NOT_FOUND, { email });
-    }
-    if (pincodeDocument.pincode !== pincode) {
-      throw new AppError(appErrorCodes.WRONG_PINCODE, { email });
-    }
-  });
-};
+// Placeholder function to build Elasticsearch query
+function buildSearchQuery(query: string, filters: any): any {
+  // Implement query building logic here
+  return {
+    query: {
+      bool: {
+        must: [
+          {
+            multi_match: {
+              query,
+              fields: ['name^2', 'topics.name', 'description'],
+            },
+          },
+        ],
+        filter: buildFilters(filters),
+      },
+    },
+  };
+}
+
+function buildFilters(filters: any): any[] {
+  const filterArray = [];
+  if (filters.topic) {
+    filterArray.push({ term: { 'topics.name': filters.topic } });
+  }
+  if (filters.rating) {
+    filterArray.push({ range: { rating: { gte: filters.rating } } });
+  }
+  if (filters.hourlyRate) {
+    filterArray.push({ range: { hourlyRate: { lte: filters.hourlyRate } } });
+  }
+  if (filters.availableNow) {
+    filterArray.push({ term: { availableNow: true } });
+  }
+  return filterArray;
+}

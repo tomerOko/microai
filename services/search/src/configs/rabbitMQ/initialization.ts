@@ -1,30 +1,151 @@
-import { functionWrapper, rabbitPublisherFactory } from 'common-lib-tomeroko3';
-import { RabbitPublisherParams } from 'common-lib-tomeroko3';
+// configs/rabbitMQ/initialization.ts
 import {
-  SendEmailEventType,
-  UserCreatedEventType,
-  emailEventsNames,
-  sendEmailEventValidation,
-  signupEventsNames,
-  userCreatedEventValidation,
+  RabbitPublisherParams,
+  RabbitSubscriberParams,
+  functionWrapper,
+  initializeRabbitSubscriber,
+  rabbitPublisherFactory,
+} from 'common-lib-tomeroko3';
+import {
+  ConsultantOnboardedEventType,
+  ConsultantProfileUpdatedEventType,
+  TopicAddedEventType,
+  TopicUpdatedEventType,
+  TopicRemovedEventType,
+  AvailabilityUpdatedEventType,
+  AvailabilityBlockFullEventType,
+  AvailabilityBlockAvailableEventType,
+  AvailableNowStatusChangedEventType,
+  RatingUpdatedEventType,
+  RecommendationsGeneratedEventType,
+  consultantEventsNames,
+  availabilitiesEventsNames,
+  ratingEventsNames,
+  searchEventsNames,
+  consultantOnboardedEventValidation,
+  consultantProfileUpdatedEventValidation,
+  topicAddedEventValidation,
+  topicUpdatedEventValidation,
+  topicRemovedEventValidation,
+  availabilityUpdatedEventValidation,
+  availabilityBlockFullEventValidation,
+  availabilityBlockAvailableEventValidation,
+  availableNowStatusChangedEventValidation,
+  ratingUpdatedEventValidation,
+  recommendationsGeneratedEventValidation,
 } from 'events-tomeroko3';
 
-export let newUserPublisher: (user: UserCreatedEventType['data']) => void;
-export let emailPublisher: (email: SendEmailEventType['data']) => void;
+import {
+  handleConsultantOnboardedEvent,
+  handleConsultantProfileUpdatedEvent,
+  handleTopicAddedEvent,
+  handleTopicUpdatedEvent,
+  handleTopicRemovedEvent,
+  handleAvailabilityUpdatedEvent,
+  handleAvailabilityBlockFullEvent,
+  handleAvailabilityBlockAvailableEvent,
+  handleAvailableNowStatusChangedEvent,
+  handleRatingUpdatedEvent,
+} from '../../logic/consumers';
 
-const userPublisherParams: RabbitPublisherParams<UserCreatedEventType> = {
-  eventName: signupEventsNames.USER_CREATED,
-  eventSchema: userCreatedEventValidation,
+export let recommendationsGeneratedPublisher: (
+  data: RecommendationsGeneratedEventType['data'],
+) => void;
+
+const recommendationsGeneratedPublisherParams: RabbitPublisherParams<RecommendationsGeneratedEventType> =
+  {
+    eventName: searchEventsNames.RECOMMENDATIONS_GENERATED,
+    eventSchema: recommendationsGeneratedEventValidation,
+  };
+
+const consultantOnboardedSubscriberParams: RabbitSubscriberParams<ConsultantOnboardedEventType> = {
+  thisServiceName: 'SEARCH_SERVICE',
+  eventName: consultantEventsNames.CONSULTANT_ONBOARDED,
+  eventSchema: consultantOnboardedEventValidation,
+  handler: handleConsultantOnboardedEvent,
 };
 
-const emailPublisherParams: RabbitPublisherParams<SendEmailEventType> = {
-  eventName: emailEventsNames.SEND_EMAIL,
-  eventSchema: sendEmailEventValidation,
+const consultantProfileUpdatedSubscriberParams: RabbitSubscriberParams<ConsultantProfileUpdatedEventType> =
+  {
+    thisServiceName: 'SEARCH_SERVICE',
+    eventName: consultantEventsNames.CONSULTANT_PROFILE_UPDATED,
+    eventSchema: consultantProfileUpdatedEventValidation,
+    handler: handleConsultantProfileUpdatedEvent,
+  };
+
+const topicAddedSubscriberParams: RabbitSubscriberParams<TopicAddedEventType> = {
+  thisServiceName: 'SEARCH_SERVICE',
+  eventName: consultantEventsNames.TOPIC_ADDED,
+  eventSchema: topicAddedEventValidation,
+  handler: handleTopicAddedEvent,
+};
+
+const topicUpdatedSubscriberParams: RabbitSubscriberParams<TopicUpdatedEventType> = {
+  thisServiceName: 'SEARCH_SERVICE',
+  eventName: consultantEventsNames.TOPIC_UPDATED,
+  eventSchema: topicUpdatedEventValidation,
+  handler: handleTopicUpdatedEvent,
+};
+
+const topicRemovedSubscriberParams: RabbitSubscriberParams<TopicRemovedEventType> = {
+  thisServiceName: 'SEARCH_SERVICE',
+  eventName: consultantEventsNames.TOPIC_REMOVED,
+  eventSchema: topicRemovedEventValidation,
+  handler: handleTopicRemovedEvent,
+};
+
+const availabilityUpdatedSubscriberParams: RabbitSubscriberParams<AvailabilityUpdatedEventType> = {
+  thisServiceName: 'SEARCH_SERVICE',
+  eventName: availabilitiesEventsNames.AVAILABILITY_UPDATED,
+  eventSchema: availabilityUpdatedEventValidation,
+  handler: handleAvailabilityUpdatedEvent,
+};
+
+const availabilityBlockFullSubscriberParams: RabbitSubscriberParams<AvailabilityBlockFullEventType> =
+  {
+    thisServiceName: 'SEARCH_SERVICE',
+    eventName: availabilitiesEventsNames.AVAILABILITY_BLOCK_FULL,
+    eventSchema: availabilityBlockFullEventValidation,
+    handler: handleAvailabilityBlockFullEvent,
+  };
+
+const availabilityBlockAvailableSubscriberParams: RabbitSubscriberParams<AvailabilityBlockAvailableEventType> =
+  {
+    thisServiceName: 'SEARCH_SERVICE',
+    eventName: availabilitiesEventsNames.AVAILABILITY_BLOCK_AVAILABLE,
+    eventSchema: availabilityBlockAvailableEventValidation,
+    handler: handleAvailabilityBlockAvailableEvent,
+  };
+
+const availableNowStatusChangedSubscriberParams: RabbitSubscriberParams<AvailableNowStatusChangedEventType> =
+  {
+    thisServiceName: 'SEARCH_SERVICE',
+    eventName: availabilitiesEventsNames.AVAILABLE_NOW_STATUS_CHANGED,
+    eventSchema: availableNowStatusChangedEventValidation,
+    handler: handleAvailableNowStatusChangedEvent,
+  };
+
+const ratingUpdatedSubscriberParams: RabbitSubscriberParams<RatingUpdatedEventType> = {
+  thisServiceName: 'SEARCH_SERVICE',
+  eventName: ratingEventsNames.RATING_UPDATED,
+  eventSchema: ratingUpdatedEventValidation,
+  handler: handleRatingUpdatedEvent,
 };
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    newUserPublisher = await rabbitPublisherFactory(userPublisherParams);
-    emailPublisher = await rabbitPublisherFactory(emailPublisherParams);
+    await initializeRabbitSubscriber(consultantOnboardedSubscriberParams);
+    await initializeRabbitSubscriber(consultantProfileUpdatedSubscriberParams);
+    await initializeRabbitSubscriber(topicAddedSubscriberParams);
+    await initializeRabbitSubscriber(topicUpdatedSubscriberParams);
+    await initializeRabbitSubscriber(topicRemovedSubscriberParams);
+    await initializeRabbitSubscriber(availabilityUpdatedSubscriberParams);
+    await initializeRabbitSubscriber(availabilityBlockFullSubscriberParams);
+    await initializeRabbitSubscriber(availabilityBlockAvailableSubscriberParams);
+    await initializeRabbitSubscriber(availableNowStatusChangedSubscriberParams);
+    await initializeRabbitSubscriber(ratingUpdatedSubscriberParams);
+    recommendationsGeneratedPublisher = await rabbitPublisherFactory(
+      recommendationsGeneratedPublisherParams,
+    );
   });
 };
