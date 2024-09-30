@@ -182,4 +182,18 @@ export const pathMap = {
     requestValidation: getChatRoomsRequestValidation,
     responseValidation: getChatRoomsResponseValidation,
   },
+  GET_NOTIFICATIONS: {
+    path: '/notifications',
+    method: 'get',
+    service: servicesNames.notifications,
+    requestValidation: getNotificationsRequestValidation,
+    responseValidation: getNotificationsResponseValidation,
+  },
+  MARK_NOTIFICATION_AS_READ: {
+    path: '/notifications/mark-as-read',
+    method: 'post',
+    service: servicesNames.notifications,
+    requestValidation: markNotificationAsReadRequestValidation,
+    responseValidation: markNotificationAsReadResponseValidation,
+  },
 } as const;

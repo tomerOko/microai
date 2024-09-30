@@ -1,8 +1,7 @@
-// availabilities.ts (db documents validation)
+// notifications.ts (db documents validation)
 import { z } from 'zod';
-import { availabilityBlockValidationProps, consultantAvailabilityValidationProps } from '../shared/validations/availabilities';
+import { notificationValidationProps } from '../shared/validations/notifications';
 
-export const availabilitiesDbValidations = {
-  availabilityBlock: z.object(availabilityBlockValidationProps),
-  consultantAvailability: z.object(consultantAvailabilityValidationProps),
+export const notificationsDbValidations = {
+  notification: z.object(notificationValidationProps),
 };
