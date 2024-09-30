@@ -1,19 +1,17 @@
 /**
- * Business Logic Explanation:
+Business Logic Explanation:
 
 handleBookingCreatedEvent:
-
 When a booking is approved, a chat room is created for the student and consultant to communicate.
 The chat room includes the booking ID, participants, creation timestamp, and an empty messages array.
+
 handleBookingCancelledEvent:
-
 When a booking is cancelled, the associated chat room is archived, preventing further messaging.
-handleUserUpdatedEvent:
 
+handleUserUpdatedEvent:
 Updates user profile information in chat rooms and messages if the user updates their profile.
  */
 
-// consumers.ts
 import {
   BookingCreatedEventType,
   BookingCancelledEventType,

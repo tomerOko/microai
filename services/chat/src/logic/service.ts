@@ -30,7 +30,6 @@ Scalability: The service is designed with scalability in mind, using event-drive
 Data Consistency: By handling events from other services, the Chat Service maintains data consistency across the system.
  
 */
-
 // service.ts
 import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
 import {

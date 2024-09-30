@@ -161,4 +161,25 @@ export const pathMap = {
     requestValidation: cancelBookingRequestValidation,
     responseValidation: cancelBookingResponseValidation,
   },
+  SEND_MESSAGE: {
+    path: '/send-message',
+    method: 'post',
+    service: servicesNames.chat,
+    requestValidation: sendMessageRequestValidation,
+    responseValidation: sendMessageResponseValidation,
+  },
+  GET_CHAT_ROOM_MESSAGES: {
+    path: '/chat-rooms/:chatRoomID/messages',
+    method: 'get',
+    service: servicesNames.chat,
+    requestValidation: getChatRoomMessagesRequestValidation,
+    responseValidation: getChatRoomMessagesResponseValidation,
+  },
+  GET_CHAT_ROOMS: {
+    path: '/chat-rooms',
+    method: 'get',
+    service: servicesNames.chat,
+    requestValidation: getChatRoomsRequestValidation,
+    responseValidation: getChatRoomsResponseValidation,
+  },
 } as const;
