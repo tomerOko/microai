@@ -1,27 +1,33 @@
-import { CollectionInitializerProps, SafeCollection, collectionInitializer, functionWrapper } from 'common-lib-tomeroko3';
-import { authDbValidations, signupDbValidations } from 'events-tomeroko3';
+// configs/mongoDB/initialization.ts
+import {
+  CollectionInitializerProps,
+  SafeCollection,
+  collectionInitializer,
+  functionWrapper,
+} from 'common-lib-tomeroko3';
+import { callsDbValidations } from 'events-tomeroko3';
 import { z } from 'zod';
 
-const { user } = authDbValidations;
+const { call } = callsDbValidations;
 
-export type User = z.infer<typeof user>;
+export type Call = z.infer<typeof call>;
 
-const usersInitializerProps: CollectionInitializerProps<User> = {
-  collectionName: 'users',
-  documentSchema: user,
-  indexSpecs: [{ key: { email: 1 }, unique: true }],
+const callsInitializerProps: CollectionInitializerProps<Call> = {
+  collectionName: 'calls',
+  documentSchema: call,
+  indexSpecs: [{ key: { bookingID: 1 }, unique: true }],
 };
 
-export let usersCollection: SafeCollection<User>;
+export let callsCollection: SafeCollection<Call>;
 
 export const initializeCollections = async () => {
   return functionWrapper(async () => {
-    usersCollection = await collectionInitializer(usersInitializerProps);
+    callsCollection = await collectionInitializer(callsInitializerProps);
   });
 };
 
 export const cleanCollections = async () => {
   return functionWrapper(async () => {
-    await usersCollection.deleteMany({});
+    await callsCollection.deleteMany({});
   });
 };

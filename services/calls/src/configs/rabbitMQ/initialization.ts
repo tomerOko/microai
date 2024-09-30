@@ -1,3 +1,4 @@
+// configs/rabbitMQ/initialization.ts
 import {
   RabbitPublisherParams,
   RabbitSubscriberParams,
@@ -6,43 +7,58 @@ import {
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
-  UserCreatedEventType,
-  UserLoggedInEventType,
-  UserUpdatedEventType,
-  authEventsNames,
-  signupEventsNames,
-  userCreatedEventValidation,
-  userLoggedInEventValidation,
-  userUpdatedEventValidation,
+  BookingCreatedEventType,
+  BookingCancelledEventType,
+  CallStartedEventType,
+  CallEndedEventType,
+  bookingEventsNames,
+  callEventsNames,
+  bookingCreatedEventValidation,
+  bookingCancelledEventValidation,
+  callStartedEventValidation,
+  callEndedEventValidation,
 } from 'events-tomeroko3';
 
-import { handleNewUserEvent, handleUpdatedUserEvent } from '../../logic/consumers';
+import {
+  handleBookingCreatedEvent,
+  handleBookingCancelledEvent,
+} from '../logic/consumers';
 
-export let userLoginPublisher: (user: UserLoggedInEventType['data']) => void;
+export let callStartedPublisher: (data: CallStartedEventType['data']) => void;
+export let callEndedPublisher: (data: CallEndedEventType['data']) => void;
 
-const userLoginPublisherParams: RabbitPublisherParams<UserLoggedInEventType> = {
-  eventName: authEventsNames.USER_LOGGED_IN,
-  eventSchema: userLoggedInEventValidation,
+const callStartedPublisherParams: RabbitPublisherParams<CallStartedEventType> = {
+  eventName: callEventsNames.CALL_STARTED,
+  eventSchema: callStartedEventValidation,
 };
 
-const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.USER_CREATED,
-  eventSchema: userCreatedEventValidation,
-  handler: handleNewUserEvent,
+const callEndedPublisherParams: RabbitPublisherParams<CallEndedEventType> = {
+  eventName: callEventsNames.CALL_ENDED,
+  eventSchema: callEndedEventValidation,
 };
 
-const userUpdatedSubscriberParams: RabbitSubscriberParams<UserUpdatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.USER_UPDATED,
-  eventSchema: userUpdatedEventValidation,
-  handler: handleUpdatedUserEvent,
+const bookingCreatedSubscriberParams: RabbitSubscriberParams<BookingCreatedEventType> = {
+  thisServiceName: 'CALLS_SERVICE',
+  eventName: bookingEventsNames.BOOKING_CREATED,
+  eventSchema: bookingCreatedEventValidation,
+  handler: handleBookingCreatedEvent,
+};
+
+const bookingCancelledSubscriberParams: RabbitSubscriberParams<BookingCancelledEventType> = {
+  thisServiceName: 'CALLS_SERVICE',
+  eventName: bookingEventsNames.BOOKING_CANCELLED,
+  eventSchema: bookingCancelledEventValidation,
+  handler: handleBookingCancelledEvent,
 };
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    userLoginPublisher = await rabbitPublisherFactory(userLoginPublisherParams);
-    initializeRabbitSubscriber(userCreatedSubscriberParams);
-    initializeRabbitSubscriber(userUpdatedSubscriberParams);
+    // Initialize subscribers
+    await initializeRabbitSubscriber(bookingCreatedSubscriberParams);
+    await initializeRabbitSubscriber(bookingCancelledSubscriberParams);
+
+    // Initialize publishers
+    callStartedPublisher = await rabbitPublisherFactory(callStartedPublisherParams);
+    callEndedPublisher = await rabbitPublisherFactory(callEndedPublisherParams);
   });
 };

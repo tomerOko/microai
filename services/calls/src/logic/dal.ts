@@ -1,22 +1,49 @@
+// dal.ts
 import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
+import { ObjectId } from 'mongodb';
 
-import { User, usersCollection } from '../configs/mongoDB/initialization';
+import {
+  Call,
+  callsCollection,
+} from '../configs/mongoDB/initialization';
 
-export const insertUser = async (props: OptionalID<User>) => {
+// Create a new call
+export const createCall = async (call: OptionalID<Call>) => {
   return functionWrapper(async () => {
-    await usersCollection.insertOne(props);
+    const result = await callsCollection.insertOne(call);
+    return result.insertedId.toString();
   });
 };
 
-export const updateUser = async (ID: string, update: Partial<User>) => {
+// Update call status
+export const updateCallStatus = async (callID: string, status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled') => {
   return functionWrapper(async () => {
-    await usersCollection.updateOne({ filter: { ID }, update, options: {} });
+    await callsCollection.updateOne(
+      { _id: new ObjectId(callID) },
+      { $set: { status } },
+    );
   });
 };
 
-export const getUserByEmail = async (email: string) => {
+// Get call by booking ID
+export const getCallByBookingID = async (bookingID: string) => {
   return functionWrapper(async () => {
-    const userDocument = await usersCollection.findOne({ email });
-    return userDocument;
+    const call = await callsCollection.findOne({ bookingID });
+    return call;
+  });
+};
+
+// Delete call by booking ID
+export const deleteCallByBookingID = async (bookingID: string) => {
+  return functionWrapper(async () => {
+    await callsCollection.deleteOne({ bookingID });
+  });
+};
+
+// Get call by ID
+export const getCallByID = async (callID: string) => {
+  return functionWrapper(async () => {
+    const call = await callsCollection.findOne({ _id: new ObjectId(callID) });
+    return call;
   });
 };

@@ -1,70 +1,159 @@
-import { AppError, functionWrapper, signToken } from 'common-lib-tomeroko3';
-import { LoginMethod, LoginRequest, LoginResponse, loginMethods } from 'events-tomeroko3';
-import { OAuth2Client } from 'google-auth-library';
-import { validate } from 'uuid';
+/**
+ * Business Logic Explanation:
 
-import { ENVs } from '../configs/ENVs';
-import { User } from '../configs/mongoDB/initialization';
-import { userLoginPublisher } from '../configs/rabbitMQ';
+scheduleCall:
+Creates a Jitsi meeting room for the call.
+Stores call details in the database with status 'scheduled'.
+Optionally notifies participants about the scheduled call.
+startCall:
+Validates that the user is a participant.
+Updates the call status to 'in-progress'.
+Publishes a CALL_STARTED event.
+Returns the call URL for the user to join the meeting.
+endCall:
+Validates that the user is a participant.
+Updates the call status to 'completed'.
+Ends the Jitsi meeting if necessary.
+Publishes a CALL_ENDED event.
+getCallDetails:
+Retrieves call details if the user is a participant.
+ */
+import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
+import {
+  scheduleCallPropsType,
+  startCallRequestType,
+  startCallResponseType,
+  endCallRequestType,
+  endCallResponseType,
+  getCallDetailsRequestType,
+  getCallDetailsResponseType,
+} from 'events-tomeroko3';
+
+import {
+  callStartedPublisher,
+  callEndedPublisher,
+} from '../configs/rabbitMQ/initialization';
 
 import { appErrorCodes } from './appErrorCodes';
 import * as model from './dal';
+import { createJitsiMeeting, endJitsiMeeting } from './utils/jitsi';
 
-export const login = async (props: LoginRequest['body']): Promise<LoginResponse> => {
+export const scheduleCall = async (props: scheduleCallPropsType) => {
   return functionWrapper(async () => {
-    const { email, loginMethod, methodSecret } = props;
+    const { bookingID, studentID, consultantID, availabilityBlockID } = props;
 
-    const user = await model.getUserByEmail(email);
-    if (!user) {
-      throw new AppError(appErrorCodes.CANT_LOGIN_USER_NOT_FOUND, { email }, true);
-    }
-    validateLoginByMethod(loginMethod, methodSecret, user);
+    // Create a Jitsi meeting room
+    const meetingInfo = await createJitsiMeeting(bookingID);
 
-    const { ID, firstName, lastName } = user;
-    userLoginPublisher({
-      email,
-      ID,
-    });
-
-    const token = signToken({ ID }, ENVs.jwtSecret);
-    return {
-      token,
-      user: {
-        ID,
-        email,
-        firstName,
-        lastName,
-      },
+    const call = {
+      bookingID,
+      studentID,
+      consultantID,
+      availabilityBlockID,
+      callURL: meetingInfo.callURL,
+      meetingID: meetingInfo.meetingID,
+      status: 'scheduled' as const,
+      scheduledAt: new Date().toISOString(),
     };
+
+    // Save the call details in the database
+    await model.createCall(call);
+
+    // Optionally, send notifications to the participants with the call details
   });
 };
 
-const validateLoginByMethod = (loginMethod: LoginMethod, methodSecret: string, user: User) => {
-  switch (loginMethod) {
-    case loginMethods.PASSWORD:
-      return user.password === methodSecret;
-    case loginMethods.GOOGLE:
-      return validateGoolgeToken(methodSecret, user);
-    default:
-      throw new AppError(appErrorCodes.CANT_LOGIN_UNKNOWN_METHOD, { loginMethod }, true);
-  }
+export const cancelScheduledCall = async (bookingID: string) => {
+  return functionWrapper(async () => {
+    // Delete the call record
+    await model.deleteCallByBookingID(bookingID);
+
+    // Perform any additional cleanup if necessary
+  });
 };
 
-const validateGoolgeToken = async (token: string, user: User) => {
-  const client = new OAuth2Client();
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: 'YOUR_GOOGLE_CLIENT_ID',
-    });
-    const payload = ticket.getPayload();
-    const email = payload?.email;
-    if (email === user.email) {
-      return true;
-    } else {
-      throw new AppError(appErrorCodes.TOKEN_DOSE_NOT_MATCH_USER, {}, true);
+export const startCall = async (
+  props: startCallRequestType['body'],
+): Promise<startCallResponseType> => {
+  return functionWrapper(async () => {
+    const userID = getAuthenticatedID() as string;
+    const { callID } = props;
+
+    const call = await model.getCallByID(callID);
+    if (!call) {
+      throw new AppError(appErrorCodes.CALL_NOT_FOUND, { callID });
     }
-  } catch (error) {
-    throw new AppError(appErrorCodes.BAD_GOOGLE_TOKEN, {}, true);
-  }
+
+    // Check if user is a participant
+    if (![call.studentID, call.consultantID].includes(userID)) {
+      throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { callID, userID });
+    }
+
+    // Update call status to 'in-progress'
+    await model.updateCallStatus(callID, 'in-progress');
+
+    // Publish CALL_STARTED event
+    callStartedPublisher({ callID, bookingID: call.bookingID, participants: [call.studentID, call.consultantID] });
+
+    return { callURL: call.callURL };
+  });
+};
+
+export const endCall = async (
+  props: endCallRequestType['body'],
+): Promise<endCallResponseType> => {
+  return functionWrapper(async () => {
+    const userID = getAuthenticatedID() as string;
+    const { callID } = props;
+
+    const call = await model.getCallByID(callID);
+    if (!call) {
+      throw new AppError(appErrorCodes.CALL_NOT_FOUND, { callID });
+    }
+
+    // Check if user is a participant
+    if (![call.studentID, call.consultantID].includes(userID)) {
+      throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { callID, userID });
+    }
+
+    // Update call status to 'completed'
+    await model.updateCallStatus(callID, 'completed');
+
+    // End the Jitsi meeting if necessary
+    await endJitsiMeeting(call.meetingID);
+
+    // Publish CALL_ENDED event
+    callEndedPublisher({ callID, bookingID: call.bookingID, participants: [call.studentID, call.consultantID] });
+
+    return {};
+  });
+};
+
+export const getCallDetails = async (
+  props: getCallDetailsRequestType['params'],
+): Promise<getCallDetailsResponseType> => {
+  return functionWrapper(async () => {
+    const userID = getAuthenticatedID() as string;
+    const { callID } = props;
+
+    const call = await model.getCallByID(callID);
+    if (!call) {
+      throw new AppError(appErrorCodes.CALL_NOT_FOUND, { callID });
+    }
+
+    // Check if user is a participant
+    if (![call.studentID, call.consultantID].includes(userID)) {
+      throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { callID, userID });
+    }
+
+    return {
+      callID: callID,
+      bookingID: call.bookingID,
+      studentID: call.studentID,
+      consultantID: call.consultantID,
+      callURL: call.callURL,
+      status: call.status,
+      scheduledAt: call.scheduledAt,
+    };
+  });
 };
