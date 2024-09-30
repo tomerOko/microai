@@ -16,7 +16,7 @@ export type AvailabilityBlock = z.infer<typeof availabilityBlock>;
 const bookingsInitializerProps: CollectionInitializerProps<Booking> = {
   collectionName: 'bookings',
   documentSchema: booking,
-  indexSpecs: [{ key: { _id: 1 }, unique: true }],
+  indexSpecs: [{ key: { bookingID: 1 }, unique: true }],
 };
 
 const availabilityBlocksInitializerProps: CollectionInitializerProps<AvailabilityBlock> = {

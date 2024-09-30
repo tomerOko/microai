@@ -1,6 +1,5 @@
 // dal.ts
 import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
-import { ObjectId } from 'mongodb';
 
 import {
   Booking,
@@ -11,21 +10,21 @@ import {
 
 export const createBooking = async (booking: OptionalID<Booking>) => {
   return functionWrapper(async () => {
-    const result = await bookingsCollection.insertOne(booking);
-    return result.insertedId.toString();
+    const ID = await bookingsCollection.insertOne(booking);
+    return ID;
   });
 };
 
 export const getBookingByID = async (ID: string) => {
   return functionWrapper(async () => {
-    const booking = await bookingsCollection.findOne({ _id: new ObjectId(ID) });
+    const booking = await bookingsCollection.findOne({ ID });
     return booking;
   });
 };
 
 export const updateBookingByID = async (ID: string, update: Partial<Booking>) => {
   return functionWrapper(async () => {
-    await bookingsCollection.updateOne({ _id: new ObjectId(ID) }, { $set: update });
+    await bookingsCollection.updateOne({ ID }, { $set: update });
   });
 };
 
