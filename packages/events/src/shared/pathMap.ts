@@ -133,4 +133,32 @@ export const pathMap = {
     requestValidation: getRecommendationsRequestValidation,
     responseValidation: getRecommendationsResponseValidation,
   },
+  CREATE_BOOKING: {
+    path: '/create-booking',
+    method: 'post',
+    service: servicesNames.booking,
+    requestValidation: createBookingRequestValidation,
+    responseValidation: createBookingResponseValidation,
+  },
+  PROCESS_BOOKING_RESPONSE: {
+    path: '/process-booking-response',
+    method: 'post',
+    service: servicesNames.booking,
+    requestValidation: processBookingResponseRequestValidation,
+    responseValidation: processBookingResponseResponseValidation,
+  },
+  RESCHEDULE_BOOKING: {
+    path: '/reschedule-booking',
+    method: 'put',
+    service: servicesNames.booking,
+    requestValidation: rescheduleBookingRequestValidation,
+    responseValidation: rescheduleBookingResponseValidation,
+  },
+  CANCEL_BOOKING: {
+    path: '/cancel-booking',
+    method: 'delete',
+    service: servicesNames.booking,
+    requestValidation: cancelBookingRequestValidation,
+    responseValidation: cancelBookingResponseValidation,
+  },
 } as const;

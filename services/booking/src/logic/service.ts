@@ -1,4 +1,30 @@
-// service.ts
+/**
+ * 
+ Business Logic Explanation:
+
+createBooking:
+Validates that the availability block exists and is not full.
+Creates a booking with status 'pending'.
+Publishes a BOOKING_REQUESTED event to notify the consultant.
+
+processBookingResponse:
+Ensures that only the correct consultant can process the booking.
+Checks that the booking status is 'pending'.
+Updates the booking status based on the consultant's response.
+Publishes appropriate events (BOOKING_APPROVED, BOOKING_CREATED, or BOOKING_REJECTED).
+
+rescheduleBooking:
+Allows either the student or the consultant to reschedule an 'approved' booking.
+Validates the new availability block.
+Updates the booking and publishes a BOOKING_RESCHEDULED event.
+
+cancelBooking:
+Allows either party to cancel a 'pending' or 'approved' booking.
+Updates the booking status to 'cancelled'.
+Publishes a BOOKING_CANCELLED event.
+ * 
+ * */
+
 import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
 import {
   createBookingRequestType,
@@ -30,23 +56,24 @@ export const createBooking = async (
     const studentID = getAuthenticatedID() as string;
     const { consultantID, availabilityBlockID, details } = props;
 
-    // Check availability
+    // Check if the availability block exists and is available
     const availabilityBlock = await model.getAvailabilityBlockByID(availabilityBlockID);
     if (!availabilityBlock || availabilityBlock.status === 'full') {
       throw new AppError(appErrorCodes.BLOCK_NOT_AVAILABLE, { availabilityBlockID });
     }
 
+    // Create the booking with status 'pending'
     const booking = {
       studentID,
       consultantID,
       availabilityBlockID,
-      status: 'pending',
+      status: 'pending' as const,
       details,
       createdAt: new Date().toISOString(),
     };
     const bookingID = await model.createBooking(booking);
 
-    // Publish BOOKING_REQUESTED event
+    // Publish BOOKING_REQUESTED event to notify consultant
     bookingRequestedPublisher({ bookingID, ...booking });
 
     return { bookingID };
@@ -67,8 +94,12 @@ export const processBookingResponse = async (
     if (booking.consultantID !== consultantID) {
       throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { bookingID, consultantID });
     }
+    if (booking.status !== 'pending') {
+      throw new AppError(appErrorCodes.INVALID_BOOKING_STATUS, { bookingID, status: booking.status });
+    }
 
     if (approved) {
+      // Update booking status to 'approved'
       booking.status = 'approved';
       await model.updateBookingByID(bookingID, { status: 'approved' });
 
@@ -76,6 +107,7 @@ export const processBookingResponse = async (
       bookingApprovedPublisher({ bookingID, consultantID, studentID: booking.studentID });
       bookingCreatedPublisher({ bookingID, ...booking });
     } else {
+      // Update booking status to 'rejected'
       booking.status = 'rejected';
       await model.updateBookingByID(bookingID, { status: 'rejected' });
 
@@ -101,6 +133,9 @@ export const rescheduleBooking = async (
     if (booking.studentID !== userID && booking.consultantID !== userID) {
       throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { bookingID, userID });
     }
+    if (booking.status !== 'approved') {
+      throw new AppError(appErrorCodes.INVALID_BOOKING_STATUS, { bookingID, status: booking.status });
+    }
 
     // Check new availability
     const newAvailabilityBlock = await model.getAvailabilityBlockByID(newAvailabilityBlockID);
@@ -108,9 +143,13 @@ export const rescheduleBooking = async (
       throw new AppError(appErrorCodes.BLOCK_NOT_AVAILABLE, { newAvailabilityBlockID });
     }
 
+    // Update the booking with the new availability block
     booking.availabilityBlockID = newAvailabilityBlockID;
     booking.status = 'rescheduled';
-    await model.updateBookingByID(bookingID, booking);
+    await model.updateBookingByID(bookingID, {
+      availabilityBlockID: newAvailabilityBlockID,
+      status: 'rescheduled',
+    });
 
     // Publish BOOKING_RESCHEDULED event
     bookingRescheduledPublisher({ bookingID, ...booking });
@@ -133,7 +172,11 @@ export const cancelBooking = async (
     if (booking.studentID !== userID && booking.consultantID !== userID) {
       throw new AppError(appErrorCodes.UNAUTHORIZED_ACTION, { bookingID, userID });
     }
+    if (!['pending', 'approved'].includes(booking.status)) {
+      throw new AppError(appErrorCodes.INVALID_BOOKING_STATUS, { bookingID, status: booking.status });
+    }
 
+    // Update booking status to 'cancelled'
     booking.status = 'cancelled';
     await model.updateBookingByID(bookingID, { status: 'cancelled' });
 

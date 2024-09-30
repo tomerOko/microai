@@ -1,8 +1,9 @@
-// availabilities.ts (db documents validation)
+// bookings.ts (db documents validation)
 import { z } from 'zod';
-import { availabilityBlockValidationProps, consultantAvailabilityValidationProps } from '../shared/validations/availabilities';
+import { bookingValidationProps } from '../shared/validations/bookings';
+import { availabilityBlockValidationProps } from '../shared/validations/availabilities';
 
-export const availabilitiesDbValidations = {
+export const bookingsDbValidations = {
+  booking: z.object(bookingValidationProps),
   availabilityBlock: z.object(availabilityBlockValidationProps),
-  consultantAvailability: z.object(consultantAvailabilityValidationProps),
 };

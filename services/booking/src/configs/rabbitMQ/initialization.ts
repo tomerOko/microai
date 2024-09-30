@@ -7,32 +7,32 @@ import {
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
-  BookingRequestedEventType,
-  BookingApprovedEventType,
-  BookingRejectedEventType,
-  BookingCreatedEventType,
-  BookingCancelledEventType,
-  BookingRescheduledEventType,
-  AvailabilityUpdatedEventType,
-  AvailabilityBlockFullEventType,
   AvailabilityBlockAvailableEventType,
-  bookingEventsNames,
+  AvailabilityBlockFullEventType,
+  AvailabilityUpdatedEventType,
+  BookingApprovedEventType,
+  BookingCancelledEventType,
+  BookingCreatedEventType,
+  BookingRejectedEventType,
+  BookingRequestedEventType,
+  BookingRescheduledEventType,
   availabilitiesEventsNames,
-  bookingRequestedEventValidation,
-  bookingApprovedEventValidation,
-  bookingRejectedEventValidation,
-  bookingCreatedEventValidation,
-  bookingCancelledEventValidation,
-  bookingRescheduledEventValidation,
-  availabilityUpdatedEventValidation,
-  availabilityBlockFullEventValidation,
   availabilityBlockAvailableEventValidation,
+  availabilityBlockFullEventValidation,
+  availabilityUpdatedEventValidation,
+  bookingApprovedEventValidation,
+  bookingCancelledEventValidation,
+  bookingCreatedEventValidation,
+  bookingEventsNames,
+  bookingRejectedEventValidation,
+  bookingRequestedEventValidation,
+  bookingRescheduledEventValidation,
 } from 'events-tomeroko3';
 
 import {
-  handleAvailabilityUpdatedEvent,
-  handleAvailabilityBlockFullEvent,
   handleAvailabilityBlockAvailableEvent,
+  handleAvailabilityBlockFullEvent,
+  handleAvailabilityUpdatedEvent,
 } from '../../logic/consumers';
 
 export let bookingRequestedPublisher: (data: BookingRequestedEventType['data']) => void;
@@ -94,16 +94,28 @@ const availabilityBlockAvailableSubscriberParams: RabbitSubscriberParams<Availab
     handler: handleAvailabilityBlockAvailableEvent,
   };
 
+  const bookingCancelledSubscriberParams: RabbitSubscriberParams<BookingCancelledEventType> = {
+    thisServiceName: 'BOOKING_SERVICE',
+    eventName: bookingEventsNames.BOOKING_CANCELLED,
+    eventSchema: bookingCancelledEventValidation,
+    handler: handleBookingCancelledEvent,
+  };
+
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
     await initializeRabbitSubscriber(availabilityUpdatedSubscriberParams);
     await initializeRabbitSubscriber(availabilityBlockFullSubscriberParams);
     await initializeRabbitSubscriber(availabilityBlockAvailableSubscriberParams);
+    await initializeRabbitSubscriber(bookingCancelledSubscriberParams);
+    
     bookingRequestedPublisher = await rabbitPublisherFactory(bookingRequestedPublisherParams);
     bookingApprovedPublisher = await rabbitPublisherFactory(bookingApprovedPublisherParams);
     bookingRejectedPublisher = await rabbitPublisherFactory(bookingRejectedPublisherParams);
     bookingCreatedPublisher = await rabbitPublisherFactory(bookingCreatedPublisherParams);
     bookingCancelledPublisher = await rabbitPublisherFactory(bookingCancelledPublisherParams);
     bookingRescheduledPublisher = await rabbitPublisherFactory(bookingRescheduledPublisherParams);
+
+   
   });
 };
+

@@ -10,21 +10,21 @@ import {
 
 export const createBooking = async (booking: OptionalID<Booking>) => {
   return functionWrapper(async () => {
-    const ID = await bookingsCollection.insertOne(booking);
-    return ID;
+    const result = await bookingsCollection.insertOne(booking);
+    return result.insertedId.toString();
   });
 };
 
 export const getBookingByID = async (ID: string) => {
   return functionWrapper(async () => {
-    const booking = await bookingsCollection.findOne({ ID });
+    const booking = await bookingsCollection.findOne({ _id: ID });
     return booking;
   });
 };
 
 export const updateBookingByID = async (ID: string, update: Partial<Booking>) => {
   return functionWrapper(async () => {
-    await bookingsCollection.updateOne({ ID }, { $set: update });
+    await bookingsCollection.updateOne({ _id: ID }, { $set: update });
   });
 };
 
