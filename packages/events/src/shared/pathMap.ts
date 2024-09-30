@@ -196,4 +196,25 @@ export const pathMap = {
     requestValidation: markNotificationAsReadRequestValidation,
     responseValidation: markNotificationAsReadResponseValidation,
   },
+  START_CALL: {
+    path: '/start-call',
+    method: 'post',
+    service: servicesNames.call,
+    requestValidation: startCallRequestValidation,
+    responseValidation: startCallResponseValidation,
+  },
+  END_CALL: {
+    path: '/end-call',
+    method: 'post',
+    service: servicesNames.call,
+    requestValidation: endCallRequestValidation,
+    responseValidation: endCallResponseValidation,
+  },
+  GET_CALL_DETAILS: {
+    path: '/calls/:callID',
+    method: 'get',
+    service: servicesNames.call,
+    requestValidation: getCallDetailsRequestValidation,
+    responseValidation: getCallDetailsResponseValidation,
+  },
 } as const;
