@@ -1,9 +1,7 @@
-// events/validations/payments.ts
-
+// tomeroko3-events/validations/payments.ts
 import { z } from 'zod';
-import { paymentEventsNames } from '../names';
+import { paymentEventsNames } from '../names/paymentEventsNames';
 
-// Payment Method Added Event
 export const paymentMethodAddedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYMENT_METHOD_ADDED),
   data: z.object({
@@ -12,7 +10,6 @@ export const paymentMethodAddedEventValidation = z.object({
   }),
 });
 
-// Payment Method Updated Event
 export const paymentMethodUpdatedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYMENT_METHOD_UPDATED),
   data: z.object({
@@ -21,7 +18,6 @@ export const paymentMethodUpdatedEventValidation = z.object({
   }),
 });
 
-// Payment Method Removed Event
 export const paymentMethodRemovedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYMENT_METHOD_REMOVED),
   data: z.object({
@@ -30,7 +26,6 @@ export const paymentMethodRemovedEventValidation = z.object({
   }),
 });
 
-// Payout Method Added Event
 export const payoutMethodAddedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYOUT_METHOD_ADDED),
   data: z.object({
@@ -39,7 +34,6 @@ export const payoutMethodAddedEventValidation = z.object({
   }),
 });
 
-// Payout Method Updated Event
 export const payoutMethodUpdatedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYOUT_METHOD_UPDATED),
   data: z.object({
@@ -48,7 +42,6 @@ export const payoutMethodUpdatedEventValidation = z.object({
   }),
 });
 
-// Payout Method Removed Event
 export const payoutMethodRemovedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYOUT_METHOD_REMOVED),
   data: z.object({
@@ -57,7 +50,6 @@ export const payoutMethodRemovedEventValidation = z.object({
   }),
 });
 
-// Payment Processed Event
 export const paymentProcessedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYMENT_PROCESSED),
   data: z.object({
@@ -67,7 +59,6 @@ export const paymentProcessedEventValidation = z.object({
   }),
 });
 
-// Payment Failed Event
 export const paymentFailedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYMENT_FAILED),
   data: z.object({
@@ -77,7 +68,6 @@ export const paymentFailedEventValidation = z.object({
   }),
 });
 
-// Receipt Generated Event
 export const receiptGeneratedEventValidation = z.object({
   type: z.literal(paymentEventsNames.RECEIPT_GENERATED),
   data: z.object({
@@ -86,7 +76,6 @@ export const receiptGeneratedEventValidation = z.object({
   }),
 });
 
-// Payout Processed Event
 export const payoutProcessedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYOUT_PROCESSED),
   data: z.object({
@@ -96,7 +85,6 @@ export const payoutProcessedEventValidation = z.object({
   }),
 });
 
-// Payout Failed Event
 export const payoutFailedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYOUT_FAILED),
   data: z.object({
@@ -106,7 +94,6 @@ export const payoutFailedEventValidation = z.object({
   }),
 });
 
-// Payout Receipt Generated Event
 export const payoutReceiptGeneratedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYOUT_RECEIPT_GENERATED),
   data: z.object({

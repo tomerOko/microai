@@ -1,5 +1,4 @@
-// events/names.ts
-
+// tomeroko3-events/names/paymentEventsNames.ts
 export const paymentEventsNames = {
   PAYMENT_METHOD_ADDED: 'PAYMENT_METHOD_ADDED',
   PAYMENT_METHOD_UPDATED: 'PAYMENT_METHOD_UPDATED',

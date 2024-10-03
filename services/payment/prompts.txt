@@ -1,0 +1,14 @@
+you did not provided the tomeroko3-events package validation files like you did for the rest of the services: 
+shared validations
+request response validations
+request response types
+event names
+event validations
+event type
+db validation
+pathMaps
+write all the code please. dont do this: // Similarly define updatePaymentMethod, removePaymentMethod, addPayoutMethod,
+// updatePayoutMethod, removePayoutMethod, createPaymentRecord, createPayoutRecord.
+ 
+
+make sure all the service files are using validations and types from the tomeroko3-events package.
