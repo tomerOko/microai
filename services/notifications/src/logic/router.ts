@@ -1,27 +1,43 @@
 // router.ts
-import { Auth, validateRequest } from 'common-lib-tomeroko3';
-import { pathMap } from 'events-tomeroko3';
-import express from 'express';
 
+import { Auth, validateRequest } from 'common-lib';
+import express from 'express';
 import * as controller from './controller';
+import { z } from 'zod';
 
 export const router = express.Router();
 
-const getNotificationsPath = pathMap['GET_NOTIFICATIONS'];
+// Get user notifications
 router.get(
-  getNotificationsPath.path,
-  Auth('LOGGED_IN'),
-  validateRequest(getNotificationsPath.requestValidation, getNotificationsPath.responseValidation),
-  controller.getNotifications,
-);
-
-const markNotificationAsReadPath = pathMap['MARK_NOTIFICATION_AS_READ'];
-router.post(
-  markNotificationAsReadPath.path,
+  '/notifications',
   Auth('LOGGED_IN'),
   validateRequest(
-    markNotificationAsReadPath.requestValidation,
-    markNotificationAsReadPath.responseValidation,
+    {}, // No request validation needed
+    z.array(
+      z.object({
+        notificationID: z.string(),
+        content: z.string(),
+        createdAt: z.string(),
+        read: z.boolean(),
+      })
+    )
   ),
-  controller.markNotificationAsRead,
+  controller.getNotifications
+);
+
+// Update user preferences
+router.put(
+  '/preferences',
+  Auth('LOGGED_IN'),
+  validateRequest(
+    {
+      body: z.object({
+        preferences: z.record(z.string(), z.array(z.string())),
+      }),
+    },
+    z.object({
+      message: z.string(),
+    })
+  ),
+  controller.updatePreferences
 );

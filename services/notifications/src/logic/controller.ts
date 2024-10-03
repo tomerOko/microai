@@ -1,40 +1,31 @@
 // controller.ts
-import { errorHandler, functionWrapper, Auth } from 'common-lib-tomeroko3';
-import {
-  getNotificationsRequestType,
-  getNotificationsResponseType,
-  markNotificationAsReadRequestType,
-  markNotificationAsReadResponseType,
-} from 'events-tomeroko3';
-import { NextFunction, Request, Response } from 'express';
-import httpStatus from 'http-status';
 
+import { Request, Response } from 'express';
 import * as service from './service';
+import { functionWrapper } from 'common-lib';
+import { GetNotificationsRequestType, UpdatePreferencesRequestType } from './shared/types/notifications';
+import { AppError } from 'common-lib';
+import { appErrorCodes } from './appErrorCodes';
 
-export const getNotifications = async (req: Request, res: Response, next: NextFunction) => {
+// Get user notifications
+export const getNotifications = async (req: Request, res: Response) => {
   return functionWrapper(async () => {
-    try {
-      const userID = req.user?.id as string;
-      const result: getNotificationsResponseType = await service.getNotifications(userID);
-      res.status(httpStatus.OK).send(result);
-    } catch (error) {
-      errorHandler({})(error, next);
-    }
-  });
+    const userID = req.user.id;
+
+    const notifications = await service.getUserNotifications(userID);
+
+    res.status(200).json(notifications);
+  }, req, res);
 };
 
-export const markNotificationAsRead = async (req: Request, res: Response, next: NextFunction) => {
+// Update user preferences
+export const updatePreferences = async (req: Request, res: Response) => {
   return functionWrapper(async () => {
-    try {
-      const userID = req.user?.id as string;
-      const body = req.body as markNotificationAsReadRequestType['body'];
-      const result: markNotificationAsReadResponseType = await service.markNotificationAsRead(
-        userID,
-        body.notificationID,
-      );
-      res.status(httpStatus.OK).send(result);
-    } catch (error) {
-      errorHandler({})(error, next);
-    }
-  });
+    const userID = req.user.id;
+    const preferences = (req.body as UpdatePreferencesRequestType['body']).preferences;
+
+    await service.updateUserPreferences(userID, preferences);
+
+    res.status(200).json({ message: 'Preferences updated successfully' });
+  }, req, res);
 };

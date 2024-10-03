@@ -217,4 +217,16 @@ export const pathMap = {
     requestValidation: getCallDetailsRequestValidation,
     responseValidation: getCallDetailsResponseValidation,
   },
+  getNotifications: {
+    method: 'GET',
+    path: '/api/notifications/notifications',
+    service: 'NOTIFICATIONS_SERVICE',
+    description: 'Get user notifications',
+  },
+  updatePreferences: {
+    method: 'PUT',
+    path: '/api/notifications/preferences',
+    service: 'NOTIFICATIONS_SERVICE',
+    description: 'Update user notification preferences',
+  },
 } as const;

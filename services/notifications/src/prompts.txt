@@ -1,0 +1,151 @@
+amaizng!!! now let write the send service code. in advance: implement placeholder functions yourself (add comments to explain the bussines logic you chosen if needed) and write the actual consumers logic.
+
+-----------
+
+Okay, that was good work but we have a lot to improve. Let's divide the work into two stages: planning (which I'll approve after completion) and then code generation. Regarding the planning, I want us to think about different design patterns that will allow the service to work in the following way: receiving user preferences and listening to events from our order system. I want all other services to not deal with notifications at all - they will only publish an event, and all the notification logic will be in this service alone. So, in summary, we have user preferences and events. How do you think we should design the service so that each event is checked against user preferences, and notifications are triggered accordingly? Additionally, I want to build this in a way that makes it very convenient for developers to add new user preferences or events. This is where the matter of design patterns comes in.
+
+-----------
+
+this service dose not actually do the notification, it publish event to a queue that being subsribed by the 'send' service, but remember, the send service is stupid, it get an address, content, and comunication type (email / whatsapp / sms) and send the content to the address
+
+-----------
+
+amazing! this is a lot better, the only thing is that i dont see anything about timed notification (lets say a new user created and we want to send him welcome email the day after, the notification service should handle this timed actions)
+
+-----------
+
+amazing! please Proceed to Code Generation. use the same files structure as the rest of the services, with exception off added design patterns and utils files. do not forget about events-tomeroko3 files. handle all the events that can triger some notification (use your own logic for that).  i want at least 10 subscribers and handlers. before writing the code, list the events you are about to handle and explain what is the business logic behind the notification. add a comment with the event name above each subsciber, use timed notification for at least 3 events, make sure that some events publish multiple ways of notification (timed/ instant, email / whatsapp / mail). this are all the events in the system: 1. SEND_PINCODE_EMAIL
+Explanation: Triggered when a user initiates email verification during signup or adds an email authentication method. Instructs the Send Service to send an email containing a pincode to the user's email address.
+2. USER_CREATED
+Explanation: Emitted when a new user account is successfully created. Other services listen to this event to update their records with the new user information.
+3. NEW_PASSWORD_SET
+Explanation: Occurs when a user sets a new password, either during signup or when adding a new authentication method. The Auth Service updates its records accordingly.
+4. OAUTH_LINKED
+Explanation: Emitted when a user links an OAuth provider (e.g., Google, Facebook) to their account, either during signup or when adding a new authentication method.
+5. AUTH_METHOD_ADDED
+Explanation: Triggered when a user adds a new authentication method (email/password or OAuth) to their existing account. Helps in keeping authentication records up to date.
+6. AUTH_SUCCESS
+Explanation: Emitted by the Auth Service when a user successfully authenticates. Can be used for logging successful login attempts or triggering post-login actions.
+7. AUTH_FAILURE
+Explanation: Emitted by the Auth Service when a user's authentication attempt fails. Useful for security monitoring and alerting mechanisms.
+8. CONSULTANT_ONBOARDED
+Explanation: Occurs when a user successfully completes the process to become a consultant. Signals that a new consultant profile has been created.
+9. CONSULTANT_PROFILE_UPDATED
+Explanation: Triggered when a consultant updates their profile information. Other services may use this event to refresh their data or search indexes.
+10. TOPIC_ADDED
+Explanation: Emitted when a consultant adds a new consultation topic to their profile. Important for updating search indexes and availability.
+11. TOPIC_UPDATED
+Explanation: Occurs when a consultant updates an existing consultation topic. Ensures that all services have the latest topic information.
+12. TOPIC_REMOVED
+Explanation: Triggered when a consultant removes a consultation topic from their profile. Services can update their records accordingly.
+13. DEFAULT_SCHEDULE_SET
+Explanation: Emitted when a consultant sets their default weekly availability schedule. Used by the Availabilities Service to generate future availability blocks.
+14. WEEKLY_SCHEDULE_UPDATED
+Explanation: Occurs when a consultant modifies their default schedule for a specific week. Updates availability blocks for that particular week.
+15. AVAILABLE_NOW_STATUS_CHANGED
+Explanation: Triggered when a consultant toggles their 'available now' status. Important for real-time availability updates.
+16. AVAILABILITY_UPDATED
+Explanation: Emitted when availability blocks are updated due to bookings being created or cancelled. Helps keep the system's scheduling accurate.
+17. AVAILABILITY_BLOCK_FULL
+Explanation: Occurs when an availability block reaches its booking limit and is now full. Notifies services to prevent further bookings in that block.
+18. AVAILABILITY_BLOCK_AVAILABLE
+Explanation: Triggered when a previously full availability block has new openings due to cancellations. Allows services to accept new bookings.
+19. BOOKING_CREATED
+Explanation: Emitted when a booking has been successfully created after consultant approval. Updates availability and notifies involved parties.
+20. BOOKING_REQUESTED
+Explanation: Occurs when a student initiates a booking request. The Notifications Service uses this to alert the consultant.
+21. BOOKING_APPROVED
+Explanation: Triggered when a consultant approves a booking request. Updates the booking status and notifies the student.
+22. BOOKING_REJECTED
+Explanation: Emitted when a consultant rejects a booking request. Notifies the student of the rejection.
+23. BOOKING_RESCHEDULED
+Explanation: Occurs when a booking is rescheduled to a new time. Updates all relevant services and notifies both parties.
+24. BOOKING_CANCELLED
+Explanation: Triggered when a booking is cancelled by either the student or consultant. Updates availability and notifies the other party.
+25. MESSAGE_SENT
+Explanation: Emitted when a user sends a message in the chat service. Used for real-time communication updates.
+26. MEDIA_SHARED
+Explanation: Occurs when a user shares media (images, files, etc.) through the chat service. Ensures media is properly handled and delivered.
+27. CHAT_BOOKING_REQUESTED
+Explanation: Triggered when a student initiates a booking request within the chat interface. The Booking Service processes this request.
+28. DATA_INDEXED
+Explanation: Emitted by the Search & Recommendation Service when new data is indexed. Indicates that search results may have changed.
+29. RECOMMENDATIONS_GENERATED
+Explanation: Occurs when personalized consultant recommendations are generated for a user based on their behavior and preferences.
+30. NOTIFICATION_PREFERENCES_UPDATED
+Explanation: Triggered when a user updates their notification settings. Ensures that future notifications respect the user's preferences.
+31. SEND_NOTIFICATION
+Explanation: Emitted by the Notifications Service to instruct the Send Service to deliver a notification via specified channels.
+32. DELIVERY_SUCCEEDED
+Explanation: Emitted by the Send Service when a notification has been successfully delivered. Confirms successful communication.
+33. DELIVERY_FAILED
+Explanation: Occurs when the Send Service fails to deliver a notification. Can trigger retry mechanisms or alert the user.
+34. CALL_INITIATED
+Explanation: Emitted when a call session is set up after a booking is approved. Notifies participants that the call is ready.
+35. CALL_STARTED
+Explanation: Triggered when participants enter an active call. Starts call duration tracking and updates availability.
+36. CALL_ENDED
+Explanation: Occurs when a call session ends. Used to process payments and update availability statuses.
+37. CALL_DURATION_RECORDED
+Explanation: Emitted after a call ends, containing the call's duration. Essential for billing and analytics.
+38. PAYMENT_METHOD_ADDED
+Explanation: Triggered when a user adds a new payment method. Updates the user's payment options.
+39. PAYMENT_METHOD_UPDATED
+Explanation: Occurs when a user updates an existing payment method. Ensures payment information is current.
+40. PAYMENT_METHOD_REMOVED
+Explanation: Emitted when a user removes a payment method. Updates the user's available payment options.
+41. PAYOUT_METHOD_ADDED
+Explanation: Triggered when a consultant adds a new payout method for receiving earnings.
+42. PAYOUT_METHOD_UPDATED
+Explanation: Occurs when a consultant updates their payout method. Keeps payout information up to date.
+43. PAYOUT_METHOD_REMOVED
+Explanation: Emitted when a consultant removes a payout method. Updates their available payout options.
+44. PAYMENT_PROCESSED
+Explanation: Triggered when a payment from a student is successfully processed after a call. Generates receipts and updates balances.
+45. RECEIPT_GENERATED
+Explanation: Occurs when a payment or payout receipt is generated and stored. Provides proof of transaction.
+46. PAYMENT_FAILED
+Explanation: Emitted when a payment attempt fails. Notifies the student and may prompt for action.
+47. PAYOUT_PROCESSED
+Explanation: Triggered when a consultant's payout is successfully processed. Updates earnings and provides confirmation.
+48. PAYOUT_RECEIPT_GENERATED
+Explanation: Occurs when a payout receipt is generated for a consultant. Offers documentation of the payout.
+49. PAYOUT_FAILED
+Explanation: Emitted when a payout attempt fails. Notifies the consultant and may require corrective action.
+50. REVIEW_SUBMITTED
+Explanation: Triggered when a user submits a review after a call. Updates consultant ratings and feedback.
+51. RATING_UPDATED
+Explanation: Occurs when a consultant's rating is recalculated due to a new review. Affects search rankings and profiles.
+52. LONG_TERM_REVIEW_SUBMITTED
+Explanation: Emitted when a user submits a long-term review, typically after a reminder. Further updates consultant ratings.
+53. MESSAGE_DELIVERED
+Explanation: Triggered when a message has been successfully delivered to a client via WebSocket. Confirms message receipt.
+54. USER_ONLINE
+Explanation: Occurs when a user connects to the platform, indicating they are online. Useful for presence detection.
+55. USER_OFFLINE
+Explanation: Emitted when a user disconnects from the platform, indicating they are offline.
+56. RETRY_SCHEDULED
+Explanation: Triggered by the Send Service when a failed notification delivery is scheduled for a retry attempt.
+
+----------
+
+grate job! add another 10 subscribers
+
+----------
+
+Correct and summarize the code for the notifications service:
+
+1. Generate a controller and router so users can receive their notifications and change preferences. I didn't see that you provided these files.
+2. Connect all the files yourself. you generated files, and then after the first round of improvements, you generated additional files and told me what and where to add. this is unacceptable. I want to copy each file only once.
+3. Regarding the events that the service handles, you did a good job! Now, when you generate the final files, just connect the files you provided in the last two messages. Don't change the content (except for the router and controller, of course).
+4. Don't use comments in order to generate less code. Comments like 'leave the code as it was' or 'same events as before' or similar will be considered a complete failure. Generate the files in a way that I can simply copy and paste them, and the code will work as expected.
+
+----------
+
+you used comments instead of code in 'eventHandlerFactory.ts' even though i asked you not to.. please generate the file properly 
+
+
+----------
+
+
+you did not provided the tomeroko3-events package validation files: request response validations, request response types, event names, event validations, event type, db validation and pathMaps (like you did for the rest of the services)

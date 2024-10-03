@@ -1,132 +1,239 @@
-/**
- * Business Logic Explanation:
+// consumers.ts
 
-Booking Events: When booking-related events occur, the service sends notifications to the relevant users to inform them of the changes.
-Message Events: When a message is sent, the service notifies the recipient(s) that they have a new message.
-Consultant Onboarding: When a new consultant is onboarded, they receive a welcome notification.
- */
-
+import { functionWrapper } from 'common-lib';
 import {
+  UserCreatedEventType,
   BookingRequestedEventType,
   BookingApprovedEventType,
   BookingRejectedEventType,
-  BookingCancelledEventType,
-  BookingRescheduledEventType,
+  CallEndedEventType,
+  PaymentFailedEventType,
+  PayoutProcessedEventType,
+  ReviewSubmittedEventType,
+  AuthFailureEventType,
   MessageSentEventType,
+  DeliveryFailedEventType,
+  BookingCancelledEventType,
+  CallStartedEventType,
+  NewPasswordSetEventType,
   ConsultantOnboardedEventType,
-} from 'events-tomeroko3';
+  PaymentProcessedEventType,
+  PayoutFailedEventType,
+  TopicAddedEventType,
+  WeeklyScheduleUpdatedEventType,
+  RecommendationsGeneratedEventType,
+  // Event Names
+  userEventsNames,
+  bookingEventsNames,
+  callEventsNames,
+  paymentEventsNames,
+  ratingEventsNames,
+  authEventsNames,
+  chatEventsNames,
+  notificationEventsNames,
+  consultantEventsNames,
+  scheduleEventsNames,
+  searchEventsNames,
+} from './events';
 
-import * as service from './service';
+import { EventHandlerFactory } from './utils/eventHandlerFactory';
 
-// Handle Booking Requested Event
+/**
+ * USER_CREATED
+ */
+export const handleUserCreatedEvent = async (event: UserCreatedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(userEventsNames.USER_CREATED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * BOOKING_REQUESTED
+ */
 export const handleBookingRequestedEvent = async (event: BookingRequestedEventType['data']) => {
-  // Notify the consultant that a booking request has been made
-  await service.sendNotification({
-    userID: event.consultantID,
-    type: 'BOOKING_REQUESTED',
-    data: {
-      bookingID: event.bookingID,
-      studentID: event.studentID,
-    },
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(bookingEventsNames.BOOKING_REQUESTED);
+    await handler.handle(event);
   });
 };
 
-// Handle Booking Approved Event
+/**
+ * BOOKING_APPROVED
+ */
 export const handleBookingApprovedEvent = async (event: BookingApprovedEventType['data']) => {
-  // Notify the student that the booking has been approved
-  await service.sendNotification({
-    userID: event.studentID,
-    type: 'BOOKING_APPROVED',
-    data: {
-      bookingID: event.bookingID,
-      consultantID: event.consultantID,
-    },
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(bookingEventsNames.BOOKING_APPROVED);
+    await handler.handle(event);
   });
 };
 
-// Handle Booking Rejected Event
+/**
+ * BOOKING_REJECTED
+ */
 export const handleBookingRejectedEvent = async (event: BookingRejectedEventType['data']) => {
-  // Notify the student that the booking has been rejected
-  await service.sendNotification({
-    userID: event.studentID,
-    type: 'BOOKING_REJECTED',
-    data: {
-      bookingID: event.bookingID,
-      consultantID: event.consultantID,
-    },
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(bookingEventsNames.BOOKING_REJECTED);
+    await handler.handle(event);
   });
 };
 
-// Handle Booking Cancelled Event
-export const handleBookingCancelledEvent = async (event: BookingCancelledEventType['data']) => {
-  // Notify both the student and consultant that the booking has been cancelled
-  await service.sendNotification({
-    userID: event.studentID,
-    type: 'BOOKING_CANCELLED',
-    data: {
-      bookingID: event.bookingID,
-      otherPartyID: event.consultantID,
-    },
-  });
-  await service.sendNotification({
-    userID: event.consultantID,
-    type: 'BOOKING_CANCELLED',
-    data: {
-      bookingID: event.bookingID,
-      otherPartyID: event.studentID,
-    },
+/**
+ * CALL_ENDED
+ */
+export const handleCallEndedEvent = async (event: CallEndedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(callEventsNames.CALL_ENDED);
+    await handler.handle(event);
   });
 };
 
-// Handle Booking Rescheduled Event
-export const handleBookingRescheduledEvent = async (event: BookingRescheduledEventType['data']) => {
-  // Notify both parties that the booking has been rescheduled
-  await service.sendNotification({
-    userID: event.studentID,
-    type: 'BOOKING_RESCHEDULED',
-    data: {
-      bookingID: event.bookingID,
-      newAvailabilityBlockID: event.availabilityBlockID,
-    },
-  });
-  await service.sendNotification({
-    userID: event.consultantID,
-    type: 'BOOKING_RESCHEDULED',
-    data: {
-      bookingID: event.bookingID,
-      newAvailabilityBlockID: event.availabilityBlockID,
-    },
+/**
+ * PAYMENT_FAILED
+ */
+export const handlePaymentFailedEvent = async (event: PaymentFailedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(paymentEventsNames.PAYMENT_FAILED);
+    await handler.handle(event);
   });
 };
 
-// Handle Message Sent Event
+/**
+ * PAYOUT_PROCESSED
+ */
+export const handlePayoutProcessedEvent = async (event: PayoutProcessedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(paymentEventsNames.PAYOUT_PROCESSED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * REVIEW_SUBMITTED
+ */
+export const handleReviewSubmittedEvent = async (event: ReviewSubmittedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(ratingEventsNames.REVIEW_SUBMITTED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * AUTH_FAILURE
+ */
+export const handleAuthFailureEvent = async (event: AuthFailureEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(authEventsNames.AUTH_FAILURE);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * MESSAGE_SENT
+ */
 export const handleMessageSentEvent = async (event: MessageSentEventType['data']) => {
-  // Notify the recipient that a new message has been received
-  const { chatRoomID, message } = event;
-  const chatRoom = await service.getChatRoomByID(chatRoomID);
-  if (chatRoom) {
-    const recipientIDs = chatRoom.participants.filter((id) => id !== message.senderID);
-    for (const recipientID of recipientIDs) {
-      await service.sendNotification({
-        userID: recipientID,
-        type: 'NEW_MESSAGE',
-        data: {
-          chatRoomID,
-          message,
-        },
-      });
-    }
-  }
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(chatEventsNames.MESSAGE_SENT);
+    await handler.handle(event);
+  });
 };
 
-// Handle Consultant Onboarded Event
+/**
+ * DELIVERY_FAILED
+ */
+export const handleDeliveryFailedEvent = async (event: DeliveryFailedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(notificationEventsNames.DELIVERY_FAILED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * BOOKING_CANCELLED
+ */
+export const handleBookingCancelledEvent = async (event: BookingCancelledEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(bookingEventsNames.BOOKING_CANCELLED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * CALL_STARTED
+ */
+export const handleCallStartedEvent = async (event: CallStartedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(callEventsNames.CALL_STARTED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * NEW_PASSWORD_SET
+ */
+export const handleNewPasswordSetEvent = async (event: NewPasswordSetEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(authEventsNames.NEW_PASSWORD_SET);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * CONSULTANT_ONBOARDED
+ */
 export const handleConsultantOnboardedEvent = async (event: ConsultantOnboardedEventType['data']) => {
-  // Send a welcome notification to the new consultant
-  await service.sendNotification({
-    userID: event.ID,
-    type: 'WELCOME_CONSULTANT',
-    data: {
-      firstName: event.firstName,
-    },
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(consultantEventsNames.CONSULTANT_ONBOARDED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * PAYMENT_PROCESSED
+ */
+export const handlePaymentProcessedEvent = async (event: PaymentProcessedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(paymentEventsNames.PAYMENT_PROCESSED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * PAYOUT_FAILED
+ */
+export const handlePayoutFailedEvent = async (event: PayoutFailedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(paymentEventsNames.PAYOUT_FAILED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * TOPIC_ADDED
+ */
+export const handleTopicAddedEvent = async (event: TopicAddedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(consultantEventsNames.TOPIC_ADDED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * WEEKLY_SCHEDULE_UPDATED
+ */
+export const handleWeeklyScheduleUpdatedEvent = async (event: WeeklyScheduleUpdatedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(scheduleEventsNames.WEEKLY_SCHEDULE_UPDATED);
+    await handler.handle(event);
+  });
+};
+
+/**
+ * RECOMMENDATIONS_GENERATED
+ */
+export const handleRecommendationsGeneratedEvent = async (event: RecommendationsGeneratedEventType['data']) => {
+  return functionWrapper(async () => {
+    const handler = EventHandlerFactory.getHandler(searchEventsNames.RECOMMENDATIONS_GENERATED);
+    await handler.handle(event);
   });
 };

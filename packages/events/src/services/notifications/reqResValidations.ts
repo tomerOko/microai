@@ -1,17 +1,23 @@
-// notifications.ts (request and response validations)
+// requestResponseValidations/notificationRequestResponseValidations.ts
+
 import { z } from 'zod';
-import { notificationValidationProps } from '../../shared/validations/notifications';
 
-export const getNotificationsRequestValidation = z.object({});
-
-export const getNotificationsResponseValidation = z.object({
-  notifications: z.array(z.object(notificationValidationProps)),
-});
-
-export const markNotificationAsReadRequestValidation = z.object({
-  body: z.object({
+// Get Notifications Response Validation
+export const getNotificationsResponseValidation = z.array(
+  z.object({
     notificationID: z.string(),
+    content: z.string(),
+    createdAt: z.string(),
+    read: z.boolean(),
   }),
+);
+
+// Update Preferences Request Validation
+export const updatePreferencesRequestValidation = z.object({
+  preferences: z.record(z.string(), z.array(z.string())),
 });
 
-export const markNotificationAsReadResponseValidation = z.object({});
+// Update Preferences Response Validation
+export const updatePreferencesResponseValidation = z.object({
+  message: z.string(),
+});
