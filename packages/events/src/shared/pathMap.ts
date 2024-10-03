@@ -265,4 +265,32 @@ export const pathMap = {
     requestValidation: removePayoutMethodRequestValidation,
     responseValidation: removePayoutMethodResponseValidation,
   },
+  SUBMIT_REVIEW: {
+    path: '/submit-review',
+    method: 'post',
+    service: servicesNames.rating,
+    requestValidation: submitReviewRequestValidation,
+    responseValidation: submitReviewResponseValidation,
+  },
+  SUBMIT_LONG_TERM_REVIEW: {
+    path: '/submit-long-term-review',
+    method: 'post',
+    service: servicesNames.rating,
+    requestValidation: submitLongTermReviewRequestValidation,
+    responseValidation: submitLongTermReviewResponseValidation,
+  },
+  GET_CONSULTANT_REVIEWS: {
+    path: '/consultant-reviews',
+    method: 'get',
+    service: servicesNames.rating,
+    requestValidation: getConsultantReviewsRequestValidation,
+    responseValidation: getConsultantReviewsResponseValidation,
+  },
+  GET_TOPIC_REVIEWS: {
+    path: '/topic-reviews',
+    method: 'get',
+    service: servicesNames.rating,
+    requestValidation: getTopicReviewsRequestValidation,
+    responseValidation: getTopicReviewsResponseValidation,
+  },
 } as const;

@@ -1,8 +1,13 @@
-// availabilities.ts (db documents validation)
+// dbValidations/rating.ts
 import { z } from 'zod';
-import { availabilityBlockValidationProps, consultantAvailabilityValidationProps } from '../shared/validations/availabilities';
+import {
+  reviewValidationProps,
+  consultantRatingValidationProps,
+  reviewReminderValidationProps,
+} from '../shared/validations/rating';
 
-export const availabilitiesDbValidations = {
-  availabilityBlock: z.object(availabilityBlockValidationProps),
-  consultantAvailability: z.object(consultantAvailabilityValidationProps),
+export const ratingDbValidations = {
+  review: z.object(reviewValidationProps),
+  consultantRating: z.object(consultantRatingValidationProps),
+  reviewReminder: z.object(reviewReminderValidationProps),
 };

@@ -1,0 +1,7 @@
+ok good job, few improvements
+
+1. you didnt handled user creation and user update and didnt saved the users data
+2. reviews are per consultant per topic
+3. we need an endpoints to get the consultant average ratings and the ratings themselves (with pagination)
+4. we also need a similar endpoint but for a specific topic
+

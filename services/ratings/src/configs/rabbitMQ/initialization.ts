@@ -1,3 +1,4 @@
+// configs/rabbitMQ/initialization.ts
 import {
   RabbitPublisherParams,
   RabbitSubscriberParams,
@@ -6,43 +7,79 @@ import {
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
+  ReviewSubmittedEventType,
+  LongTermReviewSubmittedEventType,
+  RatingUpdatedEventType,
+  CallEndedEventType,
   UserCreatedEventType,
-  UserLoggedInEventType,
   UserUpdatedEventType,
-  authEventsNames,
+  ratingEventsNames,
+  callEventsNames,
   signupEventsNames,
+  reviewSubmittedEventValidation,
+  longTermReviewSubmittedEventValidation,
+  ratingUpdatedEventValidation,
+  callEndedEventValidation,
   userCreatedEventValidation,
-  userLoggedInEventValidation,
   userUpdatedEventValidation,
 } from 'events-tomeroko3';
 
-import { handleNewUserEvent, handleUpdatedUserEvent } from '../../logic/consumers';
+import {
+  handleCallEndedEvent,
+  handleUserCreatedEvent,
+  handleUserUpdatedEvent,
+} from '../../logic/consumers';
 
-export let userLoginPublisher: (user: UserLoggedInEventType['data']) => void;
+export let reviewSubmittedPublisher: (review: ReviewSubmittedEventType['data']) => void;
+export let longTermReviewSubmittedPublisher: (review: LongTermReviewSubmittedEventType['data']) => void;
+export let ratingUpdatedPublisher: (rating: RatingUpdatedEventType['data']) => void;
 
-const userLoginPublisherParams: RabbitPublisherParams<UserLoggedInEventType> = {
-  eventName: authEventsNames.USER_LOGGED_IN,
-  eventSchema: userLoggedInEventValidation,
+const reviewSubmittedPublisherParams: RabbitPublisherParams<ReviewSubmittedEventType> = {
+  eventName: ratingEventsNames.REVIEW_SUBMITTED,
+  eventSchema: reviewSubmittedEventValidation,
+};
+
+const longTermReviewSubmittedPublisherParams: RabbitPublisherParams<LongTermReviewSubmittedEventType> = {
+  eventName: ratingEventsNames.LONG_TERM_REVIEW_SUBMITTED,
+  eventSchema: longTermReviewSubmittedEventValidation,
+};
+
+const ratingUpdatedPublisherParams: RabbitPublisherParams<RatingUpdatedEventType> = {
+  eventName: ratingEventsNames.RATING_UPDATED,
+  eventSchema: ratingUpdatedEventValidation,
+};
+
+const callEndedSubscriberParams: RabbitSubscriberParams<CallEndedEventType> = {
+  thisServiceName: 'RATING_SERVICE',
+  eventName: callEventsNames.CALL_ENDED,
+  eventSchema: callEndedEventValidation,
+  handler: handleCallEndedEvent,
 };
 
 const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
+  thisServiceName: 'RATING_SERVICE',
   eventName: signupEventsNames.USER_CREATED,
   eventSchema: userCreatedEventValidation,
-  handler: handleNewUserEvent,
+  handler: handleUserCreatedEvent,
 };
 
 const userUpdatedSubscriberParams: RabbitSubscriberParams<UserUpdatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
+  thisServiceName: 'RATING_SERVICE',
   eventName: signupEventsNames.USER_UPDATED,
   eventSchema: userUpdatedEventValidation,
-  handler: handleUpdatedUserEvent,
+  handler: handleUserUpdatedEvent,
 };
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    userLoginPublisher = await rabbitPublisherFactory(userLoginPublisherParams);
-    initializeRabbitSubscriber(userCreatedSubscriberParams);
-    initializeRabbitSubscriber(userUpdatedSubscriberParams);
+    // Initialize Subscribers
+    await initializeRabbitSubscriber(callEndedSubscriberParams);
+    await initializeRabbitSubscriber(userCreatedSubscriberParams);
+    await initializeRabbitSubscriber(userUpdatedSubscriberParams);
+
+    // Initialize Publishers
+    reviewSubmittedPublisher = await rabbitPublisherFactory(reviewSubmittedPublisherParams);
+    longTermReviewSubmittedPublisher = await rabbitPublisherFactory(longTermReviewSubmittedPublisherParams);
+    ratingUpdatedPublisher = await rabbitPublisherFactory(ratingUpdatedPublisherParams);
   });
 };

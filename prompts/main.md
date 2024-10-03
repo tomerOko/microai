@@ -1,7 +1,24 @@
+please generate the 'rating & reviews' code 
 
-please generate the 'Send service' code according to all of this data: 
+implement placeholder functions yourself 
 
-* implement placeholder functions yourself (add comments to explain the bussines logic you chosen if needed) and write the actual consumers logic.
+dont ever use comments instead of code (like 'paste the code here', instead of the actual code)
+
+do not forget tomeroko3-events package validation files:
+shared validations
+request response validations
+request response types
+event names
+event validations
+event type
+db validation
+pathMaps
+
+add comments to explain the bussines logic you chosen if needed
+
+write the actual consumers logic.
+
+dont forget that each service should handle new user creation and user update events from the 'signup' service!
 
 This prompt contains the main files of a service (the 'Teach' service, created only as an example for the rest of the services) written correctly according to the project standards
 along with MongoDB and RabbitMQ initializations, and 7 validation and types files from the shared validation package ('events-tomeroko3') each service will have his own 7 files inside the shared validation package. 

@@ -1,70 +1,136 @@
-import { AppError, functionWrapper, signToken } from 'common-lib-tomeroko3';
-import { LoginMethod, LoginRequest, LoginResponse, loginMethods } from 'events-tomeroko3';
-import { OAuth2Client } from 'google-auth-library';
-import { validate } from 'uuid';
+// service.ts
+import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
+import {
+  submitReviewRequestType,
+  submitReviewResponseType,
+  submitLongTermReviewRequestType,
+  submitLongTermReviewResponseType,
+  getConsultantReviewsRequestType,
+  getConsultantReviewsResponseType,
+  getTopicReviewsRequestType,
+  getTopicReviewsResponseType,
+} from 'events-tomeroko3';
 
-import { ENVs } from '../configs/ENVs';
-import { User } from '../configs/mongoDB/initialization';
-import { userLoginPublisher } from '../configs/rabbitMQ';
+import {
+  reviewSubmittedPublisher,
+  longTermReviewSubmittedPublisher,
+  ratingUpdatedPublisher,
+} from '../configs/rabbitMQ/initialization';
 
 import { appErrorCodes } from './appErrorCodes';
 import * as model from './dal';
 
-export const login = async (props: LoginRequest['body']): Promise<LoginResponse> => {
+export const submitReview = async (props: submitReviewRequestType['body']): Promise<submitReviewResponseType> => {
   return functionWrapper(async () => {
-    const { email, loginMethod, methodSecret } = props;
+    const userID = getAuthenticatedID() as string;
+    const { consultantID, topicID, rating, feedback, callID } = props;
 
-    const user = await model.getUserByEmail(email);
-    if (!user) {
-      throw new AppError(appErrorCodes.CANT_LOGIN_USER_NOT_FOUND, { email }, true);
-    }
-    validateLoginByMethod(loginMethod, methodSecret, user);
-
-    const { ID, firstName, lastName } = user;
-    userLoginPublisher({
-      email,
-      ID,
-    });
-
-    const token = signToken({ ID }, ENVs.jwtSecret);
-    return {
-      token,
-      user: {
-        ID,
-        email,
-        firstName,
-        lastName,
-      },
+    const review = {
+      userID,
+      consultantID,
+      topicID,
+      rating,
+      feedback,
+      callID,
+      type: 'immediate',
+      date: new Date(),
     };
+
+    await model.createReview(review);
+
+    // Update consultant's average rating
+    const newConsultantRating = await model.updateConsultantRating(consultantID);
+    // Update topic's average rating
+    const newTopicRating = await model.updateTopicRating(topicID);
+
+    // Publish events
+    reviewSubmittedPublisher(review);
+    ratingUpdatedPublisher({ consultantID, topicID, consultantRating: newConsultantRating, topicRating: newTopicRating });
+
+    return { message: 'Review submitted successfully' };
   });
 };
 
-const validateLoginByMethod = (loginMethod: LoginMethod, methodSecret: string, user: User) => {
-  switch (loginMethod) {
-    case loginMethods.PASSWORD:
-      return user.password === methodSecret;
-    case loginMethods.GOOGLE:
-      return validateGoolgeToken(methodSecret, user);
-    default:
-      throw new AppError(appErrorCodes.CANT_LOGIN_UNKNOWN_METHOD, { loginMethod }, true);
-  }
+export const submitLongTermReview = async (
+  props: submitLongTermReviewRequestType['body'],
+): Promise<submitLongTermReviewResponseType> => {
+  return functionWrapper(async () => {
+    const userID = getAuthenticatedID() as string;
+    const { consultantID, topicID, rating, feedback, callID } = props;
+
+    const review = {
+      userID,
+      consultantID,
+      topicID,
+      rating,
+      feedback,
+      callID,
+      type: 'long-term',
+      date: new Date(),
+    };
+
+    await model.createReview(review);
+
+    // Update consultant's average rating
+    const newConsultantRating = await model.updateConsultantRating(consultantID);
+    // Update topic's average rating
+    const newTopicRating = await model.updateTopicRating(topicID);
+
+    // Publish events
+    longTermReviewSubmittedPublisher(review);
+    ratingUpdatedPublisher({ consultantID, topicID, consultantRating: newConsultantRating, topicRating: newTopicRating });
+
+    return { message: 'Long-term review submitted successfully' };
+  });
 };
 
-const validateGoolgeToken = async (token: string, user: User) => {
-  const client = new OAuth2Client();
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: 'YOUR_GOOGLE_CLIENT_ID',
-    });
-    const payload = ticket.getPayload();
-    const email = payload?.email;
-    if (email === user.email) {
-      return true;
-    } else {
-      throw new AppError(appErrorCodes.TOKEN_DOSE_NOT_MATCH_USER, {}, true);
-    }
-  } catch (error) {
-    throw new AppError(appErrorCodes.BAD_GOOGLE_TOKEN, {}, true);
-  }
+export const getConsultantReviews = async (
+  props: getConsultantReviewsRequestType['query'],
+): Promise<getConsultantReviewsResponseType> => {
+  return functionWrapper(async () => {
+    const { consultantID, page = '1', limit = '10' } = props;
+    const pagination = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
+    const { reviews, totalReviews } = await model.getReviewsByConsultantIDWithPagination(consultantID, pagination);
+    const rating = await model.getConsultantRating(consultantID);
+    return { reviews, rating, totalReviews };
+  });
+};
+
+export const getTopicReviews = async (
+  props: getTopicReviewsRequestType['query'],
+): Promise<getTopicReviewsResponseType> => {
+  return functionWrapper(async () => {
+    const { topicID, page = '1', limit = '10' } = props;
+    const pagination = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
+    const { reviews, totalReviews } = await model.getReviewsByTopicIDWithPagination(topicID, pagination);
+    const rating = await model.getTopicRating(topicID);
+    return { reviews, rating, totalReviews };
+  });
+};
+
+export const scheduleLongTermReviewReminder = async (props: {
+  callID: string;
+  studentID: string;
+  consultantID: string;
+}) => {
+  return functionWrapper(async () => {
+    const { callID, studentID, consultantID } = props;
+    const reminderDate = new Date();
+    reminderDate.setDate(reminderDate.getDate() + 14); // Set reminder for 2 weeks later
+
+    const reminder = {
+      callID,
+      studentID,
+      consultantID,
+      reminderDate,
+    };
+
+    await model.createReviewReminder(reminder);
+  });
 };
