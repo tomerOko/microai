@@ -1,18 +1,40 @@
-**service flow/s:**
+11. Business Logic Explanation
+Collecting Ratings and Reviews
+After Call Ends:
 
-<u>user signing up to the system for the first time</u>
+When a call ends, the service prepares for accepting a review from the student.
+This can involve sending a notification or marking the booking as eligible for review.
+Adding a Review:
 
-1. validating the user is the owner of the provided email (using email pincode or oAuth mechanism)
-2. save the user details (email, first name, last name, password/oath token)
-3. publish an event for any other service needing the any of the details
-   - the email and the password/token is only published for the signup service to subscription. the rest of the services will get
-     the user (who sent the handled request) email from the JWT payload
+Students can rate and review consultants they have had a call with.
+The service saves the review and recalculates the consultant's average rating.
+A REVIEW_ADDED event is published after a review is successfully added.
+Displaying Ratings and Reviews
+Fetching Consultant Reviews:
+Provides an API to get all reviews for a specific consultant.
+Returns the average rating and a list of reviews.
+Calculating Aggregate Ratings
+Recalculating Average Rating:
+After each new review, the service recalculates the consultant's average rating.
+The average rating is updated in the consultant's rating record.
+Handling Notifications
+Publishing Events:
+The service publishes events when a review is added.
+Other services, like the Notifications Service, can listen to these events to notify consultants.
+Security and Data Integrity
+Authorization:
 
-<br></br> **todos:**
+Only authenticated students can add reviews.
+Students can only review consultants they have had a call with (not fully implemented in the placeholder).
+Data Validation:
 
-- finish setting up the mail sender (it needs some email account to send the emails from)
-- set up google oAuth
-  - sign up to the google developer cloud
-  - install the needed sdk
-  - make sure it is working
-  - update types
+Inputs are validated using Zod schemas to ensure data integrity.
+Scalability and Extensibility
+Modular Design:
+
+The code is organized into controllers, services, data access layers, and configurations.
+Makes it easy to maintain and extend functionality.
+Event-Driven Architecture:
+
+Uses RabbitMQ for asynchronous communication between services.
+Supports scalability by decoupling service dependencies.
