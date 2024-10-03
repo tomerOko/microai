@@ -1,47 +1,79 @@
-import { CollectionInitializerProps, SafeCollection, collectionInitializer, functionWrapper } from 'common-lib-tomeroko3';
-import { paymentDbValidations, signupDbValidations } from 'events-tomeroko3';
+// configs/mongoDB/initialization.ts
+import {
+  CollectionInitializerProps,
+  SafeCollection,
+  collectionInitializer,
+  functionWrapper,
+} from 'common-lib-tomeroko3';
+import { paymentsDbValidations } from 'tomeroko3-events';
 import { z } from 'zod';
 
-const { paymentMethod, user, withdrawMethod } = paymentDbValidations;
+const {
+  paymentMethod,
+  payoutMethod,
+  paymentRecord,
+  payoutRecord,
+  consultant,
+} = paymentsDbValidations;
 
-export type User = z.infer<typeof user>;
 export type PaymentMethod = z.infer<typeof paymentMethod>;
-export type WithdrawMethod = z.infer<typeof withdrawMethod>;
-
-const usersInitializerProps: CollectionInitializerProps<User> = {
-  collectionName: 'users',
-  documentSchema: user,
-  indexSpecs: [{ key: { email: 1 }, unique: true }],
-};
+export type PayoutMethod = z.infer<typeof payoutMethod>;
+export type PaymentRecord = z.infer<typeof paymentRecord>;
+export type PayoutRecord = z.infer<typeof payoutRecord>;
+export type Consultant = z.infer<typeof consultant>;
 
 const paymentMethodsInitializerProps: CollectionInitializerProps<PaymentMethod> = {
   collectionName: 'paymentMethods',
   documentSchema: paymentMethod,
-  indexSpecs: [],
+  indexSpecs: [{ key: { userID: 1 } }],
 };
 
-const withdrawMethodsInitializerProps: CollectionInitializerProps<WithdrawMethod> = {
-  collectionName: 'withdrawMethods',
-  documentSchema: withdrawMethod,
-  indexSpecs: [{ key: { userId: 1 }, unique: true }],
+const payoutMethodsInitializerProps: CollectionInitializerProps<PayoutMethod> = {
+  collectionName: 'payoutMethods',
+  documentSchema: payoutMethod,
+  indexSpecs: [{ key: { consultantID: 1 } }],
 };
 
-export let usersCollection: SafeCollection<User>;
+const paymentRecordsInitializerProps: CollectionInitializerProps<PaymentRecord> = {
+  collectionName: 'paymentRecords',
+  documentSchema: paymentRecord,
+  indexSpecs: [{ key: { bookingID: 1 }, unique: true }],
+};
+
+const payoutRecordsInitializerProps: CollectionInitializerProps<PayoutRecord> = {
+  collectionName: 'payoutRecords',
+  documentSchema: payoutRecord,
+  indexSpecs: [{ key: { consultantID: 1, createdAt: -1 } }],
+};
+
+const consultantsInitializerProps: CollectionInitializerProps<Consultant> = {
+  collectionName: 'consultants',
+  documentSchema: consultant,
+  indexSpecs: [{ key: { ID: 1 }, unique: true }],
+};
+
 export let paymentMethodsCollection: SafeCollection<PaymentMethod>;
-export let withdrawMethodsCollection: SafeCollection<WithdrawMethod>;
+export let payoutMethodsCollection: SafeCollection<PayoutMethod>;
+export let paymentRecordsCollection: SafeCollection<PaymentRecord>;
+export let payoutRecordsCollection: SafeCollection<PayoutRecord>;
+export let consultantsCollection: SafeCollection<Consultant>;
 
 export const initializeCollections = async () => {
   return functionWrapper(async () => {
-    usersCollection = await collectionInitializer(usersInitializerProps);
     paymentMethodsCollection = await collectionInitializer(paymentMethodsInitializerProps);
-    withdrawMethodsCollection = await collectionInitializer(withdrawMethodsInitializerProps);
+    payoutMethodsCollection = await collectionInitializer(payoutMethodsInitializerProps);
+    paymentRecordsCollection = await collectionInitializer(paymentRecordsInitializerProps);
+    payoutRecordsCollection = await collectionInitializer(payoutRecordsInitializerProps);
+    consultantsCollection = await collectionInitializer(consultantsInitializerProps);
   });
 };
 
 export const cleanCollections = async () => {
   return functionWrapper(async () => {
-    await usersCollection.deleteMany({});
     await paymentMethodsCollection.deleteMany({});
-    await withdrawMethodsCollection.deleteMany({});
+    await payoutMethodsCollection.deleteMany({});
+    await paymentRecordsCollection.deleteMany({});
+    await payoutRecordsCollection.deleteMany({});
+    await consultantsCollection.deleteMany({});
   });
 };

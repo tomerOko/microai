@@ -1,184 +1,332 @@
-import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
-import { updatePaymentMethodRequestType, updatePaymentMethodResponseType } from 'events-tomeroko3';
-// export const updatePaymentMethod = async (
-//   props: updatePaymentMethodRequestType['body'],
-// ): Promise<updatePaymentMethodResponseType> => {
-//   return functionWrapper(async () => {
-//     const { paymentMethod: update, paymentMethodID } = props;
-//     const userID = getAuthenticatedID() as string;
-//     const paymentMethod = await model.getPaymentMethodById(paymentMethodID);
-//     if (!paymentMethod) {
-//       throw new AppError(AppErrorCodes.UPDATE_PAYMENT_METHOD_NOT_FOUND, { paymentMethodID });
-//     }
-//     if (paymentMethod.userID !== userID) {
-//       throw new AppError(AppErrorCodes.UPDATE_PAYMENT_METHOD_WRONG_USER_ID, { paymentMethodID, userID });
-//     }
-//     paymentMethodUpdatedPublisher({ paymentMethodID, userID });
-//     await model.updatePaymentMethodByID(paymentMethodID, update);
-//     return {};
-//   });
-// };
+// service.ts
+import { AppError, functionWrapper } from 'common-lib-tomeroko3';
 import {
-  addPaymentMethodRequestType,
-  addPaymentMethodResponseType,
-  addWithdrawMethodRequestType,
-  addWithdrawMethodResponseType,
-  deletePaymentMethodRequestType,
-  deletePaymentMethodResponseType,
-  deleteWithdrawMethodRequestType,
-  deleteWithdrawMethodResponseType,
-  getPaymentMethodResponseType,
-  getWithdrawMethodsResponseType,
-  updateWithdrawMethodRequestType,
-  updateWithdrawMethodResponseType,
-} from 'events-tomeroko3';
+  AddPaymentMethodRequestType,
+  AddPaymentMethodResponseType,
+  UpdatePaymentMethodRequestType,
+  UpdatePaymentMethodResponseType,
+  RemovePaymentMethodRequestType,
+  RemovePaymentMethodResponseType,
+  AddPayoutMethodRequestType,
+  AddPayoutMethodResponseType,
+  UpdatePayoutMethodRequestType,
+  UpdatePayoutMethodResponseType,
+  RemovePayoutMethodRequestType,
+  RemovePayoutMethodResponseType,
+  PaymentMethodAddedEventType,
+  PaymentMethodUpdatedEventType,
+  PaymentMethodRemovedEventType,
+  PayoutMethodAddedEventType,
+  PayoutMethodUpdatedEventType,
+  PayoutMethodRemovedEventType,
+  PaymentProcessedEventType,
+  PaymentFailedEventType,
+  ReceiptGeneratedEventType,
+  PayoutProcessedEventType,
+  PayoutFailedEventType,
+  PayoutReceiptGeneratedEventType,
+} from 'tomeroko3-events';
 
-import { paymentMethodUpdatedPublisher } from '../configs/rabbitMQ/initialization';
 import {
-  paymentMethodAddedAndVerifiedPublisher,
-  paymentMethodDeletedOrDeclinedPublisher,
-  withdrawMethodAddedAndVerifiedPublisher,
-  withdrawMethodDeletedOrDeclinedPublisher,
-  withdrawMethodUpdatedPublisher,
-} from '../configs/rabbitMQ/initialization';
+  paymentMethodAddedPublisher,
+  paymentMethodUpdatedPublisher,
+  paymentMethodRemovedPublisher,
+  payoutMethodAddedPublisher,
+  payoutMethodUpdatedPublisher,
+  payoutMethodRemovedPublisher,
+  paymentProcessedPublisher,
+  paymentFailedPublisher,
+  receiptGeneratedPublisher,
+  payoutProcessedPublisher,
+  payoutFailedPublisher,
+  payoutReceiptGeneratedPublisher,
+} from './configs/rabbitMQ/initialization';
 
-import * as model from './DAL';
-import { AppErrorCodes } from './appErrorCodes';
+import * as model from './dal';
+import { processPaymentWithProvider } from './utils/paymentProvider';
+import { processPayoutWithProvider } from './utils/payoutProcessor';
+import { generateReceipt } from './utils/receiptGenerator';
+import { uploadToS3 } from './utils/s3Uploader';
+import { appErrorCodes } from './appErrorCodes';
 
-export const getUserPaymentMethods = async (): Promise<getPaymentMethodResponseType['body']> => {
+export const addPaymentMethod = async (
+  userID: string,
+  props: AddPaymentMethodRequestType['body']
+): Promise<AddPaymentMethodResponseType> => {
   return functionWrapper(async () => {
-    const userID = getAuthenticatedID() as string;
-    const user = await model.getUserById(userID);
-    if (!user) {
-      throw new AppError(AppErrorCodes.GET_PAYMENT_METHODS_USER_NOT_FOUND, { userID });
-    }
-    const paymentMethods = await model.getPaymentMethodsByUserId(userID);
-    const result: getPaymentMethodResponseType['body']['withdrawMethods'] = paymentMethods.map((paymentMethod) => {
-      const restructued: getPaymentMethodResponseType['body']['withdrawMethods'][number] = {
-        cvv: paymentMethod.cvv,
-        expirationDate: paymentMethod.expirationDate,
-        holderID: paymentMethod.holderID,
-        holderName: paymentMethod.holderName,
-        number: paymentMethod.number,
-        postalCode: paymentMethod.postalCode,
-      };
-      return restructued;
-    });
+    // Validate and securely store the payment method
+    await model.addPaymentMethod(userID, props);
 
-    return { withdrawMethods: result };
-  });
-};
+    // Publish PAYMENT_METHOD_ADDED event
+    const eventData: PaymentMethodAddedEventType['data'] = {
+      userID,
+      paymentMethodID: 'new_payment_method_id', // Replace with actual ID
+    };
+    paymentMethodAddedPublisher(eventData);
 
-export const addPaymentMethod = async (props: addPaymentMethodRequestType['body']): Promise<addPaymentMethodResponseType> => {
-  return functionWrapper(async () => {
-    const userID = getAuthenticatedID() as string;
-    const user = await model.getUserById(userID);
-    if (!user) {
-      throw new AppError(AppErrorCodes.ADD_PAYMENT_METHOD_USER_NOT_FOUND, { userID });
-    }
-    const newPaymentMethod = await model.insertPaymentMethod({ ...props, userID });
-    paymentMethodAddedAndVerifiedPublisher({ paymentMethodID: newPaymentMethod.ID, userID });
-    return { paymentMethodID: newPaymentMethod.ID };
-  });
-};
-
-export const deletePaymentMethod = async (
-  props: deletePaymentMethodRequestType['body'],
-): Promise<deletePaymentMethodResponseType> => {
-  return functionWrapper(async () => {
-    const { paymentMethodID } = props;
-    const userID = getAuthenticatedID() as string;
-    const paymentMethod = await model.getPaymentMethodById(paymentMethodID);
-    if (!paymentMethod) {
-      throw new AppError(AppErrorCodes.DELETE_PAYMENT_METHOD_NOT_FOUND, { paymentMethodID });
-    }
-    if (paymentMethod.userID !== userID) {
-      throw new AppError(AppErrorCodes.DELETE_PAYMENT_METHOD_WRONG_USER_ID, { paymentMethodID, userID });
-    }
-    await model.deletePaymentMethodByID(paymentMethodID);
-    paymentMethodDeletedOrDeclinedPublisher({ paymentMethodID, userID });
     return {};
   });
 };
 
 export const updatePaymentMethod = async (
-  props: updatePaymentMethodRequestType['body'],
-): Promise<updatePaymentMethodResponseType> => {
+  userID: string,
+  props: UpdatePaymentMethodRequestType['body']
+): Promise<UpdatePaymentMethodResponseType> => {
   return functionWrapper(async () => {
-    const { paymentMethod: update, paymentMethodID } = props;
-    const userID = getAuthenticatedID() as string;
-    const paymentMethod = await model.getPaymentMethodById(paymentMethodID);
-    if (!paymentMethod) {
-      throw new AppError(AppErrorCodes.UPDATE_PAYMENT_METHOD_NOT_FOUND, { paymentMethodID });
-    }
-    if (paymentMethod.userID !== userID) {
-      throw new AppError(AppErrorCodes.UPDATE_PAYMENT_METHOD_WRONG_USER_ID, { paymentMethodID, userID });
-    }
-    await model.updatePaymentMethodByID(paymentMethodID, update);
-    paymentMethodUpdatedPublisher({ paymentMethodID, userID });
+    const { paymentMethodID, updates } = props;
+
+    // Update the payment method securely
+    await model.updatePaymentMethod(userID, paymentMethodID, updates);
+
+    // Publish PAYMENT_METHOD_UPDATED event
+    const eventData: PaymentMethodUpdatedEventType['data'] = {
+      userID,
+      paymentMethodID,
+    };
+    paymentMethodUpdatedPublisher(eventData);
+
     return {};
   });
 };
 
-export const getUserWithdrawMethods = async (): Promise<getWithdrawMethodsResponseType> => {
+export const removePaymentMethod = async (
+  userID: string,
+  props: RemovePaymentMethodRequestType['body']
+): Promise<RemovePaymentMethodResponseType> => {
   return functionWrapper(async () => {
-    const userID = getAuthenticatedID() as string;
-    const user = await model.getUserById(userID);
-    if (!user) {
-      throw new AppError(AppErrorCodes.GET_WITHDRAW_METHODS_USER_NOT_FOUND, { userID });
-    }
-    const withdrawMethods = await model.getWithdrawMethodsByUserId(userID);
-    return { withdrawMethods };
-  });
-};
+    const { paymentMethodID } = props;
 
-export const addWithdrawMethod = async (props: addWithdrawMethodRequestType['body']): Promise<addWithdrawMethodResponseType> => {
-  return functionWrapper(async () => {
-    const userID = getAuthenticatedID() as string;
-    const user = await model.getUserById(userID);
-    if (!user) {
-      throw new AppError(AppErrorCodes.ADD_WITHDRAW_METHODS_USER_NOT_FOUND, { userID });
-    }
-    const newWithdrawMethod = await model.insertWithdrawMethod({ ...props, userID });
-    withdrawMethodAddedAndVerifiedPublisher({ withdrawMethodID: newWithdrawMethod.ID, userID });
-    return { withdrawMethodID: newWithdrawMethod.ID };
-  });
-};
+    // Remove the payment method
+    await model.removePaymentMethod(userID, paymentMethodID);
 
-export const deleteWithdrawMethod = async (
-  props: deleteWithdrawMethodRequestType['body'],
-): Promise<deleteWithdrawMethodResponseType> => {
-  return functionWrapper(async () => {
-    const { withdrawMethodID } = props;
-    const userID = getAuthenticatedID() as string;
-    const withdrawMethod = await model.getWithdrawMethodById(withdrawMethodID);
-    if (!withdrawMethod) {
-      throw new AppError(AppErrorCodes.DELETE_WITHDRAW_METHOD_NOT_FOUND, { withdrawMethodID });
-    }
-    if (withdrawMethod.userID !== userID) {
-      throw new AppError(AppErrorCodes.DELETE_WITHDRAW_METHOD_WRONG_USER_ID, { withdrawMethodID, userID });
-    }
-    await model.deleteWithdrawMethodByID(withdrawMethodID);
-    withdrawMethodDeletedOrDeclinedPublisher({ withdrawMethodID, userID });
+    // Publish PAYMENT_METHOD_REMOVED event
+    const eventData: PaymentMethodRemovedEventType['data'] = {
+      userID,
+      paymentMethodID,
+    };
+    paymentMethodRemovedPublisher(eventData);
+
     return {};
   });
 };
 
-export const updateWithdrawMethod = async (
-  props: updateWithdrawMethodRequestType['body'],
-): Promise<updateWithdrawMethodResponseType> => {
+export const addPayoutMethod = async (
+  consultantID: string,
+  props: AddPayoutMethodRequestType['body']
+): Promise<AddPayoutMethodResponseType> => {
   return functionWrapper(async () => {
-    const { bankAccount: update, bankAccountID } = props;
-    const userID = getAuthenticatedID() as string;
-    const withdrawMethod = await model.getWithdrawMethodById(bankAccountID);
-    if (!withdrawMethod) {
-      throw new AppError(AppErrorCodes.UPDATE_WITHDRAW_METHOD_NOT_FOUND, { withdrawMethodID: bankAccountID });
-    }
-    if (withdrawMethod.userID !== userID) {
-      throw new AppError(AppErrorCodes.UPDATE_WITHDRAW_METHOD_WRONG_USER_ID, { withdrawMethodID: bankAccountID, userID });
-    }
-    await model.updateWithdrawMethodByID(bankAccountID, update);
-    withdrawMethodUpdatedPublisher({ withdrawMethodID: bankAccountID, userID });
+    // Validate and securely store the payout method
+    await model.addPayoutMethod(consultantID, props);
+
+    // Publish PAYOUT_METHOD_ADDED event
+    const eventData: PayoutMethodAddedEventType['data'] = {
+      consultantID,
+      payoutMethodID: 'new_payout_method_id', // Replace with actual ID
+    };
+    payoutMethodAddedPublisher(eventData);
+
     return {};
   });
 };
+
+export const updatePayoutMethod = async (
+  consultantID: string,
+  props: UpdatePayoutMethodRequestType['body']
+): Promise<UpdatePayoutMethodResponseType> => {
+  return functionWrapper(async () => {
+    const { payoutMethodID, updates } = props;
+
+    // Update the payout method securely
+    await model.updatePayoutMethod(consultantID, payoutMethodID, updates);
+
+    // Publish PAYOUT_METHOD_UPDATED event
+    const eventData: PayoutMethodUpdatedEventType['data'] = {
+      consultantID,
+      payoutMethodID,
+    };
+    payoutMethodUpdatedPublisher(eventData);
+
+    return {};
+  });
+};
+
+export const removePayoutMethod = async (
+  consultantID: string,
+  props: RemovePayoutMethodRequestType['body']
+): Promise<RemovePayoutMethodResponseType> => {
+  return functionWrapper(async () => {
+    const { payoutMethodID } = props;
+
+    // Remove the payout method
+    await model.removePayoutMethod(consultantID, payoutMethodID);
+
+    // Publish PAYOUT_METHOD_REMOVED event
+    const eventData: PayoutMethodRemovedEventType['data'] = {
+      consultantID,
+      payoutMethodID,
+    };
+    payoutMethodRemovedPublisher(eventData);
+
+    return {};
+  });
+};
+
+export const processPayment = async (bookingID: string) => {
+  return functionWrapper(async () => {
+    // Retrieve necessary data (studentID, consultantID, amount)
+    const amountDue = await calculateAmountDue(bookingID);
+    const studentID = await getStudentIDByBooking(bookingID);
+    const consultantID = await getConsultantIDByBooking(bookingID);
+    const paymentMethods = await model.getPaymentMethodsByUserID(studentID);
+
+    if (paymentMethods.length === 0) {
+      paymentFailedPublisher({ bookingID, studentID, reason: 'No payment method on file' });
+      return;
+    }
+
+    const paymentMethod = paymentMethods[0]; // Use the first payment method
+
+    // Process payment via third-party provider
+    const paymentResult = await processPaymentWithProvider(amountDue, paymentMethod);
+
+    if (paymentResult.success) {
+      // Generate and upload receipt
+      const receipt = generateReceipt({ bookingID, amount: amountDue, studentID });
+      const receiptURL = await uploadToS3(receipt);
+
+      // Create payment record
+      await model.createPaymentRecord({
+        bookingID,
+        studentID,
+        consultantID,
+        amount: amountDue,
+        status: 'processed',
+        receiptURL,
+        createdAt: new Date().toISOString(),
+      });
+
+      // Publish events
+      const paymentProcessedData: PaymentProcessedEventType['data'] = {
+        bookingID,
+        studentID,
+        receiptURL,
+      };
+      paymentProcessedPublisher(paymentProcessedData);
+
+      const receiptGeneratedData: ReceiptGeneratedEventType['data'] = {
+        bookingID,
+        receiptURL,
+      };
+      receiptGeneratedPublisher(receiptGeneratedData);
+    } else {
+      const paymentFailedData: PaymentFailedEventType['data'] = {
+        bookingID,
+        studentID,
+        reason: paymentResult.error || 'Payment failed',
+      };
+      paymentFailedPublisher(paymentFailedData);
+    }
+  });
+};
+
+export const processMonthlyPayouts = async () => {
+  return functionWrapper(async () => {
+    // Get all consultants
+    const consultants = await model.getAllConsultants();
+
+    for (const consultant of consultants) {
+      try {
+        // Calculate total earnings
+        const totalEarnings = await model.calculateMonthlyEarnings(consultant.ID);
+
+        if (totalEarnings <= 0) continue;
+
+        // Get payout method
+        const payoutMethods = await model.getPayoutMethodsByConsultantID(consultant.ID);
+        if (payoutMethods.length === 0) {
+          const payoutFailedData: PayoutFailedEventType['data'] = {
+            consultantID: consultant.ID,
+            amount: totalEarnings,
+            reason: 'No payout method on file',
+          };
+          payoutFailedPublisher(payoutFailedData);
+          continue;
+        }
+
+        const payoutMethod = payoutMethods[0];
+
+        // Process payout
+        const payoutResult = await processPayoutWithProvider(totalEarnings, payoutMethod);
+
+        if (payoutResult.success) {
+          // Generate and upload receipt
+          const receipt = generateReceipt({
+            consultantID: consultant.ID,
+            amount: totalEarnings,
+            period: getLastMonthPeriod(),
+          });
+          const receiptURL = await uploadToS3(receipt);
+
+          // Create payout record
+          await model.createPayoutRecord({
+            consultantID: consultant.ID,
+            amount: totalEarnings,
+            status: 'processed',
+            receiptURL,
+            createdAt: new Date().toISOString(),
+          });
+
+          // Publish events
+          const payoutProcessedData: PayoutProcessedEventType['data'] = {
+            consultantID: consultant.ID,
+            amount: totalEarnings,
+            receiptURL,
+          };
+          payoutProcessedPublisher(payoutProcessedData);
+
+          const payoutReceiptGeneratedData: PayoutReceiptGeneratedEventType['data'] = {
+            consultantID: consultant.ID,
+            receiptURL,
+          };
+          payoutReceiptGeneratedPublisher(payoutReceiptGeneratedData);
+        } else {
+          const payoutFailedData: PayoutFailedEventType['data'] = {
+            consultantID: consultant.ID,
+            amount: totalEarnings,
+            reason: payoutResult.error || 'Payout failed',
+          };
+          payoutFailedPublisher(payoutFailedData);
+        }
+      } catch (error) {
+        const payoutFailedData: PayoutFailedEventType['data'] = {
+          consultantID: consultant.ID,
+          amount: 0,
+          reason: error.message,
+        };
+        payoutFailedPublisher(payoutFailedData);
+      }
+    }
+  });
+};
+
+// Helper functions
+async function calculateAmountDue(bookingID: string): Promise<number> {
+  // Implement logic to calculate amount based on booking details
+  return 5000; // Example amount in cents
+}
+
+async function getStudentIDByBooking(bookingID: string): Promise<string> {
+  // Implement logic to retrieve student ID associated with the booking
+  return 'student_id';
+}
+
+async function getConsultantIDByBooking(bookingID: string): Promise<string> {
+  // Implement logic to retrieve consultant ID associated with the booking
+  return 'consultant_id';
+}
+
+function getLastMonthPeriod(): string {
+  const now = new Date();
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return `${lastMonth.toISOString().slice(0, 7)}`; // YYYY-MM
+}

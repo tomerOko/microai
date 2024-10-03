@@ -1,16 +1,11 @@
-import { functionWrapper } from 'common-lib-tomeroko3';
-import { UserCreatedEventType, UserUpdatedEventType } from 'events-tomeroko3';
+// consumers.ts
+import { CallEndedEventType } from 'tomeroko3-events';
+import * as service from './service';
 
-import { insertUser, updateUser } from './DAL';
+// Handle Call Ended Event
+export const handleCallEndedEvent = async (event: CallEndedEventType['data']) => {
+  const { callID, bookingID } = event;
 
-export const handleNewUserEvent = async (user: UserCreatedEventType['data']) => {
-  return functionWrapper(async () => {
-    await insertUser(user);
-  });
-};
-
-export const handleUpdatedUserEvent = async (user: UserUpdatedEventType['data']) => {
-  return functionWrapper(async () => {
-    await updateUser(user.ID, user);
-  });
+  // Process payment after call has ended
+  await service.processPayment(bookingID);
 };

@@ -1,73 +1,33 @@
-import { ErrorHandlerParams, errorHandler, functionWrapper } from 'common-lib-tomeroko3';
+// controller.ts
+import { errorHandler, functionWrapper, Auth } from 'common-lib-tomeroko3';
 import {
-  addPaymentMethodRequestType,
-  addPaymentMethodResponseType,
-  addWithdrawMethodRequestType,
-  addWithdrawMethodResponseType,
-  deletePaymentMethodRequestType,
-  deletePaymentMethodResponseType,
-  deleteWithdrawMethodRequestType,
-  deleteWithdrawMethodResponseType,
-  getPaymentMethodResponseType,
-  getWithdrawMethodsResponseType,
-  updatePaymentMethodRequestType,
-  updatePaymentMethodResponseType,
-  updateWithdrawMethodRequestType,
-  updateWithdrawMethodResponseType,
-} from 'events-tomeroko3';
+  AddPaymentMethodRequestType,
+  AddPaymentMethodResponseType,
+  UpdatePaymentMethodRequestType,
+  UpdatePaymentMethodResponseType,
+  RemovePaymentMethodRequestType,
+  RemovePaymentMethodResponseType,
+  AddPayoutMethodRequestType,
+  AddPayoutMethodResponseType,
+  UpdatePayoutMethodRequestType,
+  UpdatePayoutMethodResponseType,
+  RemovePayoutMethodRequestType,
+  RemovePayoutMethodResponseType,
+} from 'tomeroko3-events';
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 
 import * as service from './service';
 
-export const test = async (req: Request, res: Response, next: NextFunction) => {
-  return functionWrapper(async () => {
-    try {
-      res.send('Test route');
-    } catch (error) {
-      errorHandler({})(error, next);
-    }
-  });
-};
-
-export const getUserPaymentMethods = async (req: Request, res: Response, next: NextFunction) => {
-  return functionWrapper(async () => {
-    try {
-      const result: getPaymentMethodResponseType['body'] = await service.getUserPaymentMethods();
-      res.status(httpStatus.OK).send(result);
-    } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      // handlerProps[appErrorCodes.WRONG_PINCODE] = [httpStatus.CONFLICT, 'user entered wrong pincode'];
-      errorHandler(handlerProps)(error, next);
-    }
-  });
-};
-
 export const addPaymentMethod = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const result: addPaymentMethodResponseType = await service.addPaymentMethod(
-        req.body as addPaymentMethodRequestType['body'],
-      );
+      const body = req.body as AddPaymentMethodRequestType['body'];
+      const userID = req.user?.id as string;
+      const result: AddPaymentMethodResponseType = await service.addPaymentMethod(userID, body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      // handlerProps[appErrorCodes.WRONG_PINCODE] = [httpStatus.CONFLICT, 'user entered wrong pincode'];
-      errorHandler(handlerProps)(error, next);
-    }
-  });
-};
-
-export const deletePaymentMethod = async (req: Request, res: Response, next: NextFunction) => {
-  return functionWrapper(async () => {
-    try {
-      const result: deletePaymentMethodResponseType = await service.deletePaymentMethod(
-        req.body as deletePaymentMethodRequestType['body'],
-      );
-      res.status(httpStatus.OK).send(result);
-    } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      errorHandler(handlerProps)(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -75,67 +35,45 @@ export const deletePaymentMethod = async (req: Request, res: Response, next: Nex
 export const updatePaymentMethod = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const result: updatePaymentMethodResponseType = await service.updatePaymentMethod(
-        req.body as updatePaymentMethodRequestType['body'],
-      );
+      const body = req.body as UpdatePaymentMethodRequestType['body'];
+      const userID = req.user?.id as string;
+      const result: UpdatePaymentMethodResponseType = await service.updatePaymentMethod(userID, body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      errorHandler(handlerProps)(error, next);
+      errorHandler(error, next);
     }
   });
 };
 
-export const getUserWithdrawMethods = async (req: Request, res: Response, next: NextFunction) => {
+export const removePaymentMethod = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const result: getWithdrawMethodsResponseType = await service.getUserWithdrawMethods();
+      const body = req.body as RemovePaymentMethodRequestType['body'];
+      const userID = req.user?.id as string;
+      const result: RemovePaymentMethodResponseType = await service.removePaymentMethod(userID, body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      errorHandler(handlerProps)(error, next);
+      errorHandler(error, next);
     }
   });
 };
 
-export const addWithdrawMethod = async (req: Request, res: Response, next: NextFunction) => {
+export const addPayoutMethod = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const result: addWithdrawMethodResponseType = await service.addWithdrawMethod(
-        req.body as addWithdrawMethodRequestType['body'],
-      );
+      const body = req.body as AddPayoutMethodRequestType['body'];
+      const userID = req.user?.id as string;
+      const result: AddPayoutMethodResponseType = await service.addPayoutMethod(userID, body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      errorHandler(handlerProps)(error, next);
+      errorHandler(error, next);
     }
   });
 };
 
-export const deleteWithdrawMethod = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePayoutMethod = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const result: deleteWithdrawMethodResponseType = await service.deleteWithdrawMethod(
-        req.body as deleteWithdrawMethodRequestType['body'],
-      );
-      res.status(httpStatus.OK).send(result);
-    } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      errorHandler(handlerProps)(error, next);
-    }
-  });
-};
-
-export const updateWithdrawMethod = async (req: Request, res: Response, next: NextFunction) => {
-  return functionWrapper(async () => {
-    try {
-      const result: updateWithdrawMethodResponseType = await service.updateWithdrawMethod(
-        req.body as updateWithdrawMethodRequestType['body'],
-      );
-      res.status(httpStatus.OK).send(result);
-    } catch (error) {
-      const handlerProps: ErrorHandlerParams = {};
-      errorHandler(handlerProps)(error, next);
-    }
-  });
-};
+      const body = req.body as UpdatePayoutMethodRequestType['body'];
+      const userID = req.user?.id as string;
+      const result: UpdatePayoutMethodResponseType

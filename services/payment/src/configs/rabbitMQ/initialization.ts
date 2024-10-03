@@ -1,74 +1,63 @@
+// configs/rabbitMQ/initialization.ts
 import {
+  RabbitPublisherParams,
   RabbitSubscriberParams,
   functionWrapper,
   initializeRabbitSubscriber,
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
-import { RabbitPublisherParams } from 'common-lib-tomeroko3';
 import {
-  FailedPaymentEventType,
-  FailedWithrawEventType,
-  PaymentMethodAddedAndVerifiedEventType,
-  PaymentMethodDeletedOrDeclinedEventType,
+  CallEndedEventType,
+  PaymentMethodAddedEventType,
   PaymentMethodUpdatedEventType,
-  SendEmailEventType,
-  SuccessfulPaymentEventType,
-  SuccessfulWithrawEventType,
-  UserCreatedEventType,
-  UserUpdatedEventType,
-  WithrawMethodAddedAndVerifiedEventType,
-  WithrawMethodDeletedOrDeclinedEventType,
-  WithrawMethodUpdatedEventType,
-  emailEventsNames,
-  failedPaymentEventValidation,
-  failedWithdrawEventValidation,
+  PaymentMethodRemovedEventType,
+  PayoutMethodAddedEventType,
+  PayoutMethodUpdatedEventType,
+  PayoutMethodRemovedEventType,
+  PaymentProcessedEventType,
+  PaymentFailedEventType,
+  ReceiptGeneratedEventType,
+  PayoutProcessedEventType,
+  PayoutFailedEventType,
+  PayoutReceiptGeneratedEventType,
+  callEventsNames,
   paymentEventsNames,
-  paymentMethodAddedAndVerifiedEventValidation,
-  paymentMethodDeletedOrDeclinedEventValidation,
+  callEndedEventValidation,
+  paymentMethodAddedEventValidation,
   paymentMethodUpdatedEventValidation,
-  sendEmailEventValidation,
-  signupEventsNames,
-  successfulPaymentEventValidation,
-  successfulWithdrawEventValidation,
-  userCreatedEventValidation,
-  userUpdatedEventValidation,
-  withdrawMethodAddedAndVerifiedEventValidation,
-  withdrawMethodDeletedOrDeclinedEventValidation,
-  withdrawMethodUpdatedEventValidation,
-} from 'events-tomeroko3';
+  paymentMethodRemovedEventValidation,
+  payoutMethodAddedEventValidation,
+  payoutMethodUpdatedEventValidation,
+  payoutMethodRemovedEventValidation,
+  paymentProcessedEventValidation,
+  paymentFailedEventValidation,
+  receiptGeneratedEventValidation,
+  payoutProcessedEventValidation,
+  payoutFailedEventValidation,
+  payoutReceiptGeneratedEventValidation,
+} from 'tomeroko3-events';
 
-import { handleNewUserEvent, handleUpdatedUserEvent } from '../../logic/consumers';
+import { handleCallEndedEvent } from '../../consumers';
 
-export let failedPaymentPublisher: (data: FailedPaymentEventType['data']) => void;
-export let failedWithdrawPublisher: (data: FailedWithrawEventType['data']) => void;
-export let paymentMethodAddedAndVerifiedPublisher: (data: PaymentMethodAddedAndVerifiedEventType['data']) => void;
-export let paymentMethodDeletedOrDeclinedPublisher: (data: PaymentMethodDeletedOrDeclinedEventType['data']) => void;
+export let paymentMethodAddedPublisher: (data: PaymentMethodAddedEventType['data']) => void;
 export let paymentMethodUpdatedPublisher: (data: PaymentMethodUpdatedEventType['data']) => void;
-export let emailPublisher: (data: SendEmailEventType['data']) => void;
-export let successfulPaymentPublisher: (data: SuccessfulPaymentEventType['data']) => void;
-export let successfulWithdrawPublisher: (data: SuccessfulWithrawEventType['data']) => void;
-export let withdrawMethodAddedAndVerifiedPublisher: (data: WithrawMethodAddedAndVerifiedEventType['data']) => void;
-export let withdrawMethodDeletedOrDeclinedPublisher: (data: WithrawMethodDeletedOrDeclinedEventType['data']) => void;
-export let withdrawMethodUpdatedPublisher: (data: WithrawMethodUpdatedEventType['data']) => void;
+export let paymentMethodRemovedPublisher: (data: PaymentMethodRemovedEventType['data']) => void;
 
-const failedPaymentPublisherParams: RabbitPublisherParams<FailedPaymentEventType> = {
-  eventName: paymentEventsNames.FAILED_PAYMENT,
-  eventSchema: failedPaymentEventValidation,
-};
+export let payoutMethodAddedPublisher: (data: PayoutMethodAddedEventType['data']) => void;
+export let payoutMethodUpdatedPublisher: (data: PayoutMethodUpdatedEventType['data']) => void;
+export let payoutMethodRemovedPublisher: (data: PayoutMethodRemovedEventType['data']) => void;
 
-const failedWithdrawPublisherParams: RabbitPublisherParams<FailedWithrawEventType> = {
-  eventName: paymentEventsNames.FAILED_WITHDRAW,
-  eventSchema: failedWithdrawEventValidation,
-};
+export let paymentProcessedPublisher: (data: PaymentProcessedEventType['data']) => void;
+export let paymentFailedPublisher: (data: PaymentFailedEventType['data']) => void;
+export let receiptGeneratedPublisher: (data: ReceiptGeneratedEventType['data']) => void;
 
-const paymentMethodAddedAndVerifiedPublisherParams: RabbitPublisherParams<PaymentMethodAddedAndVerifiedEventType> = {
-  eventName: paymentEventsNames.PAYMENT_METHOD_ADDED_AND_VERIFIED,
-  eventSchema: paymentMethodAddedAndVerifiedEventValidation,
-};
+export let payoutProcessedPublisher: (data: PayoutProcessedEventType['data']) => void;
+export let payoutFailedPublisher: (data: PayoutFailedEventType['data']) => void;
+export let payoutReceiptGeneratedPublisher: (data: PayoutReceiptGeneratedEventType['data']) => void;
 
-const paymentMethodDeletedOrDeclinedPublisherParams: RabbitPublisherParams<PaymentMethodDeletedOrDeclinedEventType> = {
-  eventName: paymentEventsNames.PAYMENT_METHOD_DELETED_OR_DECLINED,
-  eventSchema: paymentMethodDeletedOrDeclinedEventValidation,
+const paymentMethodAddedPublisherParams: RabbitPublisherParams<PaymentMethodAddedEventType> = {
+  eventName: paymentEventsNames.PAYMENT_METHOD_ADDED,
+  eventSchema: paymentMethodAddedEventValidation,
 };
 
 const paymentMethodUpdatedPublisherParams: RabbitPublisherParams<PaymentMethodUpdatedEventType> = {
@@ -76,65 +65,83 @@ const paymentMethodUpdatedPublisherParams: RabbitPublisherParams<PaymentMethodUp
   eventSchema: paymentMethodUpdatedEventValidation,
 };
 
-const successfulPaymentPublisherParams: RabbitPublisherParams<SuccessfulPaymentEventType> = {
-  eventName: paymentEventsNames.SUCCESSFUL_PAYMENT,
-  eventSchema: successfulPaymentEventValidation,
+const paymentMethodRemovedPublisherParams: RabbitPublisherParams<PaymentMethodRemovedEventType> = {
+  eventName: paymentEventsNames.PAYMENT_METHOD_REMOVED,
+  eventSchema: paymentMethodRemovedEventValidation,
 };
 
-const successfulWithdrawPublisherParams: RabbitPublisherParams<SuccessfulWithrawEventType> = {
-  eventName: paymentEventsNames.SUCCESSFUL_WITHDRAW,
-  eventSchema: successfulWithdrawEventValidation,
+const payoutMethodAddedPublisherParams: RabbitPublisherParams<PayoutMethodAddedEventType> = {
+  eventName: paymentEventsNames.PAYOUT_METHOD_ADDED,
+  eventSchema: payoutMethodAddedEventValidation,
 };
 
-const withdrawMethodAddedAndVerifiedPublisherParams: RabbitPublisherParams<WithrawMethodAddedAndVerifiedEventType> = {
-  eventName: paymentEventsNames.WITHDRAW_METHOD_ADDED_AND_VERIFIED,
-  eventSchema: withdrawMethodAddedAndVerifiedEventValidation,
+const payoutMethodUpdatedPublisherParams: RabbitPublisherParams<PayoutMethodUpdatedEventType> = {
+  eventName: paymentEventsNames.PAYOUT_METHOD_UPDATED,
+  eventSchema: payoutMethodUpdatedEventValidation,
 };
 
-const withdrawMethodDeletedOrDeclinedPublisherParams: RabbitPublisherParams<WithrawMethodDeletedOrDeclinedEventType> = {
-  eventName: paymentEventsNames.WITHDRAW_METHOD_DELETED_OR_DECLINED,
-  eventSchema: withdrawMethodDeletedOrDeclinedEventValidation,
+const payoutMethodRemovedPublisherParams: RabbitPublisherParams<PayoutMethodRemovedEventType> = {
+  eventName: paymentEventsNames.PAYOUT_METHOD_REMOVED,
+  eventSchema: payoutMethodRemovedEventValidation,
 };
 
-const withdrawMethodUpdatedPublisherParams: RabbitPublisherParams<WithrawMethodUpdatedEventType> = {
-  eventName: paymentEventsNames.WITHDRAW_METHOD_UPDATED,
-  eventSchema: withdrawMethodUpdatedEventValidation,
+const paymentProcessedPublisherParams: RabbitPublisherParams<PaymentProcessedEventType> = {
+  eventName: paymentEventsNames.PAYMENT_PROCESSED,
+  eventSchema: paymentProcessedEventValidation,
 };
 
-const emailPublisherParams: RabbitPublisherParams<SendEmailEventType> = {
-  eventName: emailEventsNames.SEND_EMAIL,
-  eventSchema: sendEmailEventValidation,
+const paymentFailedPublisherParams: RabbitPublisherParams<PaymentFailedEventType> = {
+  eventName: paymentEventsNames.PAYMENT_FAILED,
+  eventSchema: paymentFailedEventValidation,
 };
 
-const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
-  thisServiceName: 'PAYMENT_SERVICE',
-  eventName: signupEventsNames.USER_CREATED,
-  eventSchema: userCreatedEventValidation,
-  handler: handleNewUserEvent,
+const receiptGeneratedPublisherParams: RabbitPublisherParams<ReceiptGeneratedEventType> = {
+  eventName: paymentEventsNames.RECEIPT_GENERATED,
+  eventSchema: receiptGeneratedEventValidation,
 };
 
-const userUpdatedSubscriberParams: RabbitSubscriberParams<UserUpdatedEventType> = {
-  thisServiceName: 'PAYMENT_SERVICE',
-  eventName: signupEventsNames.USER_UPDATED,
-  eventSchema: userUpdatedEventValidation,
-  handler: handleUpdatedUserEvent,
+const payoutProcessedPublisherParams: RabbitPublisherParams<PayoutProcessedEventType> = {
+  eventName: paymentEventsNames.PAYOUT_PROCESSED,
+  eventSchema: payoutProcessedEventValidation,
+};
+
+const payoutFailedPublisherParams: RabbitPublisherParams<PayoutFailedEventType> = {
+  eventName: paymentEventsNames.PAYOUT_FAILED,
+  eventSchema: payoutFailedEventValidation,
+};
+
+const payoutReceiptGeneratedPublisherParams: RabbitPublisherParams<PayoutReceiptGeneratedEventType> = {
+  eventName: paymentEventsNames.PAYOUT_RECEIPT_GENERATED,
+  eventSchema: payoutReceiptGeneratedEventValidation,
+};
+
+const callEndedSubscriberParams: RabbitSubscriberParams<CallEndedEventType> = {
+  thisServiceName: 'PAYMENTS_SERVICE',
+  eventName: callEventsNames.CALL_ENDED,
+  eventSchema: callEndedEventValidation,
+  handler: handleCallEndedEvent,
 };
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    failedPaymentPublisher = await rabbitPublisherFactory(failedPaymentPublisherParams);
-    failedWithdrawPublisher = await rabbitPublisherFactory(failedWithdrawPublisherParams);
-    paymentMethodAddedAndVerifiedPublisher = await rabbitPublisherFactory(paymentMethodAddedAndVerifiedPublisherParams);
-    paymentMethodDeletedOrDeclinedPublisher = await rabbitPublisherFactory(paymentMethodDeletedOrDeclinedPublisherParams);
-    paymentMethodUpdatedPublisher = await rabbitPublisherFactory(paymentMethodUpdatedPublisherParams);
-    emailPublisher = await rabbitPublisherFactory(emailPublisherParams);
-    successfulPaymentPublisher = await rabbitPublisherFactory(successfulPaymentPublisherParams);
-    successfulWithdrawPublisher = await rabbitPublisherFactory(successfulWithdrawPublisherParams);
-    withdrawMethodAddedAndVerifiedPublisher = await rabbitPublisherFactory(withdrawMethodAddedAndVerifiedPublisherParams);
-    withdrawMethodDeletedOrDeclinedPublisher = await rabbitPublisherFactory(withdrawMethodDeletedOrDeclinedPublisherParams);
-    withdrawMethodUpdatedPublisher = await rabbitPublisherFactory(withdrawMethodUpdatedPublisherParams);
+    // Initialize subscribers
+    await initializeRabbitSubscriber(callEndedSubscriberParams);
 
-    initializeRabbitSubscriber(userCreatedSubscriberParams);
-    initializeRabbitSubscriber(userUpdatedSubscriberParams);
+    // Initialize publishers
+    paymentMethodAddedPublisher = await rabbitPublisherFactory(paymentMethodAddedPublisherParams);
+    paymentMethodUpdatedPublisher = await rabbitPublisherFactory(paymentMethodUpdatedPublisherParams);
+    paymentMethodRemovedPublisher = await rabbitPublisherFactory(paymentMethodRemovedPublisherParams);
+
+    payoutMethodAddedPublisher = await rabbitPublisherFactory(payoutMethodAddedPublisherParams);
+    payoutMethodUpdatedPublisher = await rabbitPublisherFactory(payoutMethodUpdatedPublisherParams);
+    payoutMethodRemovedPublisher = await rabbitPublisherFactory(payoutMethodRemovedPublisherParams);
+
+    paymentProcessedPublisher = await rabbitPublisherFactory(paymentProcessedPublisherParams);
+    paymentFailedPublisher = await rabbitPublisherFactory(paymentFailedPublisherParams);
+    receiptGeneratedPublisher = await rabbitPublisherFactory(receiptGeneratedPublisherParams);
+
+    payoutProcessedPublisher = await rabbitPublisherFactory(payoutProcessedPublisherParams);
+    payoutFailedPublisher = await rabbitPublisherFactory(payoutFailedPublisherParams);
+    payoutReceiptGeneratedPublisher = await rabbitPublisherFactory(payoutReceiptGeneratedPublisherParams);
   });
 };
