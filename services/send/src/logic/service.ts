@@ -1,70 +1,73 @@
-import { AppError, functionWrapper, signToken } from 'common-lib-tomeroko3';
-import { LoginMethod, LoginRequest, LoginResponse, loginMethods } from 'events-tomeroko3';
-import { OAuth2Client } from 'google-auth-library';
-import { validate } from 'uuid';
+// service.ts
+import { functionWrapper } from 'common-lib-tomeroko3';
+import nodemailer from 'nodemailer';
 
-import { ENVs } from '../configs/ENVs';
-import { User } from '../configs/mongoDB/initialization';
-import { userLoginPublisher } from '../configs/rabbitMQ';
-
-import { appErrorCodes } from './appErrorCodes';
-import * as model from './dal';
-
-export const login = async (props: LoginRequest['body']): Promise<LoginResponse> => {
+/**
+ * Sends an email using nodemailer.
+ */
+export const sendEmail = async (to: string, subject: string, body: string) => {
   return functionWrapper(async () => {
-    const { email, loginMethod, methodSecret } = props;
-
-    const user = await model.getUserByEmail(email);
-    if (!user) {
-      throw new AppError(appErrorCodes.CANT_LOGIN_USER_NOT_FOUND, { email }, true);
-    }
-    validateLoginByMethod(loginMethod, methodSecret, user);
-
-    const { ID, firstName, lastName } = user;
-    userLoginPublisher({
-      email,
-      ID,
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.example.com', // Replace with your SMTP host
+      port: 587, // Replace with your SMTP port
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: 'your_email@example.com', // Replace with your email
+        pass: 'your_email_password', // Replace with your email password
+      },
     });
 
-    const token = signToken({ ID }, ENVs.jwtSecret);
-    return {
-      token,
-      user: {
-        ID,
-        email,
-        firstName,
-        lastName,
-      },
-    };
+    await transporter.sendMail({
+      from: '"Your App" <no-reply@yourapp.com>',
+      to,
+      subject,
+      text: body,
+    });
   });
 };
 
-const validateLoginByMethod = (loginMethod: LoginMethod, methodSecret: string, user: User) => {
-  switch (loginMethod) {
-    case loginMethods.PASSWORD:
-      return user.password === methodSecret;
-    case loginMethods.GOOGLE:
-      return validateGoolgeToken(methodSecret, user);
-    default:
-      throw new AppError(appErrorCodes.CANT_LOGIN_UNKNOWN_METHOD, { loginMethod }, true);
-  }
+/**
+ * Sends an SMS using a hypothetical SMS service.
+ */
+export const sendSMS = async (phoneNumber: string, message: string) => {
+  return functionWrapper(async () => {
+    // Implement SMS sending logic here using an SMS service provider like Twilio
+    console.log(`Sending SMS to ${phoneNumber}: ${message}`);
+    // Simulate sending SMS
+    if (!phoneNumber.startsWith('+')) {
+      throw new Error('Invalid phone number format');
+    }
+    // Simulate delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  });
 };
 
-const validateGoolgeToken = async (token: string, user: User) => {
-  const client = new OAuth2Client();
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: 'YOUR_GOOGLE_CLIENT_ID',
-    });
-    const payload = ticket.getPayload();
-    const email = payload?.email;
-    if (email === user.email) {
-      return true;
-    } else {
-      throw new AppError(appErrorCodes.TOKEN_DOSE_NOT_MATCH_USER, {}, true);
+/**
+ * Sends a WhatsApp message using a hypothetical service.
+ */
+export const sendWhatsApp = async (phoneNumber: string, message: string) => {
+  return functionWrapper(async () => {
+    // Implement WhatsApp sending logic here using a service provider like Twilio
+    console.log(`Sending WhatsApp message to ${phoneNumber}: ${message}`);
+    // Simulate sending WhatsApp message
+    if (!phoneNumber.startsWith('+')) {
+      throw new Error('Invalid phone number format');
     }
-  } catch (error) {
-    throw new AppError(appErrorCodes.BAD_GOOGLE_TOKEN, {}, true);
-  }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  });
+};
+
+/**
+ * Sends a push notification using a hypothetical service.
+ */
+export const sendPushNotification = async (deviceTokens: string[], message: string) => {
+  return functionWrapper(async () => {
+    // Implement push notification logic here using a service like Firebase Cloud Messaging
+    console.log(`Sending push notification to devices ${deviceTokens.join(', ')}: ${message}`);
+    // Simulate sending push notification
+    if (deviceTokens.length === 0) {
+      throw new Error('No device tokens provided');
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  });
 };

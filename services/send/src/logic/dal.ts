@@ -1,22 +1,32 @@
-import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
+// dal.ts
+import { functionWrapper } from 'common-lib-tomeroko3';
+import { usersCollection } from '../configs/mongoDB/initialization';
+import { User } from '../configs/mongoDB/initialization';
 
-import { User, usersCollection } from '../configs/mongoDB/initialization';
-
-export const insertUser = async (props: OptionalID<User>) => {
+/**
+ * Creates a new user in the users collection.
+ */
+export const createUser = async (user: User) => {
   return functionWrapper(async () => {
-    await usersCollection.insertOne(props);
+    await usersCollection.insertOne(user);
   });
 };
 
-export const updateUser = async (ID: string, update: Partial<User>) => {
+/**
+ * Retrieves a user by their userID.
+ */
+export const getUserByID = async (userID: string) => {
   return functionWrapper(async () => {
-    await usersCollection.updateOne({ filter: { ID }, update, options: {} });
+    const user = await usersCollection.findOne({ userID });
+    return user;
   });
 };
 
-export const getUserByEmail = async (email: string) => {
+/**
+ * Updates a user's information by their userID.
+ */
+export const updateUserByID = async (userID: string, update: Partial<User>) => {
   return functionWrapper(async () => {
-    const userDocument = await usersCollection.findOne({ email });
-    return userDocument;
+    await usersCollection.updateOne({ userID }, { $set: update });
   });
 };

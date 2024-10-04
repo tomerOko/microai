@@ -1,6 +1,6 @@
 please generate the 'Send Service' code 
 
-implement placeholder functions yourself 
+dont use placeholder functions!!! implement all of the logic yourself!
 
 always write the complete code (dont use comments instead of code like 'paste the code here', instead of the actual code)
 

@@ -1,12 +1,10 @@
-import { validateRequest } from 'common-lib-tomeroko3';
-import { pathMap } from 'events-tomeroko3';
+// router.ts
 import express from 'express';
-
 import * as controller from './controller';
 
 export const router = express.Router();
 
+/**
+ * Test route to verify that the Send Service is operational.
+ */
 router.get('/test', controller.test);
-
-const login = pathMap.LOGIN;
-router.post(login.path, validateRequest(login.requestValidation, login.responseValidation), controller.login);
