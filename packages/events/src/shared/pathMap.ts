@@ -293,4 +293,11 @@ export const pathMap = {
     requestValidation: getTopicReviewsRequestValidation,
     responseValidation: getTopicReviewsResponseValidation,
   },
+  TEST_SEND_SERVICE: {
+    path: '/test',
+    method: 'get',
+    service: servicesNames.send,
+    requestValidation: testRequestValidation,
+    responseValidation: testResponseValidation,
+  },
 } as const;

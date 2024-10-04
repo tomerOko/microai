@@ -1,10 +1,10 @@
-please generate the 'rating & reviews' code 
+please generate the 'Send Service' code 
 
 implement placeholder functions yourself 
 
-dont ever use comments instead of code (like 'paste the code here', instead of the actual code)
+always write the complete code (dont use comments instead of code like 'paste the code here', instead of the actual code)
 
-do not forget tomeroko3-events package validation files:
+remember tomeroko3-events package validation files:
 shared validations
 request response validations
 request response types
@@ -17,6 +17,8 @@ pathMaps
 add comments to explain the bussines logic you chosen if needed
 
 write the actual consumers logic.
+
+remember to handle the new user creation and user update events from the 'signup' service
 
 dont forget that each service should handle new user creation and user update events from the 'signup' service!
 
@@ -932,13 +934,13 @@ Based on all the provided information and code examples, please generate similar
   - **Flow:**
     1. **User** provides their email address.
     2. **Signup & User Profile Service** generates a pincode.
-    3. **Signup & User Profile Service** publishes a `SEND_PINCODE_EMAIL` event.
-    4. **Send Service** listens to `SEND_PINCODE_EMAIL` and sends an email with the pincode.
+    3. **Signup & User Profile Service** publishes a `SEND_NOTIFICATION` event.
+    4. **Send Service** listens to `SEND_NOTIFICATION` and sends an email with the pincode.
     5. **User** receives the email and provides the pincode, first and last name, and password.
     6. **Signup & User Profile Service** validates the pincode and creates a new user.
     7. **Signup & User Profile Service** publishes `USER_CREATED` and `NEW_PASSWORD_SET` events.
     8. **Auth Service** listens to `USER_CREATED` and updates its records.
-  - **Events Published:** `SEND_PINCODE_EMAIL`, `USER_CREATED`, `NEW_PASSWORD_SET`
+  - **Events Published:** `SEND_NOTIFICATION`, `USER_CREATED`, `NEW_PASSWORD_SET`
   - **Events Listened To:** None
 
 - **'OAuth Signup':**
@@ -958,7 +960,7 @@ Based on all the provided information and code examples, please generate similar
     2. **User** selects either email/password or OAuth.
     3. **If email/password:**
        - **Signup & User Profile Service** generates a pincode.
-       - **Signup & User Profile Service** publishes a `SEND_PINCODE_EMAIL` event.
+       - **Signup & User Profile Service** publishes a `SEND_NOTIFICATION` event.
        - **Send Service** sends the verification email with pincode.
        - **User** enters pincode and new password.
        - **Signup & User Profile Service** validates the pincode.
@@ -966,7 +968,7 @@ Based on all the provided information and code examples, please generate similar
        - **User** authenticates with the chosen OAuth provider.
     5. **Signup & User Profile Service** adds new authentication method to the user's account.
     6. **Signup & User Profile Service** publishes `AUTH_METHOD_ADDED` event.
-  - **Events Published:** `SEND_PINCODE_EMAIL` (if email/password), `AUTH_METHOD_ADDED`
+  - **Events Published:** `SEND_NOTIFICATION` (if email/password), `AUTH_METHOD_ADDED`
   - **Events Listened To:** None
 
 ---
@@ -1598,7 +1600,7 @@ Based on all the provided information and code examples, please generate similar
     4. **Send Service** tracks delivery status.
     5. **Send Service** publishes `DELIVERY_SUCCEEDED` or `DELIVERY_FAILED` event.
   - **Events Published:** `DELIVERY_SUCCEEDED`, `DELIVERY_FAILED`
-  - **Events Listened To:** `SEND_NOTIFICATION`, `SEND_PINCODE_EMAIL` (directly from other services for pincode emails)
+  - **Events Listened To:** `SEND_NOTIFICATION`,(directly from other services for pincode emails)
 
 - **'Handle Send Failure and Retry':**
   - **Flow:**
