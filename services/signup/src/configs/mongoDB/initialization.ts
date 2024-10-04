@@ -1,38 +1,58 @@
-// initialization.ts
-import { CollectionInitializerProps, SafeCollection, collectionInitializer, functionWrapper } from 'common-lib-tomeroko3';
-import { signupDbValidations } from 'events-tomeroko3';
-import { z } from 'zod';
+// dal.ts
+import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
 
-const { user, pincodeEntry } = signupDbValidations;
+import { User, Pincode, usersCollection, pincodesCollection } from '../configs/mongoDB/initialization';
 
-export type User = z.infer<typeof user>;
-export type PincodeEntry = z.infer<typeof pincodeEntry>;
-
-const usersInitializerProps: CollectionInitializerProps<User> = {
-  collectionName: 'users',
-  documentSchema: user,
-  indexSpecs: [{ key: { email: 1 }, unique: true }],
-};
-
-const pincodesInitializerProps: CollectionInitializerProps<PincodeEntry> = {
-  collectionName: 'pincodes',
-  documentSchema: pincodeEntry,
-  indexSpecs: [{ key: { email: 1 }, unique: true }],
-};
-
-export let usersCollection: SafeCollection<User>;
-export let pincodesCollection: SafeCollection<PincodeEntry>;
-
-export const initializeCollections = async () => {
+export const createUser = async (user: OptionalID<User>) => {
   return functionWrapper(async () => {
-    usersCollection = await collectionInitializer(usersInitializerProps);
-    pincodesCollection = await collectionInitializer(pincodesInitializerProps);
+    const result = await usersCollection.insertOne(user);
+    return result.insertedId.toString();
   });
 };
 
-export const cleanCollections = async () => {
+export const getUserByID = async (ID: string) => {
   return functionWrapper(async () => {
-    await usersCollection.deleteMany({});
-    await pincodesCollection.deleteMany({});
+    const user = await usersCollection.findOne({ ID });
+    return user;
+  });
+};
+
+export const getUserByEmail = async (email: string) => {
+  return functionWrapper(async () => {
+    const user = await usersCollection.findOne({ email });
+    return user;
+  });
+};
+
+export const updateUserByID = async (ID: string, update: Partial<User>) => {
+  return functionWrapper(async () => {
+    await usersCollection.updateOne({ ID }, { $set: update });
+  });
+};
+
+export const addAuthMethod = async (userID: string, authMethod: User['authenticationMethods'][0]) => {
+  return functionWrapper(async () => {
+    await usersCollection.updateOne({ ID: userID }, { $push: { authenticationMethods: authMethod } });
+  });
+};
+
+export const savePincode = async (email: string, pincode: string) => {
+  return functionWrapper(async () => {
+    await pincodesCollection.updateOne(
+      { email },
+      { $set: { pincode, createdAt: new Date() } },
+      { upsert: true },
+    );
+  });
+};
+
+export const verifyPincode = async (email: string, pincode: string) => {
+  return functionWrapper(async () => {
+    const record = await pincodesCollection.findOne({ email, pincode });
+    if (!record) {
+      return false;
+    }
+    // Optionally, check if pincode is expired
+    return true;
   });
 };

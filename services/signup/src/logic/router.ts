@@ -1,6 +1,5 @@
 // router.ts
 import { Auth, validateRequest } from 'common-lib-tomeroko3';
-import 'common-lib-tomeroko3';
 import { pathMap } from 'events-tomeroko3';
 import express from 'express';
 
@@ -8,20 +7,18 @@ import * as controller from './controller';
 
 export const router = express.Router();
 
-router.get('/test', controller.test);
-
-const sendPincode = pathMap['SEND_PINCODE'];
+const signupEmail = pathMap['SIGNUP_EMAIL'];
 router.post(
-  sendPincode.path,
-  validateRequest(sendPincode.requestValidation, sendPincode.responseValidation),
-  controller.sendPincode,
+  signupEmail.path,
+  validateRequest(signupEmail.requestValidation, signupEmail.responseValidation),
+  controller.signupEmail,
 );
 
-const signup = pathMap['SIGNUP'];
+const completeClassicSignup = pathMap['COMPLETE_CLASSIC_SIGNUP'];
 router.post(
-  signup.path,
-  validateRequest(signup.requestValidation, signup.responseValidation),
-  controller.signup,
+  completeClassicSignup.path,
+  validateRequest(completeClassicSignup.requestValidation, completeClassicSignup.responseValidation),
+  controller.completeClassicSignup,
 );
 
 const signupOAuth = pathMap['SIGNUP_OAUTH'];
@@ -36,7 +33,7 @@ router.post(
   addAuthMethod.path,
   Auth('LOGGED_IN'),
   validateRequest(addAuthMethod.requestValidation, addAuthMethod.responseValidation),
-  controller.addAuthenticationMethod,
+  controller.addAuthMethod,
 );
 
 const updateProfile = pathMap['UPDATE_PROFILE'];
@@ -47,10 +44,10 @@ router.put(
   controller.updateProfile,
 );
 
-const updatePassword = pathMap['UPDATE_PASSWORD'];
-router.put(
-  updatePassword.path,
+const deactivateProfile = pathMap['DEACTIVATE_PROFILE'];
+router.post(
+  deactivateProfile.path,
   Auth('LOGGED_IN'),
-  validateRequest(updatePassword.requestValidation, updatePassword.responseValidation),
-  controller.updatePassword,
+  validateRequest(deactivateProfile.requestValidation, deactivateProfile.responseValidation),
+  controller.deactivateProfile,
 );

@@ -7,3 +7,6 @@ event validations
 event type
 db validation
 pathMaps
+
+
+remember to handle the new user creation and user update events from the 'signup' service

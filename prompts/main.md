@@ -1,4 +1,4 @@
-please generate the 'Send Service' code 
+please generate the 'Signup Service' code 
 
 dont use placeholder functions!!! implement all of the logic yourself!
 
@@ -18,7 +18,6 @@ add comments to explain the bussines logic you chosen if needed
 
 write the actual consumers logic.
 
-remember to handle the new user creation and user update events from the 'signup' service
 
 dont forget that each service should handle new user creation and user update events from the 'signup' service!
 

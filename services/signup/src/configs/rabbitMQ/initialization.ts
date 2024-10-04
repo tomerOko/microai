@@ -6,33 +6,43 @@ import {
 } from 'common-lib-tomeroko3';
 import {
   UserCreatedEventType,
-  SendPincodeEmailEventType,
+  UserUpdatedEventType,
+  UserDeactivatedEventType,
   NewPasswordSetEventType,
   OAuthLinkedEventType,
   AuthMethodAddedEventType,
+  SendNotificationEventType,
   signupEventsNames,
   userCreatedEventValidation,
-  sendPincodeEmailEventValidation,
+  userUpdatedEventValidation,
+  userDeactivatedEventValidation,
   newPasswordSetEventValidation,
   oauthLinkedEventValidation,
   authMethodAddedEventValidation,
+  sendNotificationEventValidation,
 } from 'events-tomeroko3';
 
-// Publishers
-export let sendPincodeEmailPublisher: (data: SendPincodeEmailEventType['data']) => void;
 export let userCreatedPublisher: (data: UserCreatedEventType['data']) => void;
+export let userUpdatedPublisher: (data: UserUpdatedEventType['data']) => void;
+export let userDeactivatedPublisher: (data: UserDeactivatedEventType['data']) => void;
 export let newPasswordSetPublisher: (data: NewPasswordSetEventType['data']) => void;
 export let oauthLinkedPublisher: (data: OAuthLinkedEventType['data']) => void;
 export let authMethodAddedPublisher: (data: AuthMethodAddedEventType['data']) => void;
-
-const sendPincodeEmailPublisherParams: RabbitPublisherParams<SendPincodeEmailEventType> = {
-  eventName: signupEventsNames.SEND_PINCODE_EMAIL,
-  eventSchema: sendPincodeEmailEventValidation,
-};
+export let sendNotificationPublisher: (data: SendNotificationEventType['data']) => void;
 
 const userCreatedPublisherParams: RabbitPublisherParams<UserCreatedEventType> = {
   eventName: signupEventsNames.USER_CREATED,
   eventSchema: userCreatedEventValidation,
+};
+
+const userUpdatedPublisherParams: RabbitPublisherParams<UserUpdatedEventType> = {
+  eventName: signupEventsNames.USER_UPDATED,
+  eventSchema: userUpdatedEventValidation,
+};
+
+const userDeactivatedPublisherParams: RabbitPublisherParams<UserDeactivatedEventType> = {
+  eventName: signupEventsNames.USER_DEACTIVATED,
+  eventSchema: userDeactivatedEventValidation,
 };
 
 const newPasswordSetPublisherParams: RabbitPublisherParams<NewPasswordSetEventType> = {
@@ -50,12 +60,19 @@ const authMethodAddedPublisherParams: RabbitPublisherParams<AuthMethodAddedEvent
   eventSchema: authMethodAddedEventValidation,
 };
 
+const sendNotificationPublisherParams: RabbitPublisherParams<SendNotificationEventType> = {
+  eventName: signupEventsNames.SEND_NOTIFICATION,
+  eventSchema: sendNotificationEventValidation,
+};
+
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    sendPincodeEmailPublisher = await rabbitPublisherFactory(sendPincodeEmailPublisherParams);
     userCreatedPublisher = await rabbitPublisherFactory(userCreatedPublisherParams);
+    userUpdatedPublisher = await rabbitPublisherFactory(userUpdatedPublisherParams);
+    userDeactivatedPublisher = await rabbitPublisherFactory(userDeactivatedPublisherParams);
     newPasswordSetPublisher = await rabbitPublisherFactory(newPasswordSetPublisherParams);
     oauthLinkedPublisher = await rabbitPublisherFactory(oauthLinkedPublisherParams);
     authMethodAddedPublisher = await rabbitPublisherFactory(authMethodAddedPublisherParams);
+    sendNotificationPublisher = await rabbitPublisherFactory(sendNotificationPublisherParams);
   });
 };

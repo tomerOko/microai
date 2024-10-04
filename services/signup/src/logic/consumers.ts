@@ -1,4 +1,3 @@
-console.log('hallow')
 // consumers.ts
-// Currently, this service does not consume any events.
-// This file is left empty for future event handlers if needed.
+// For the Signup Service, there are no events to consume as per the provided flows.
+// If in the future, the service needs to consume events, they can be added here.

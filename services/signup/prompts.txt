@@ -1,0 +1,2 @@
+1. change 'verifyPincode' to 'completeClassicSignup' 2. publish USER_UPDATED event (very disapointing that you didnt, how can other services know the updated name of a user?!). 3. add 'deactivate profile' route
+
