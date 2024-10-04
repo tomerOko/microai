@@ -335,4 +335,11 @@ export const pathMap = {
     requestValidation: updateProfileRequestValidation,
     responseValidation: updateProfileResponseValidation,
   },
+  GET_ONLINE_USERS: {
+    path: '/online-users',
+    method: 'get',
+    service: servicesNames.sockets,
+    requestValidation: getOnlineUsersRequestValidation,
+    responseValidation: getOnlineUsersResponseValidation,
+  },
 } as const;

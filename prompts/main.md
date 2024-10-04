@@ -1,4 +1,4 @@
-please generate the 'Signup Service' code 
+please generate the 'Sockets' code 
 
 dont use placeholder functions!!! implement all of the logic yourself!
 
@@ -13,6 +13,8 @@ event validations
 event type
 db validation
 pathMaps
+
+remember to handle the new user creation and user update events from the 'signup' service
 
 add comments to explain the bussines logic you chosen if needed
 
