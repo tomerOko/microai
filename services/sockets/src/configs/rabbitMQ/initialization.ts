@@ -1,3 +1,4 @@
+// configs/rabbitMQ/initialization.ts
 import {
   RabbitPublisherParams,
   RabbitSubscriberParams,
@@ -6,43 +7,102 @@ import {
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
+  MessageDeliveredEventType,
+  NotificationDispatchedEventType,
+  SocketsEventsNames,
+  SocketMessageEventType,
   UserCreatedEventType,
-  UserLoggedInEventType,
+  UserOfflineEventType,
+  UserOnlineEventType,
   UserUpdatedEventType,
-  authEventsNames,
-  signupEventsNames,
+  messageDeliveredEventValidation,
+  notificationDispatchedEventValidation,
+  socketMessageEventValidation,
   userCreatedEventValidation,
-  userLoggedInEventValidation,
+  userOfflineEventValidation,
+  userOnlineEventValidation,
   userUpdatedEventValidation,
 } from 'events-tomeroko3';
 
-import { handleNewUserEvent, handleUpdatedUserEvent } from '../../logic/consumers';
+import {
+  handleMessageSentEvent,
+  handleNotificationDispatchedEvent,
+  handleSocketMessageEvent,
+  handleUserCreatedEvent,
+  handleUserUpdatedEvent,
+} from '../../logic/consumers';
 
-export let userLoginPublisher: (user: UserLoggedInEventType['data']) => void;
+export let messageDeliveredPublisher: (data: MessageDeliveredEventType['data']) => void;
+export let userOnlinePublisher: (data: UserOnlineEventType['data']) => void;
+export let userOfflinePublisher: (data: UserOfflineEventType['data']) => void;
+export let notificationDeliveredPublisher: (data: NotificationDispatchedEventType['data']) => void;
 
-const userLoginPublisherParams: RabbitPublisherParams<UserLoggedInEventType> = {
-  eventName: authEventsNames.USER_LOGGED_IN,
-  eventSchema: userLoggedInEventValidation,
+const messageDeliveredPublisherParams: RabbitPublisherParams<MessageDeliveredEventType> = {
+  eventName: SocketsEventsNames.MESSAGE_DELIVERED,
+  eventSchema: messageDeliveredEventValidation,
+};
+
+const userOnlinePublisherParams: RabbitPublisherParams<UserOnlineEventType> = {
+  eventName: SocketsEventsNames.USER_ONLINE,
+  eventSchema: userOnlineEventValidation,
+};
+
+const userOfflinePublisherParams: RabbitPublisherParams<UserOfflineEventType> = {
+  eventName: SocketsEventsNames.USER_OFFLINE,
+  eventSchema: userOfflineEventValidation,
+};
+
+const notificationDeliveredPublisherParams: RabbitPublisherParams<NotificationDispatchedEventType> = {
+  eventName: 'NOTIFICATION_DELIVERED',
+  eventSchema: notificationDispatchedEventValidation,
+};
+
+const socketMessageSubscriberParams: RabbitSubscriberParams<SocketMessageEventType> = {
+  thisServiceName: 'SOCKETS_SERVICE',
+  eventName: SocketsEventsNames.SOCKET_MESSAGE,
+  eventSchema: socketMessageEventValidation,
+  handler: handleSocketMessageEvent,
+};
+
+const messageSentSubscriberParams: RabbitSubscriberParams<MessageSentEventType> = {
+  thisServiceName: 'SOCKETS_SERVICE',
+  eventName: 'MESSAGE_SENT',
+  eventSchema: messageDeliveredEventValidation,
+  handler: handleMessageSentEvent,
+};
+
+const notificationDispatchedSubscriberParams: RabbitSubscriberParams<NotificationDispatchedEventType> = {
+  thisServiceName: 'SOCKETS_SERVICE',
+  eventName: 'NOTIFICATION_DISPATCHED',
+  eventSchema: notificationDispatchedEventValidation,
+  handler: handleNotificationDispatchedEvent,
 };
 
 const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.USER_CREATED,
+  thisServiceName: 'SOCKETS_SERVICE',
+  eventName: 'USER_CREATED',
   eventSchema: userCreatedEventValidation,
-  handler: handleNewUserEvent,
+  handler: handleUserCreatedEvent,
 };
 
 const userUpdatedSubscriberParams: RabbitSubscriberParams<UserUpdatedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.USER_UPDATED,
+  thisServiceName: 'SOCKETS_SERVICE',
+  eventName: 'USER_UPDATED',
   eventSchema: userUpdatedEventValidation,
-  handler: handleUpdatedUserEvent,
+  handler: handleUserUpdatedEvent,
 };
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
-    userLoginPublisher = await rabbitPublisherFactory(userLoginPublisherParams);
-    initializeRabbitSubscriber(userCreatedSubscriberParams);
-    initializeRabbitSubscriber(userUpdatedSubscriberParams);
+    messageDeliveredPublisher = await rabbitPublisherFactory(messageDeliveredPublisherParams);
+    userOnlinePublisher = await rabbitPublisherFactory(userOnlinePublisherParams);
+    userOfflinePublisher = await rabbitPublisherFactory(userOfflinePublisherParams);
+    notificationDeliveredPublisher = await rabbitPublisherFactory(notificationDeliveredPublisherParams);
+
+    await initializeRabbitSubscriber(socketMessageSubscriberParams);
+    await initializeRabbitSubscriber(messageSentSubscriberParams);
+    await initializeRabbitSubscriber(notificationDispatchedSubscriberParams);
+    await initializeRabbitSubscriber(userCreatedSubscriberParams);
+    await initializeRabbitSubscriber(userUpdatedSubscriberParams);
   });
 };

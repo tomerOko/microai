@@ -1,16 +1,35 @@
-import { functionWrapper } from 'common-lib-tomeroko3';
-import { UserCreatedEventType, UserUpdatedEventType } from 'events-tomeroko3';
+// consumers.ts
+import {
+  MessageSentEventType,
+  NotificationDispatchedEventType,
+  SocketMessageEventType,
+  UserCreatedEventType,
+  UserUpdatedEventType,
+} from 'events-tomeroko3';
 
-import { insertUser, updateUser } from './dal';
+import * as service from './service';
+import { usersCollection } from '../configs/mongoDB/initialization';
 
-export const handleNewUserEvent = async (user: UserCreatedEventType['data']) => {
-  return functionWrapper(async () => {
-    await insertUser(user);
-  });
+export const handleUserCreatedEvent = async (event: UserCreatedEventType['data']) => {
+  await usersCollection.insertOne({ ...event, status: 'offline' });
 };
 
-export const handleUpdatedUserEvent = async (user: UserUpdatedEventType['data']) => {
-  return functionWrapper(async () => {
-    await updateUser(user.ID, user);
-  });
+export const handleUserUpdatedEvent = async (event: UserUpdatedEventType['data']) => {
+  const { userID, update } = event;
+  await usersCollection.updateOne({ ID: userID }, { $set: update });
+};
+
+export const handleSocketMessageEvent = async (event: SocketMessageEventType['data']) => {
+  await service.deliverMessageToClients(event.targetUserIDs, event.message);
+  service.messageDeliveredPublisher({ messageID: event.messageID });
+};
+
+export const handleMessageSentEvent = async (event: MessageSentEventType['data']) => {
+  await service.deliverMessageToClients(event.targetUserIDs, event.message);
+  service.messageDeliveredPublisher({ messageID: event.messageID });
+};
+
+export const handleNotificationDispatchedEvent = async (event: NotificationDispatchedEventType['data']) => {
+  await service.deliverNotificationToClients(event.targetUserIDs, event.notification);
+  service.notificationDeliveredPublisher({ notificationID: event.notificationID });
 };

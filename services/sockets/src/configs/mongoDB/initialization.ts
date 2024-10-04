@@ -1,15 +1,16 @@
+// configs/mongoDB/initialization.ts
 import { CollectionInitializerProps, SafeCollection, collectionInitializer, functionWrapper } from 'common-lib-tomeroko3';
-import { authDbValidations, signupDbValidations } from 'events-tomeroko3';
+import { socketsDbValidations } from 'events-tomeroko3';
 import { z } from 'zod';
 
-const { user } = authDbValidations;
+const { user } = socketsDbValidations;
 
 export type User = z.infer<typeof user>;
 
 const usersInitializerProps: CollectionInitializerProps<User> = {
   collectionName: 'users',
   documentSchema: user,
-  indexSpecs: [{ key: { email: 1 }, unique: true }],
+  indexSpecs: [{ key: { ID: 1 }, unique: true }],
 };
 
 export let usersCollection: SafeCollection<User>;

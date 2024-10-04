@@ -1,22 +1,30 @@
-import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
+// dal.ts
+import { functionWrapper } from 'common-lib-tomeroko3';
 
 import { User, usersCollection } from '../configs/mongoDB/initialization';
 
-export const insertUser = async (props: OptionalID<User>) => {
+export const createUser = async (user: User) => {
   return functionWrapper(async () => {
-    await usersCollection.insertOne(props);
+    await usersCollection.insertOne(user);
   });
 };
 
-export const updateUser = async (ID: string, update: Partial<User>) => {
+export const updateUserStatus = async (userID: string, status: 'online' | 'offline') => {
   return functionWrapper(async () => {
-    await usersCollection.updateOne({ filter: { ID }, update, options: {} });
+    await usersCollection.updateOne({ ID: userID }, { $set: { status } });
   });
 };
 
-export const getUserByEmail = async (email: string) => {
+export const getUserByID = async (ID: string) => {
   return functionWrapper(async () => {
-    const userDocument = await usersCollection.findOne({ email });
-    return userDocument;
+    const user = await usersCollection.findOne({ ID });
+    return user;
+  });
+};
+
+export const getOnlineUsers = async () => {
+  return functionWrapper(async () => {
+    const users = await usersCollection.find({ status: 'online' }).toArray();
+    return users;
   });
 };
