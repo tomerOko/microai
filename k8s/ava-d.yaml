@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ava-d
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ava
+  template:
+    metadata:
+      labels:
+        app: ava
+    spec:
+      containers:
+      - name: ava
+        image: ava
+        ports:
+        - containerPort: 3000
+        - containerPort: 9229
+

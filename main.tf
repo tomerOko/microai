@@ -59,12 +59,12 @@ resource "kubernetes_ingress_v1" "ingress_rules" {
             { app_name = "search", target_port = 3000 },
             { app_name = "booking", target_port = 3000 },
             { app_name = "chat", target_port = 3000 },
-            { app_name = "notifications", target_port = 3000 },
+            { app_name = "notify", target_port = 3000 },
             { app_name = "call", target_port = 3000 },
             { app_name = "payments", target_port = 3000 },
             { app_name = "rating", target_port = 3000 },
             { app_name = "send", target_port = 3000 },
-            { app_name = "sokcets", target_port = 3000 }
+            { app_name = "sockets", target_port = 3000 }
           ]
         }
       ]

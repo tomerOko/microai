@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: call-d
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: call
+  template:
+    metadata:
+      labels:
+        app: call
+    spec:
+      containers:
+      - name: call
+        image: call
+        ports:
+        - containerPort: 3000
+        - containerPort: 9229
+

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consultant-d
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consultant
+  template:
+    metadata:
+      labels:
+        app: consultant
+    spec:
+      containers:
+      - name: consultant
+        image: consultant
+        ports:
+        - containerPort: 3000
+        - containerPort: 9229
+
