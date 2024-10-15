@@ -5,8 +5,8 @@ variable "run_our_service" {
 }
 
 locals {
-  apps      = ["signup", "payment", "teach", "meet", "emails", "auth", "search"]
-  image_tag = "latest"
+  apps      = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notifications", "call", "payments", "rating", "send", "sokcets"]
+  image_tag = "latest" # todo: is this smart?
 }
 
 # Conditionally generate YAML files:

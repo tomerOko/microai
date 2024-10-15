@@ -53,11 +53,18 @@ resource "kubernetes_ingress_v1" "ingress_rules" {
           host = "localhost"
           paths = [
             { app_name = "signup", target_port = 3000 },
-            { app_name = "payment", target_port = 3000 },
-            { app_name = "teach", target_port = 3000 },
-            { app_name = "meet", target_port = 3000 },
             { app_name = "auth", target_port = 3000 },
+            { app_name = "consultant", target_port = 3000 },
+            { app_name = "ava", target_port = 3000 },
             { app_name = "search", target_port = 3000 },
+            { app_name = "booking", target_port = 3000 },
+            { app_name = "chat", target_port = 3000 },
+            { app_name = "notifications", target_port = 3000 },
+            { app_name = "call", target_port = 3000 },
+            { app_name = "payments", target_port = 3000 },
+            { app_name = "rating", target_port = 3000 },
+            { app_name = "send", target_port = 3000 },
+            { app_name = "sokcets", target_port = 3000 }
           ]
         }
       ]
