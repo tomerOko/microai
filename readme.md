@@ -1,7 +1,7 @@
 local setup:
 1. install on your machine if not already installed: docker for mac, terraform and tilt 
 2. make sure docker for mac is running a kubernetes cluster (google "run kubernetes with docker for mac" if your new to this)
-3. open repo in code editor and open terminal
+3. open this repo in your code editor of choice and open the terminal (asuuming 'current directory' is the root of this repo)
 4. run "terraform init" (only on first run, but if happand again it is not a problem)
 5. go do the db module, update the path of the persistance volumes then create the needed folder (terraform cant create the folders by itself)
 6. install helm (probably by running "brew install helm" if you are on mac)

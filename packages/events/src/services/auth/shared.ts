@@ -17,11 +17,9 @@ export const authMethods = {
 export type AuthMethod = keyof typeof authMethods;
 
 export const OAuthProviderValidations = {
-  [authMethods.PASSWORD]: z
-    .object({
-      passwordHash: z.string(),
-    })
-    .optional(),
+  [authMethods.PASSWORD]: z.object({
+    passwordHash: z.string(),
+  }),
   [authMethods.GOOGLE]: z
     .object({
       id: z.string(),
