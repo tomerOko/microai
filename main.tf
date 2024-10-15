@@ -64,7 +64,7 @@ resource "kubernetes_ingress_v1" "ingress_rules" {
             { app_name = "payments", target_port = 3000 },
             { app_name = "rating", target_port = 3000 },
             { app_name = "send", target_port = 3000 },
-            { app_name = "sockets", target_port = 3000 }
+            { app_name = "socket", target_port = 3000 }
           ]
         }
       ]
@@ -109,11 +109,14 @@ module "dbs" {
 
 //todo: export to a model
 resource "helm_release" "rabbitmq" {
-  name = "rabbitmq"
-
+  name       = "rabbitmq"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "rabbitmq"
-  timeout    = 600
+  timeout    = 900
+  # namespace        = "rabbitmq"
+  # create_namespace = true
+  wait = false
+
 
   set {
     name  = "auth.username"
@@ -124,6 +127,7 @@ resource "helm_release" "rabbitmq" {
     name  = "auth.password"
     value = "password"
   }
+
   set {
     name  = "replicaCount"
     value = "3"
@@ -138,7 +142,37 @@ resource "helm_release" "rabbitmq" {
     name  = "metrics.enabled"
     value = "true"
   }
-}
 
+  # Optionally, set resource requests and limits
+  set {
+    name  = "resources.limits.cpu"
+    value = "1000m"
+  }
+
+  set {
+    name  = "resources.limits.memory"
+    value = "2048Mi"
+  }
+
+  set {
+    name  = "resources.requests.cpu"
+    value = "600m"
+  }
+
+  set {
+    name  = "resources.requests.memory"
+    value = "1024Mi"
+  }
+
+  set {
+    name  = "persistence.size"
+    value = "8Gi"
+  }
+
+  set {
+    name  = "persistence.storageClass"
+    value = "hostpath"
+  }
+}
 
 

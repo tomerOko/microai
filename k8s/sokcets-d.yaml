@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sockets-d
+  name: socket-d
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sockets
+      app: socket
   template:
     metadata:
       labels:
-        app: sockets
+        app: socket
     spec:
       containers:
-      - name: sockets
-        image: sockets
+      - name: socket
+        image: socket
         ports:
         - containerPort: 3000
         - containerPort: 9229

@@ -5,7 +5,7 @@ variable "run_our_service" {
 }
 
 locals {
-  apps      = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payments", "rating", "send", "sockets"]
+  apps      = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payments", "rating", "send", "socket"]
   image_tag = "latest" # todo: is this smart?
 }
 

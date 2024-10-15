@@ -1,5 +1,5 @@
 locals {
-  apps = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payments", "rating", "send", "sockets"]
+  apps = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payments", "rating", "send", "socket"]
 }
 
 resource "kubernetes_persistent_volume" "mongo_pv" {
@@ -17,14 +17,18 @@ resource "kubernetes_persistent_volume" "mongo_pv" {
     }
 
     capacity = {
-      storage = "4Gi"
+      storage = "2Gi"
     }
 
-    storage_class_name = "manual"
+    storage_class_name = "hostpath"
 
+    # Setting access_modes to ["ReadWriteOnce"] means only one node can 
+    # mount and write to the volume at a time, ensuring data consistency
+    # and preventing conflicts
     access_modes = ["ReadWriteOnce"]
 
     persistent_volume_reclaim_policy = "Retain"
+
     node_affinity {
       required {
         node_selector_term {
@@ -36,6 +40,7 @@ resource "kubernetes_persistent_volume" "mongo_pv" {
         }
       }
     }
+
   }
 }
 
@@ -49,12 +54,13 @@ resource "kubernetes_persistent_volume_claim" "mongo_pvc" {
   depends_on = [
     kubernetes_persistent_volume.mongo_pv
   ]
+
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = "manual"
+    storage_class_name = "hostpath"
     resources {
       requests = {
-        storage = "4Gi"
+        storage = "2Gi"
       }
     }
   }
@@ -66,6 +72,10 @@ resource "kubernetes_deployment" "mongo" {
   metadata {
     name = "${each.key}-mon"
   }
+
+  depends_on = [
+    kubernetes_persistent_volume_claim.mongo_pvc
+  ]
 
   spec {
     replicas = 1
@@ -116,11 +126,16 @@ resource "kubernetes_deployment" "mongo" {
 }
 
 resource "kubernetes_service" "mongo_service" {
+
   for_each = { for key in local.apps : key => key }
 
   metadata {
     name = "${each.key}-mon"
   }
+
+  depends_on = [
+    kubernetes_deployment.mongo
+  ]
 
   spec {
     selector = {

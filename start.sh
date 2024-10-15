@@ -54,7 +54,7 @@ osascript -e 'tell app "Terminal"
 end tell'
 
 osascript -e 'tell app "Terminal"
-    do script "kubectl port-forward deployment/sockets-mon 27013:27017" 
+    do script "kubectl port-forward deployment/socket-mon 27013:27017" 
 end tell'
 
 # port forward the rabbitmq management console (http://localhost:15672)
