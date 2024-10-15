@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rating-d
+  name: review-d
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rating
+      app: review
   template:
     metadata:
       labels:
-        app: rating
+        app: review
     spec:
       containers:
-      - name: rating
-        image: rating
+      - name: review
+        image: review
         ports:
         - containerPort: 3000
         - containerPort: 9229

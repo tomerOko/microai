@@ -46,7 +46,7 @@ osascript -e 'tell app "Terminal"
 end tell'
 
 osascript -e 'tell app "Terminal"
-    do script "kubectl port-forward deployment/rating-mon 27011:27017" 
+    do script "kubectl port-forward deployment/review-mon 27011:27017" 
 end tell'
 
 osascript -e 'tell app "Terminal"
