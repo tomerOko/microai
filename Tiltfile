@@ -36,9 +36,9 @@ k8s_yaml("k8s/call-d.yaml")
 docker_build("call", "services/call", live_update=[sync("services/call/src", "/app/src")])
 k8s_resource('call-d', port_forwards=['3009:3000','9009:9229'])
 
-k8s_yaml("k8s/payments-d.yaml")
-docker_build("payments", "services/payments", live_update=[sync("services/payments/src", "/app/src")])
-k8s_resource('payments-d', port_forwards=['3010:3000','9010:9229'])
+k8s_yaml("k8s/payment-d.yaml")
+docker_build("payment", "services/payment", live_update=[sync("services/payment/src", "/app/src")])
+k8s_resource('payment-d', port_forwards=['3010:3000','9010:9229'])
 
 k8s_yaml("k8s/review-d.yaml")
 docker_build("review", "services/review", live_update=[sync("services/review/src", "/app/src")])

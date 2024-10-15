@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payment-d
+  name: review-d
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: payment
+      app: review
   template:
     metadata:
       labels:
-        app: payment
+        app: review
     spec:
       containers:
-      - name: payment
-        image: payment
+      - name: review
+        image: review
         ports:
         - containerPort: 3000
         - containerPort: 9229

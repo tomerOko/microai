@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payment-d
+  name: socket-d
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: payment
+      app: socket
   template:
     metadata:
       labels:
-        app: payment
+        app: socket
     spec:
       containers:
-      - name: payment
-        image: payment
+      - name: socket
+        image: socket
         ports:
         - containerPort: 3000
         - containerPort: 9229

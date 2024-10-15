@@ -42,7 +42,7 @@ osascript -e 'tell app "Terminal"
 end tell'
 
 osascript -e 'tell app "Terminal"
-    do script "kubectl port-forward deployment/payments-mon 27010:27017" 
+    do script "kubectl port-forward deployment/payment-mon 27010:27017" 
 end tell'
 
 osascript -e 'tell app "Terminal"

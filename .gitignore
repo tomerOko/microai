@@ -68,12 +68,12 @@ services/call/.npm
 services/call/external_development.env
 services/call/src/configs/ENVs/envMock.ts
 
-services/payments/node_modules/
-services/payments/dist/
-services/payments/.env
-services/payments/.npm
-services/payments/external_development.env
-services/payments/src/configs/ENVs/envMock.ts
+services/payment/node_modules/
+services/payment/dist/
+services/payment/.env
+services/payment/.npm
+services/payment/external_development.env
+services/payment/src/configs/ENVs/envMock.ts
 
 services/review/node_modules/
 services/review/dist/
