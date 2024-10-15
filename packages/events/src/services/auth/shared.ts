@@ -1,17 +1,55 @@
-// auth.ts (shared validations)
 import z from 'zod';
+
+export const oAuthProviders = {
+  GOOGLE: 'GOOGLE',
+  FACEBOOK: 'FACEBOOK',
+  GITHUB: 'GITHUB',
+  APPLE: 'APPLE',
+} as const;
+
+export type OAuthProvider = keyof typeof oAuthProviders;
+
+export const authMethods = {
+  PASSWORD: 'PASSWORD',
+  ...oAuthProviders,
+} as const;
+
+export type AuthMethod = keyof typeof authMethods;
+
+export const OAuthProviderValidations = {
+  [authMethods.PASSWORD]: z
+    .object({
+      passwordHash: z.string(),
+    })
+    .optional(),
+  [authMethods.GOOGLE]: z
+    .object({
+      id: z.string(),
+      accessToken: z.string(),
+    })
+    .optional(),
+  [authMethods.FACEBOOK]: z
+    .object({
+      id: z.string(),
+      accessToken: z.string(),
+    })
+    .optional(),
+  [authMethods.GITHUB]: z
+    .object({
+      id: z.string(),
+      accessToken: z.string(),
+    })
+    .optional(),
+  [authMethods.APPLE]: z
+    .object({
+      id: z.string(),
+      accessToken: z.string(),
+    })
+    .optional(),
+} as const;
 
 export const userValidationProps = {
   ID: z.string(),
   email: z.string().email(),
-  passwordHash: z.string().optional(),
-  oauthProviders: z
-    .array(
-      z.object({
-        provider: z.string(),
-        providerID: z.string(),
-      }),
-    )
-    .optional(),
-  authMethods: z.array(z.string()).optional(),
+  oauthMethods: z.object(OAuthProviderValidations),
 };
