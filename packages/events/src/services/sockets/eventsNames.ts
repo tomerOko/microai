@@ -1,5 +1,5 @@
 // names/sockets.ts
-export const SocketsEventsNames = {
+export const socketsEventsNames = {
   MESSAGE_DELIVERED: 'MESSAGE_DELIVERED',
   USER_ONLINE: 'USER_ONLINE',
   USER_OFFLINE: 'USER_OFFLINE',

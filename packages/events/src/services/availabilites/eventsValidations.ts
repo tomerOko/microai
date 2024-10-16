@@ -1,7 +1,7 @@
 // availabilities.ts (message queue events validations)
 import { z } from 'zod';
-import { availabilitiesEventsNames } from '../names';
-import { consultantAvailabilityValidationProps, availabilityBlockValidationProps } from '../../shared/validations/availabilities';
+import { availabilitiesEventsNames } from './eventsNames';
+import { availabilityBlockValidationProps, consultantAvailabilityValidationProps } from './shared';
 
 export const defaultScheduleSetEventValidation = z.object({
   type: z.literal(availabilitiesEventsNames.DEFAULT_SCHEDULE_SET),

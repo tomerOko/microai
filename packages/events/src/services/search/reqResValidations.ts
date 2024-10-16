@@ -1,5 +1,6 @@
 // search.ts (request and response validations)
 import { z } from 'zod';
+import { consultantDocumentValidationProps } from './shared';
 
 export const searchRequestValidation = z.object({
   body: z.object({

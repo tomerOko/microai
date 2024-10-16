@@ -6,7 +6,7 @@ import {
   oauthLinkedEventValidation,
   authMethodAddedEventValidation,
   sendNotificationEventValidation,
-} from '../validations/signup';
+} from './eventsValidations';
 
 export type UserCreatedEventType = z.infer<typeof userCreatedEventValidation>;
 export type NewPasswordSetEventType = z.infer<typeof newPasswordSetEventValidation>;

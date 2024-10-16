@@ -8,7 +8,7 @@ import {
   userOfflineEventValidation,
   userOnlineEventValidation,
   userUpdatedEventValidation,
-} from '../validations/sockets';
+} from './eventsValidations';
 
 export type MessageDeliveredEventType = z.infer<typeof messageDeliveredEventValidation>;
 export type UserOnlineEventType = z.infer<typeof userOnlineEventValidation>;

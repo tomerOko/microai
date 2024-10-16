@@ -1,7 +1,7 @@
 // signup.ts (message queue events validations)
 import * as z from 'zod';
-import { userValidationProps } from '../../shared/validations/signup';
-import { signupEventsNames } from '../names';
+import { signupEventsNames } from './eventsNames';
+import { userValidationProps } from './shared';
 
 export const userCreatedEventValidation = z.object({
   type: z.literal(signupEventsNames.USER_CREATED),

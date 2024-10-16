@@ -7,7 +7,7 @@ import {
   availabilityUpdatedEventValidation,
   availabilityBlockFullEventValidation,
   availabilityBlockAvailableEventValidation,
-} from '../validations/availabilities';
+} from './eventsValidations';
 
 export type DefaultScheduleSetEventType = z.infer<typeof defaultScheduleSetEventValidation>;
 export type WeeklyScheduleUpdatedEventType = z.infer<typeof weeklyScheduleUpdatedEventValidation>;

@@ -1,11 +1,6 @@
 // signup.ts (request and response validations)
 import { z } from 'zod';
-import {
-  userValidationPropsMinimal,
-  passwordValidation,
-  pincodeValidation,
-  authenticationMethodValidation,
-} from '../../shared/validations/signup';
+import { authenticationMethodValidation, passwordValidation, pincodeValidation, userValidationPropsMinimal } from './shared';
 
 export const signupEmailRequestValidation = z.object({
   body: z.object({

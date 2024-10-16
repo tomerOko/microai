@@ -1,10 +1,6 @@
 // dbValidations/rating.ts
 import { z } from 'zod';
-import {
-  reviewValidationProps,
-  consultantRatingValidationProps,
-  reviewReminderValidationProps,
-} from '../shared/validations/rating';
+import { consultantRatingValidationProps, reviewReminderValidationProps, reviewValidationProps } from './shared';
 
 export const ratingDbValidations = {
   review: z.object(reviewValidationProps),

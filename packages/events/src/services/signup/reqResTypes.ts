@@ -11,7 +11,7 @@ import {
   addAuthMethodResponseValidation,
   updateProfileRequestValidation,
   updateProfileResponseValidation,
-} from '../validation/signup';
+} from './reqResValidations';
 
 export type signupEmailRequestType = z.infer<typeof signupEmailRequestValidation>;
 export type signupEmailResponseType = z.infer<typeof signupEmailResponseValidation>;

@@ -1,6 +1,6 @@
 // auth.ts (message queue events validations)
 import { z } from 'zod';
-import { authEventsNames } from '../names';
+import { authEventsNames } from './eventsNames';
 
 export const authSuccessEventValidation = z.object({
   type: z.literal(authEventsNames.AUTH_SUCCESS),

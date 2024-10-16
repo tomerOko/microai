@@ -1,30 +1,30 @@
 // validations/sockets.ts
 import * as z from 'zod';
-import { SocketsEventsNames } from '../names';
+import { socketsEventsNames } from './eventsNames';
 
 export const messageDeliveredEventValidation = z.object({
-  type: z.literal(SocketsEventsNames.MESSAGE_DELIVERED),
+  type: z.literal(socketsEventsNames.MESSAGE_DELIVERED),
   data: z.object({
     messageID: z.string(),
   }),
 });
 
 export const userOnlineEventValidation = z.object({
-  type: z.literal(SocketsEventsNames.USER_ONLINE),
+  type: z.literal(socketsEventsNames.USER_ONLINE),
   data: z.object({
     userID: z.string(),
   }),
 });
 
 export const userOfflineEventValidation = z.object({
-  type: z.literal(SocketsEventsNames.USER_OFFLINE),
+  type: z.literal(socketsEventsNames.USER_OFFLINE),
   data: z.object({
     userID: z.string(),
   }),
 });
 
 export const socketMessageEventValidation = z.object({
-  type: z.literal(SocketsEventsNames.SOCKET_MESSAGE),
+  type: z.literal(socketsEventsNames.SOCKET_MESSAGE),
   data: z.object({
     messageID: z.string(),
     targetUserIDs: z.array(z.string()),
