@@ -5,15 +5,20 @@ import {
   submitReviewResponseValidation,
   submitLongTermReviewRequestValidation,
   submitLongTermReviewResponseValidation,
-  getReviewsRequestValidation,
-  getReviewsResponseValidation,
-} from '../validation/rating';
+  getTopicReviewsRequestValidation,
+  getTopicReviewsResponseValidation,
+  getConsultantReviewsRequestValidation,
+  getConsultantReviewsResponseValidation,
+} from './reqResValidations';
 
-export type submitReviewRequestType = z.infer<typeof submitReviewRequestValidation>;
-export type submitReviewResponseType = z.infer<typeof submitReviewResponseValidation>;
+export type SubmitReviewRequestType = z.infer<typeof submitReviewRequestValidation>;
+export type SubmitReviewResponseType = z.infer<typeof submitReviewResponseValidation>;
 
-export type submitLongTermReviewRequestType = z.infer<typeof submitLongTermReviewRequestValidation>;
-export type submitLongTermReviewResponseType = z.infer<typeof submitLongTermReviewResponseValidation>;
+export type SubmitLongTermReviewRequestType = z.infer<typeof submitLongTermReviewRequestValidation>;
+export type SubmitLongTermReviewResponseType = z.infer<typeof submitLongTermReviewResponseValidation>;
 
-export type getReviewsRequestType = z.infer<typeof getReviewsRequestValidation>;
-export type getReviewsResponseType = z.infer<typeof getReviewsResponseValidation>;
+export type GetTopicReviewsRequestType = z.infer<typeof getTopicReviewsRequestValidation>;
+export type GetTopicReviewsResponseType = z.infer<typeof getTopicReviewsResponseValidation>;
+
+export type GetConsultantReviewsRequestType = z.infer<typeof getConsultantReviewsRequestValidation>;
+export type GetConsultantReviewsResponseType = z.infer<typeof getConsultantReviewsResponseValidation>;

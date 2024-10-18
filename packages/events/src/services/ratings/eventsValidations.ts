@@ -1,7 +1,8 @@
 // validations/ratingEvents.ts
 import * as z from 'zod';
-import { ratingEventsNames } from '../names/rating';
-import { reviewValidationProps, consultantRatingValidationProps } from '../../shared/validations/rating';
+import { callEventsNames } from '../calls';
+import { ratingEventsNames } from './eventsNames';
+import { consultantRatingValidationProps, reviewValidationProps } from './shared';
 
 export const reviewSubmittedEventValidation = z.object({
   type: z.literal(ratingEventsNames.REVIEW_SUBMITTED),
@@ -17,9 +18,6 @@ export const ratingUpdatedEventValidation = z.object({
   type: z.literal(ratingEventsNames.RATING_UPDATED),
   data: z.object(consultantRatingValidationProps),
 });
-
-// validations/callEvents.ts
-import { callEventsNames } from '../names/call';
 
 export const callEndedEventValidation = z.object({
   type: z.literal(callEventsNames.CALL_ENDED),

@@ -1,6 +1,6 @@
 // validation/rating.ts
 import { z } from 'zod';
-import { reviewValidationProps } from '../../shared/validations/rating';
+import { reviewValidationProps } from './shared';
 
 export const submitReviewRequestValidation = z.object({
   body: z.object({

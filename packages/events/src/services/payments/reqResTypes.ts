@@ -13,7 +13,7 @@ import {
   updatePayoutMethodResponseValidation,
   removePayoutMethodRequestValidation,
   removePayoutMethodResponseValidation,
-} from '../validation/payments';
+} from './reqResValidations';
 
 export type AddPaymentMethodRequestType = z.infer<typeof addPaymentMethodRequestValidation>;
 export type AddPaymentMethodResponseType = z.infer<typeof addPaymentMethodResponseValidation>;

@@ -1,6 +1,6 @@
 // search.ts (db documents validation)
 import { z } from 'zod';
-import { consultantDocumentValidationProps, topicDocumentValidationProps } from '../shared/validations/search';
+import { consultantDocumentValidationProps, topicDocumentValidationProps } from './shared';
 
 export const searchIndexValidations = {
   consultantDocument: z.object(consultantDocumentValidationProps),

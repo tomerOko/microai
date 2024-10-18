@@ -1,6 +1,6 @@
 // tomeroko3-events/validations/payments.ts
 import { z } from 'zod';
-import { paymentEventsNames } from '../names/paymentEventsNames';
+import { paymentEventsNames } from './eventsNames';
 
 export const paymentMethodAddedEventValidation = z.object({
   type: z.literal(paymentEventsNames.PAYMENT_METHOD_ADDED),

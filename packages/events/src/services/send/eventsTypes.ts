@@ -6,7 +6,7 @@ import {
   deliverySucceededEventValidation,
   deliveryFailedEventValidation,
   retryScheduledEventValidation,
-} from '../validations/send';
+} from './eventsValidations';
 
 export type SendNotificationEventType = z.infer<typeof sendNotificationEventValidation>;
 export type SendPincodeEmailEventType = z.infer<typeof sendPincodeEmailEventValidation>;

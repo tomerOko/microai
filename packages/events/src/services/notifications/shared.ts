@@ -14,7 +14,6 @@ export const userPreferencesValidationProps = {
   }),
 };
 
-// Scheduled Notification Validation Schema
 export const scheduledNotificationValidationProps = {
   notificationID: z.string(),
   userID: z.string(),
@@ -26,7 +25,6 @@ export const scheduledNotificationValidationProps = {
   createdAt: z.string(),
 };
 
-// Notification Record Validation Schema
 export const notificationValidationProps = {
   notificationID: z.string(),
   userID: z.string(),
@@ -35,40 +33,4 @@ export const notificationValidationProps = {
   read: z.boolean(),
 };
 
-export const notificationsDbValidations = {
-  userPreferences: z.object(userPreferencesValidationProps),
-  scheduledNotification: z.object(scheduledNotificationValidationProps),
-  notification: z.object(notificationValidationProps),
-};
-
-// User Preferences Type
-export type UserPreferences = z.infer<z.ZodObject<typeof userPreferencesValidationProps>>;
-
-// Scheduled Notification Type
-export type ScheduledNotification = z.infer<z.ZodObject<typeof scheduledNotificationValidationProps>>;
-
-// Notification Type
-export type Notification = z.infer<z.ZodObject<typeof notificationValidationProps>>;
-
-// Notification Event Type
-export type NotificationEventType = {
-  userID: string;
-  address: string;
-  content: string;
-  communicationType: NotificationChannel;
-  notificationID?: string;
-};
-
 export type NotificationChannel = 'email' | 'sms' | 'whatsapp' | 'inApp';
-
-// Request and Response Types for Controller
-
-export type GetNotificationsRequestType = {
-  params: {};
-};
-
-export type UpdatePreferencesRequestType = {
-  body: {
-    preferences: UserPreferences['preferences'];
-  };
-};

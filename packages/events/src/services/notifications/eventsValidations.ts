@@ -1,7 +1,7 @@
 // events/notificationEventsValidations.ts
 
 import { z } from 'zod';
-import { notificationEventsNames } from './notificationEventsNames';
+import { notificationEventsNames } from './eventsNames';
 
 // Notification Event Validation Schema
 export const notificationEventValidation = z.object({

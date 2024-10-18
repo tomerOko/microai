@@ -2,10 +2,10 @@
 
 import { z } from 'zod';
 import {
-  notificationEventValidation,
-  deliverySucceededEventValidation,
   deliveryFailedEventValidation,
-} from './notificationEventsValidations';
+  deliverySucceededEventValidation,
+  notificationEventValidation,
+} from './eventsValidations';
 
 // Notification Event Type
 export type NotificationEventType = z.infer<typeof notificationEventValidation>;

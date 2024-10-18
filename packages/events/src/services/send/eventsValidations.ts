@@ -1,7 +1,7 @@
 // events/validations/send.ts
 import { z } from 'zod';
-import { sendEventsNames } from '../names/send';
-import { messageContentSchema, channelEnum } from '../../shared/validations/send';
+import { sendEventsNames } from './eventsNames';
+import { channelEnum, messageContentSchema } from './shared';
 
 export const sendNotificationEventValidation = z.object({
   type: z.literal(sendEventsNames.SEND_NOTIFICATION),

@@ -5,10 +5,10 @@ import {
   searchResponseValidation,
   getRecommendationsRequestValidation,
   getRecommendationsResponseValidation,
-} from '../validation/search';
+} from './reqResValidations';
 
-export type searchRequestType = z.infer<typeof searchRequestValidation>;
-export type searchResponseType = z.infer<typeof searchResponseValidation>;
+export type SearchRequestType = z.infer<typeof searchRequestValidation>;
+export type SearchResponseType = z.infer<typeof searchResponseValidation>;
 
-export type getRecommendationsRequestType = z.infer<typeof getRecommendationsRequestValidation>;
-export type getRecommendationsResponseType = z.infer<typeof getRecommendationsResponseValidation>;
+export type GetRecommendationsRequestType = z.infer<typeof getRecommendationsRequestValidation>;
+export type GetRecommendationsResponseType = z.infer<typeof getRecommendationsResponseValidation>;

@@ -1,6 +1,6 @@
 // search.ts (message queue events validations)
 import { z } from 'zod';
-import { searchEventsNames } from '../names';
+import { searchEventsNames } from './eventsNames';
 
 export const recommendationsGeneratedEventValidation = z.object({
   type: z.literal(searchEventsNames.RECOMMENDATIONS_GENERATED),

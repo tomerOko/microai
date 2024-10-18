@@ -1,7 +1,6 @@
 // dbValidations/send.ts
 import { z } from 'zod';
-import { messageContentSchema, deliveryStatusSchema } from '../shared/validations/send';
-import { userValidationWithoutPasswordProps } from '../shared/validations/user';
+import { deliveryStatusSchema, messageContentSchema } from './shared';
 
 export const sendDbValidations = {
   user: z.object({
@@ -9,7 +8,6 @@ export const sendDbValidations = {
     email: z.string().email(),
     phoneNumber: z.string().optional(),
     deviceTokens: z.array(z.string()).optional(),
-    ...userValidationWithoutPasswordProps,
   }),
   message: z.object({
     messageID: z.string(),

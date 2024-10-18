@@ -1,7 +1,6 @@
 // tomeroko3-events/validation/payments.ts
 import { z } from 'zod';
-
-import { paymentMethodValidationProps, payoutMethodValidationProps } from '../shared/validations/payments';
+import { paymentMethodValidationProps, payoutMethodValidationProps } from './shared';
 
 export const addPaymentMethodRequestValidation = z.object({
   body: z.object(paymentMethodValidationProps),

@@ -13,7 +13,7 @@ import {
   payoutProcessedEventValidation,
   payoutFailedEventValidation,
   payoutReceiptGeneratedEventValidation,
-} from '../validations/payments';
+} from './eventsValidations';
 
 export type PaymentMethodAddedEventType = z.infer<typeof paymentMethodAddedEventValidation>;
 export type PaymentMethodUpdatedEventType = z.infer<typeof paymentMethodUpdatedEventValidation>;
