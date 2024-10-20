@@ -3,27 +3,22 @@ import * as z from 'zod';
 import {
   signupEmailRequestValidation,
   signupEmailResponseValidation,
-  verifyPincodeRequestValidation,
-  verifyPincodeResponseValidation,
-  signupOAuthRequestValidation,
-  signupOAuthResponseValidation,
-  addAuthMethodRequestValidation,
-  addAuthMethodResponseValidation,
+  signupEmailPart2RequestValidation,
+  signupEmailPart2ResponseValidation,
   updateProfileRequestValidation,
   updateProfileResponseValidation,
+  deactivateUserRequestValidation,
+  deactivateUserResponseValidation,
 } from './reqResValidations';
 
-export type signupEmailRequestType = z.infer<typeof signupEmailRequestValidation>;
-export type signupEmailResponseType = z.infer<typeof signupEmailResponseValidation>;
+export type SignupEmailRequestType = z.infer<typeof signupEmailRequestValidation>;
+export type SignupEmailResponseType = z.infer<typeof signupEmailResponseValidation>;
 
-export type verifyPincodeRequestType = z.infer<typeof verifyPincodeRequestValidation>;
-export type verifyPincodeResponseType = z.infer<typeof verifyPincodeResponseValidation>;
+export type SignupEmailPart2RequestType = z.infer<typeof signupEmailPart2RequestValidation>;
+export type SignupEmailPart2ResponseType = z.infer<typeof signupEmailPart2ResponseValidation>;
 
-export type signupOAuthRequestType = z.infer<typeof signupOAuthRequestValidation>;
-export type signupOAuthResponseType = z.infer<typeof signupOAuthResponseValidation>;
+export type UpdateProfileRequestType = z.infer<typeof updateProfileRequestValidation>;
+export type UpdateProfileResponseType = z.infer<typeof updateProfileResponseValidation>;
 
-export type addAuthMethodRequestType = z.infer<typeof addAuthMethodRequestValidation>;
-export type addAuthMethodResponseType = z.infer<typeof addAuthMethodResponseValidation>;
-
-export type updateProfileRequestType = z.infer<typeof updateProfileRequestValidation>;
-export type updateProfileResponseType = z.infer<typeof updateProfileResponseValidation>;
+export type DeactivateUserRequestValidation = z.infer<typeof deactivateUserRequestValidation>;
+export type DeactivateUserResponseValidation = z.infer<typeof deactivateUserResponseValidation>;

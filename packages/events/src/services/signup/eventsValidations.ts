@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import { signupEventsNames } from './eventsNames';
-import { userValidationProps } from './shared';
+import { userValidationProps, userValidationPropsMinimal } from './shared';
 
 export const userCreatedEventValidation = z.object({
   type: z.literal(signupEventsNames.USER_CREATED),
@@ -9,13 +9,13 @@ export const userCreatedEventValidation = z.object({
 
 export const userUpdatedEventValidation = z.object({
   type: z.literal(signupEventsNames.USER_UPDATED),
-  data: z.object(userValidationProps),
+  data: z.object({ ...userValidationPropsMinimal, ID: z.string() }),
 });
 
 export const userDeactivatedEventValidation = z.object({
   type: z.literal(signupEventsNames.USER_DEACTIVATED),
   data: z.object({
-    userId: z.string(),
+    userID: z.string(),
   }),
 });
 
@@ -23,23 +23,6 @@ export const newPasswordSetEventValidation = z.object({
   type: z.literal(signupEventsNames.NEW_PASSWORD_SET),
   data: z.object({
     userID: z.string(),
-  }),
-});
-
-export const oauthLinkedEventValidation = z.object({
-  type: z.literal(signupEventsNames.OAUTH_LINKED),
-  data: z.object({
-    userID: z.string(),
-    oauthProvider: z.string(),
-  }),
-});
-
-export const authMethodAddedEventValidation = z.object({
-  type: z.literal(signupEventsNames.AUTH_METHOD_ADDED),
-  data: z.object({
-    userID: z.string(),
-    method: z.string(),
-    oauthProvider: z.string().optional(),
   }),
 });
 

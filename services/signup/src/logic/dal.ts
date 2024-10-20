@@ -1,12 +1,24 @@
 // dal.ts
-import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
+import { AppError, OptionalID, functionWrapper } from 'common-lib-tomeroko3';
 import { ObjectId } from 'mongodb';
 
-import { User, PincodeEntry, usersCollection, pincodesCollection } from '../configs/mongoDB/initialization';
+import { app } from '../app';
+import { Pincode, User, pincodesCollection, usersCollection } from '../configs/mongoDB/initialization';
+
+import { appErrorCodes } from './appErrorCodes';
+
+export const getUserByEmail = async (email: string) => {
+  return functionWrapper(async () => {
+    const user = await usersCollection.findOne({
+      email,
+    });
+    return user;
+  });
+};
 
 export const savePincode = async (email: string, pincode: string) => {
   return functionWrapper(async () => {
-    const pincodeEntry: PincodeEntry = { email, pincode, createdAt: new Date() };
+    const pincodeEntry: Pincode = { email, pincode, createdAt: new Date() };
     await pincodesCollection.insertOne(pincodeEntry);
   });
 };
@@ -17,8 +29,12 @@ export const validatePincode = async (email: string, pincode: string) => {
     if (!pincodeEntry) {
       return false;
     }
-    // Optionally, check for expiration
-    // Delete the pincode after validation
+    const now = new Date();
+    const diff = now.getTime() - pincodeEntry.createdAt.getTime();
+    // todo: move the 10 * 60 * 1000 to a system variable
+    if (diff > 10 * 60 * 1000) {
+      return false;
+    }
     await pincodesCollection.deleteOne({ _id: pincodeEntry._id });
     return true;
   });
@@ -27,7 +43,7 @@ export const validatePincode = async (email: string, pincode: string) => {
 export const createUser = async (user: OptionalID<User>) => {
   return functionWrapper(async () => {
     const result = await usersCollection.insertOne(user);
-    return result.insertedId.toHexString();
+    return result;
   });
 };
 
@@ -38,14 +54,12 @@ export const getUserByID = async (userID: string) => {
   });
 };
 
-export const updateUserByID = async (userID: string, update: Partial<User>) => {
+export const updateUserByID = async (userID: string, update: Partial<User>): Promise<User> => {
   return functionWrapper(async () => {
-    await usersCollection.updateOne({ _id: new ObjectId(userID) }, { $set: update });
-  });
-};
-
-export const addAuthMethod = async (userID: string, method: string) => {
-  return functionWrapper(async () => {
-    await usersCollection.updateOne({ _id: new ObjectId(userID) }, { $addToSet: { authMethods: method } });
+    const updatedUser = await usersCollection.findOneAndUpdate({ _id: new ObjectId(userID) }, { $set: update });
+    if (!updatedUser) {
+      throw new AppError(appErrorCodes.UPDATE_USER_USER_NOT_FOUND, { userID });
+    }
+    return updatedUser;
   });
 };

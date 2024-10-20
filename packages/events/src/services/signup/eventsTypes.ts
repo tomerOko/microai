@@ -3,13 +3,13 @@ import * as z from 'zod';
 import {
   userCreatedEventValidation,
   newPasswordSetEventValidation,
-  oauthLinkedEventValidation,
-  authMethodAddedEventValidation,
   sendNotificationEventValidation,
+  userUpdatedEventValidation,
+  userDeactivatedEventValidation,
 } from './eventsValidations';
 
 export type UserCreatedEventType = z.infer<typeof userCreatedEventValidation>;
+export type UserUpdatedEventType = z.infer<typeof userUpdatedEventValidation>;
+export type UserDeactivatedEventType = z.infer<typeof userDeactivatedEventValidation>;
 export type NewPasswordSetEventType = z.infer<typeof newPasswordSetEventValidation>;
-export type OAuthLinkedEventType = z.infer<typeof oauthLinkedEventValidation>;
-export type AuthMethodAddedEventType = z.infer<typeof authMethodAddedEventValidation>;
 export type SendNotificationEventType = z.infer<typeof sendNotificationEventValidation>;

@@ -1,7 +1,5 @@
 import { ZodSchema } from 'zod';
 import {
-  addAuthMethodRequestValidation,
-  addAuthMethodResponseValidation,
   addPaymentMethodRequestValidation,
   addPaymentMethodResponseValidation,
   addPayoutMethodRequestValidation,
@@ -33,8 +31,6 @@ import {
   getRecommendationsResponseValidation,
   getTopicReviewsRequestValidation,
   getTopicReviewsResponseValidation,
-  oAuthLoginRequestValidation,
-  oAuthLoginResponseValidation,
   passwordLoginRequestValidation,
   passwordLoginResponseValidation,
   processBookingResponseRequestValidation,
@@ -55,8 +51,6 @@ import {
   setDefaultScheduleResponseValidation,
   signupEmailRequestValidation,
   signupEmailResponseValidation,
-  signupOAuthRequestValidation,
-  signupOAuthResponseValidation,
   startCallRequestValidation,
   startCallResponseValidation,
   submitLongTermReviewRequestValidation,
@@ -77,10 +71,11 @@ import {
   updateTopicResponseValidation,
   updateWeeklyScheduleRequestValidation,
   updateWeeklyScheduleResponseValidation,
-  verifyPincodeRequestValidation,
-  verifyPincodeResponseValidation,
+  signupEmailPart2RequestValidation,
+  signupEmailPart2ResponseValidation,
+  deactivateUserRequestValidation,
+  deactivateUserResponseValidation,
 } from '../services';
-import { testRequestValidation, testResponseValidation } from '../services/send';
 
 const servicesNames = {
   availability: 'availability',
@@ -116,13 +111,6 @@ export const pathMap = {
     service: servicesNames.auth,
     requestValidation: passwordLoginRequestValidation,
     responseValidation: passwordLoginResponseValidation,
-  },
-  OAUTH_LOGIN: {
-    path: '/oauth-login',
-    method: 'post',
-    service: servicesNames.auth,
-    requestValidation: oAuthLoginRequestValidation,
-    responseValidation: oAuthLoginResponseValidation,
   },
   BECOME_CONSULTANT: {
     path: '/become-consultant',
@@ -354,47 +342,33 @@ export const pathMap = {
     requestValidation: getTopicReviewsRequestValidation,
     responseValidation: getTopicReviewsResponseValidation,
   },
-  TEST_SEND_SERVICE: {
-    path: '/test',
-    method: 'get',
-    service: servicesNames.send,
-    requestValidation: testRequestValidation,
-    responseValidation: testResponseValidation,
-  },
-  SIGNUP_EMAIL: {
-    path: '/signup/email',
+  SIGNUP_EMAIL_PART1: {
+    path: '/email-signup-part-1',
     method: 'post',
     service: servicesNames.signup,
     requestValidation: signupEmailRequestValidation,
     responseValidation: signupEmailResponseValidation,
   },
-  VERIFY_PINCODE: {
-    path: '/signup/email/verify',
+  SIGNUP_EMAIL_PART2: {
+    path: '/email-signup-part-2',
     method: 'post',
     service: servicesNames.signup,
-    requestValidation: verifyPincodeRequestValidation,
-    responseValidation: verifyPincodeResponseValidation,
-  },
-  SIGNUP_OAUTH: {
-    path: '/signup/oauth',
-    method: 'post',
-    service: servicesNames.signup,
-    requestValidation: signupOAuthRequestValidation,
-    responseValidation: signupOAuthResponseValidation,
-  },
-  ADD_AUTH_METHOD: {
-    path: '/auth-methods/add',
-    method: 'post',
-    service: servicesNames.signup,
-    requestValidation: addAuthMethodRequestValidation,
-    responseValidation: addAuthMethodResponseValidation,
+    requestValidation: signupEmailPart2RequestValidation,
+    responseValidation: signupEmailPart2ResponseValidation,
   },
   UPDATE_PROFILE: {
-    path: '/profile/update',
+    path: '/update',
     method: 'put',
     service: servicesNames.signup,
     requestValidation: updateProfileRequestValidation,
     responseValidation: updateProfileResponseValidation,
+  },
+  DEACTIVATE_USER: {
+    path: '/deactivate',
+    method: 'delete',
+    service: servicesNames.signup,
+    requestValidation: deactivateUserRequestValidation,
+    responseValidation: deactivateUserResponseValidation,
   },
   GET_ONLINE_USERS: {
     path: '/online-users',

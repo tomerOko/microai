@@ -1,18 +1,14 @@
 // controller.ts
 import { errorHandler, functionWrapper } from 'common-lib-tomeroko3';
 import {
-  signupEmailRequestType,
-  signupEmailResponseType,
-  completeClassicSignupRequestType,
-  completeClassicSignupResponseType,
-  signupOAuthRequestType,
-  signupOAuthResponseType,
-  addAuthMethodRequestType,
-  addAuthMethodResponseType,
-  updateProfileRequestType,
-  updateProfileResponseType,
-  deactivateProfileRequestType,
-  deactivateProfileResponseType,
+  DeactivateUserRequestValidation,
+  DeactivateUserResponseValidation,
+  SignupEmailPart2RequestType,
+  SignupEmailPart2ResponseType,
+  SignupEmailRequestType,
+  SignupEmailResponseType,
+  UpdateProfileRequestType,
+  UpdateProfileResponseType,
 } from 'events-tomeroko3';
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
@@ -22,8 +18,8 @@ import * as service from './service';
 export const signupEmail = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const body = req.body as signupEmailRequestType['body'];
-      const result: signupEmailResponseType = await service.signupEmail(body);
+      const body = req.body as SignupEmailRequestType['body'];
+      const result: SignupEmailResponseType = await service.signupEmail(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
       errorHandler({})(error, next);
@@ -31,36 +27,12 @@ export const signupEmail = async (req: Request, res: Response, next: NextFunctio
   });
 };
 
-export const completeClassicSignup = async (req: Request, res: Response, next: NextFunction) => {
+export const signupEmailPart2 = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const body = req.body as completeClassicSignupRequestType['body'];
-      const result: completeClassicSignupResponseType = await service.completeClassicSignup(body);
+      const body = req.body as SignupEmailPart2RequestType['body'];
+      const result: SignupEmailPart2ResponseType = await service.signupEmailPart2(body);
       res.status(httpStatus.CREATED).send(result);
-    } catch (error) {
-      errorHandler({})(error, next);
-    }
-  });
-};
-
-export const signupOAuth = async (req: Request, res: Response, next: NextFunction) => {
-  return functionWrapper(async () => {
-    try {
-      const body = req.body as signupOAuthRequestType['body'];
-      const result: signupOAuthResponseType = await service.signupOAuth(body);
-      res.status(httpStatus.CREATED).send(result);
-    } catch (error) {
-      errorHandler({})(error, next);
-    }
-  });
-};
-
-export const addAuthMethod = async (req: Request, res: Response, next: NextFunction) => {
-  return functionWrapper(async () => {
-    try {
-      const body = req.body as addAuthMethodRequestType['body'];
-      const result: addAuthMethodResponseType = await service.addAuthMethod(body);
-      res.status(httpStatus.OK).send(result);
     } catch (error) {
       errorHandler({})(error, next);
     }
@@ -70,8 +42,8 @@ export const addAuthMethod = async (req: Request, res: Response, next: NextFunct
 export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const body = req.body as updateProfileRequestType['body'];
-      const result: updateProfileResponseType = await service.updateProfile(body);
+      const body = req.body as UpdateProfileRequestType['body'];
+      const result: UpdateProfileResponseType = await service.updateProfile(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
       errorHandler({})(error, next);
@@ -82,9 +54,8 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
 export const deactivateProfile = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const body = req.body as deactivateProfileRequestType['body'];
-      const result: deactivateProfileResponseType = await service.deactivateProfile(body);
-      res.status(httpStatus.OK).send(result);
+      await service.deactivateProfile();
+      res.status(httpStatus.OK).send({ message: 'Profile deactivated successfully' });
     } catch (error) {
       errorHandler({})(error, next);
     }
