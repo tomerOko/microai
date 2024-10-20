@@ -32,7 +32,7 @@ export const socketMessageEventValidation = z.object({
   }),
 });
 
-export const messageSentEventValidation = z.object({
+export const sokcetMessageSentEventValidation = z.object({
   type: z.literal('MESSAGE_SENT'),
   data: z.object({
     messageID: z.string(),
@@ -47,16 +47,6 @@ export const notificationDispatchedEventValidation = z.object({
     notificationID: z.string(),
     targetUserIDs: z.array(z.string()),
     notification: z.any(),
-  }),
-});
-
-export const userCreatedEventValidation = z.object({
-  type: z.literal('USER_CREATED'),
-  data: z.object({
-    ID: z.string(),
-    email: z.string().email(),
-    firstName: z.string(),
-    lastName: z.string(),
   }),
 });
 

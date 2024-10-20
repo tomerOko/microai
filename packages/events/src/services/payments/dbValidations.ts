@@ -5,7 +5,7 @@ import {
   payoutMethodValidationProps,
   paymentRecordValidationProps,
   payoutRecordValidationProps,
-  consultantValidationProps,
+  paymentConsultantValidationProps,
 } from './shared';
 
 export const paymentsDbValidations = {
@@ -13,5 +13,5 @@ export const paymentsDbValidations = {
   payoutMethod: z.object(payoutMethodValidationProps),
   paymentRecord: z.object(paymentRecordValidationProps),
   payoutRecord: z.object(payoutRecordValidationProps),
-  consultant: z.object(consultantValidationProps),
+  consultant: z.object(paymentConsultantValidationProps),
 };

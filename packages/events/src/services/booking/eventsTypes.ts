@@ -7,7 +7,7 @@ import {
   bookingCreatedEventValidation,
   bookingCancelledEventValidation,
   bookingRescheduledEventValidation,
-} from '../validations/bookings';
+} from './eventsValidations';
 
 export type BookingRequestedEventType = z.infer<typeof bookingRequestedEventValidation>;
 export type BookingApprovedEventType = z.infer<typeof bookingApprovedEventValidation>;

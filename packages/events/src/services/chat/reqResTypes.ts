@@ -7,7 +7,7 @@ import {
   getChatRoomMessagesResponseValidation,
   getChatRoomsRequestValidation,
   getChatRoomsResponseValidation,
-} from '../validation/chats';
+} from './reqResValidations';
 
 export type sendMessageRequestType = z.infer<typeof sendMessageRequestValidation>;
 export type sendMessageResponseType = z.infer<typeof sendMessageResponseValidation>;

@@ -46,7 +46,7 @@ export const OAuthProviderValidations = {
     .optional(),
 } as const;
 
-export const userValidationProps = {
+export const authUserValidationProps = {
   ID: z.string(),
   email: z.string().email(),
   oauthMethods: z.object(OAuthProviderValidations),

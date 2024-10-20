@@ -10,3 +10,11 @@ export const callStartedEventValidation = z.object({
     participants: z.array(z.string()),
   }),
 });
+
+export const callEndedEventValidation = z.object({
+  type: z.literal(callEventsNames.CALL_ENDED),
+  data: z.object({
+    callID: z.string(),
+    bookingID: z.string(),
+  }),
+});

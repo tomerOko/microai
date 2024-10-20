@@ -1,7 +1,7 @@
 // auth.ts (db documents validation)
 import { z } from 'zod';
-import { userValidationProps } from './shared';
+import { authUserValidationProps } from './shared';
 
 export const authDbValidations = {
-  user: z.object(userValidationProps),
+  user: z.object(authUserValidationProps),
 };

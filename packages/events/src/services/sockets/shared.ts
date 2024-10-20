@@ -1,7 +1,7 @@
 // shared/validations/sockets.ts
 import z from 'zod';
 
-export const userValidationProps = {
+export const socketUserValidationProps = {
   ID: z.string(),
   email: z.string().email(),
   firstName: z.string(),

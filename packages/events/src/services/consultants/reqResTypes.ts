@@ -11,7 +11,7 @@ import {
   updateTopicResponseValidation,
   removeTopicRequestValidation,
   removeTopicResponseValidation,
-} from '../validation/consultant';
+} from './reqResValidations';
 
 export type becomeConsultantRequestType = z.infer<typeof becomeConsultantRequestValidation>;
 export type becomeConsultantResponseType = z.infer<typeof becomeConsultantResponseValidation>;

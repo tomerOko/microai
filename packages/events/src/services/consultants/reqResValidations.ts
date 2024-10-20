@@ -1,6 +1,6 @@
 // consultant.ts (request and response validations)
 import { z } from 'zod';
-import { consultantValidationPropsMinimal, topicValidationPropsMinimal } from '../../shared/validations/consultant';
+import { consultantValidationPropsMinimal, topicValidationPropsMinimal } from './shared';
 
 export const becomeConsultantRequestValidation = z.object({
   body: z.object(consultantValidationPropsMinimal),

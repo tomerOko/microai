@@ -1,6 +1,6 @@
 // availabilities.ts (request and response validations)
 import { z } from 'zod';
-import { consultantAvailabilityValidationProps } from '../../shared/validations/availabilities';
+import { consultantAvailabilityValidationProps } from './shared';
 
 export const setDefaultScheduleRequestValidation = z.object({
   body: z.object({

@@ -18,13 +18,3 @@ export const ratingUpdatedEventValidation = z.object({
   type: z.literal(ratingEventsNames.RATING_UPDATED),
   data: z.object(consultantRatingValidationProps),
 });
-
-export const callEndedEventValidation = z.object({
-  type: z.literal(callEventsNames.CALL_ENDED),
-  data: z.object({
-    callID: z.string(),
-    studentID: z.string(),
-    consultantID: z.string(),
-    endTime: z.date(),
-  }),
-});

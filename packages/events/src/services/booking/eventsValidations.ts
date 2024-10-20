@@ -1,7 +1,7 @@
 // bookings.ts (message queue events validations)
 import { z } from 'zod';
-import { bookingEventsNames } from '../names';
-import { bookingValidationProps } from '../../shared/validations/bookings';
+import { bookingEventsNames } from './eventsNames';
+import { bookingValidationProps } from './shared';
 
 export const bookingRequestedEventValidation = z.object({
   type: z.literal(bookingEventsNames.BOOKING_REQUESTED),

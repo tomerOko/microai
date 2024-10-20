@@ -1,6 +1,6 @@
 // chats.ts (request and response validations)
 import { z } from 'zod';
-import { messageValidationProps } from '../../shared/validations/chats';
+import { messageValidationProps } from './shared';
 
 export const sendMessageRequestValidation = z.object({
   body: z.object({

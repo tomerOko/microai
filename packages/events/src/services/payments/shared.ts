@@ -41,9 +41,8 @@ export const payoutRecordValidationProps = {
   createdAt: z.string(),
 };
 
-export const consultantValidationProps = {
+export const paymentConsultantValidationProps = {
   ID: z.string(),
   name: z.string(),
   email: z.string(),
-  // Add other consultant fields as needed
 };

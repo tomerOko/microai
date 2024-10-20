@@ -9,7 +9,7 @@ import {
   rescheduleBookingResponseValidation,
   cancelBookingRequestValidation,
   cancelBookingResponseValidation,
-} from '../validation/bookings';
+} from './reqResValidations';
 
 export type createBookingRequestType = z.infer<typeof createBookingRequestValidation>;
 export type createBookingResponseType = z.infer<typeof createBookingResponseValidation>;

@@ -29,7 +29,7 @@ export const reviewReminderValidationProps = {
   reminderDate: z.date(),
 };
 
-export const userValidationProps = {
+export const ratingUserValidationProps = {
   ID: z.string(),
   email: z.string().email(),
   firstName: z.string(),

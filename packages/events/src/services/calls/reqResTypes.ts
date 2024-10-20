@@ -7,7 +7,7 @@ import {
   endCallResponseValidation,
   getCallDetailsRequestValidation,
   getCallDetailsResponseValidation,
-} from '../validation/calls';
+} from './reqResValidations';
 
 export type startCallRequestType = z.infer<typeof startCallRequestValidation>;
 export type startCallResponseType = z.infer<typeof startCallResponseValidation>;

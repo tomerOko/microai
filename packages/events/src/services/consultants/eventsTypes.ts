@@ -6,7 +6,7 @@ import {
   topicAddedEventValidation,
   topicUpdatedEventValidation,
   topicRemovedEventValidation,
-} from '../validations/consultant';
+} from './eventsValidations';
 
 export type ConsultantOnboardedEventType = z.infer<typeof consultantOnboardedEventValidation>;
 export type ConsultantProfileUpdatedEventType = z.infer<typeof consultantProfileUpdatedEventValidation>;

@@ -1,7 +1,7 @@
 // bookings.ts (db documents validation)
 import { z } from 'zod';
-import { bookingValidationProps } from '../shared/validations/bookings';
-import { availabilityBlockValidationProps } from '../shared/validations/availabilities';
+import { bookingValidationProps } from './shared';
+import { availabilityBlockValidationProps } from '../availabilites';
 
 export const bookingsDbValidations = {
   booking: z.object(bookingValidationProps),

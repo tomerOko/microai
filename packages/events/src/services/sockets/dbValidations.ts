@@ -1,7 +1,7 @@
 // dbValidations/sockets.ts
 import { z } from 'zod';
-import { userValidationProps } from './shared';
+import { socketUserValidationProps } from './shared';
 
 export const socketsDbValidations = {
-  user: z.object(userValidationProps),
+  user: z.object(socketUserValidationProps),
 };

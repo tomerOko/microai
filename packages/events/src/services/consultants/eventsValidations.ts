@@ -1,7 +1,7 @@
 // consultant.ts (message queue events validations)
 import * as z from 'zod';
-import { consultantValidationProps, topicValidationProps } from '../../shared/validations/consultant';
-import { consultantEventsNames } from '../names';
+import { consultantEventsNames } from './eventsNames';
+import { consultantValidationProps, topicValidationProps } from './shared';
 
 export const consultantOnboardedEventValidation = z.object({
   type: z.literal(consultantEventsNames.CONSULTANT_ONBOARDED),
