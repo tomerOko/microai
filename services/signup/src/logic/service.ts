@@ -46,78 +46,80 @@ export const signupEmailPart2 = async (props: SignupEmailPart2RequestType['body'
 export const updateProfile = async (props: UpdateProfileRequestType['body']): Promise<UpdateProfileResponseType> => {
   return functionWrapper(async () => {
     const userID = getAuthenticatedID() as string;
-    const { email, firstName, lastName } = props;
-    const user = await model.getUserByID(userID);
-    if (!user) {
-      throw new AppError(appErrorCodes.USER_NOT_FOUND, { userID });
-    }
-
-    await model.updateUserByID(userID, { email, firstName, lastName });
-
-    // Publish USER_UPDATED event
-    userUpdatedPublisher({ userID, updatedFields: profile });
-
+    const updatedUser = await model.updateUserByID(userID, props);
+    userUpdatedPublisher({
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      ID: updatedUser.ID,
+    });
     return { message: 'Profile updated successfully' };
   });
 };
 
-export const deactivateProfile = async (props: deactivateProfileRequestType['body']): Promise<deactivateProfileResponseType> => {
+export const deactivateProfile = async (): Promise<void> => {
   return functionWrapper(async () => {
     const userID = getAuthenticatedID() as string;
     const user = await model.getUserByID(userID);
     if (!user) {
       throw new AppError(appErrorCodes.USER_NOT_FOUND, { userID });
     }
-
     await model.updateUserByID(userID, { isActive: false });
-
-    // Publish USER_DEACTIVATED event
     userDeactivatedPublisher({ userID });
-
-    return { message: 'User profile deactivated successfully' };
+    //todo: add logout logic
   });
 };
 
-async function signupEmailValidatePincode(email: string, pincode: string) {
-  const valid = await model.validatePincode(email, pincode);
-  if (!valid) {
-    throw new AppError(appErrorCodes.INVALID_PINCODE, { email });
-  }
-}
+const signupEmailValidatePincode = async (email: string, pincode: string): Promise<void> => {
+  return functionWrapper(async () => {
+    const valid = await model.validatePincode(email, pincode);
+    if (!valid) {
+      throw new AppError(appErrorCodes.INVALID_PINCODE, { email });
+    }
+  });
+};
 
-async function signupEmailCreateNewUser(props: SignupEmailPart2RequestType['body']) {
-  const { email, password, firstName, lastName } = props;
-  const hashedPassword = await hash(password, 10);
-  const userProps = {
-    email,
-    firstName,
-    lastName,
-    hashedPassword,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+const signupEmailCreateNewUser = async (
+  props: SignupEmailPart2RequestType['body'],
+): Promise<{ userProps: any; userID: string }> => {
+  return functionWrapper(async () => {
+    const { email, password, firstName, lastName } = props;
+    const hashedPassword = await hash(password, 10);
+    const userProps = {
+      email,
+      firstName,
+      lastName,
+      hashedPassword,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-  const userID = await model.createUser(userProps);
-  return { userProps, userID };
-}
+    const userID = await model.createUser(userProps);
+    return { userProps, userID };
+  });
+};
 
-async function signupEmailHandleNewPincode(email: string) {
-  const pincode = generatePincode();
-  await model.savePincode(email, pincode);
+const signupEmailHandleNewPincode = async (email: string): Promise<void> => {
+  return functionWrapper(async () => {
+    const pincode = generatePincode();
+    await model.savePincode(email, pincode);
 
-  const notification: SendNotificationEventType['data'] = {
-    type: 'EMAIL',
-    recipient: email,
-    subject: 'Your Verification Code',
-    message: `Your verification code is ${pincode}`,
-  };
-  sendNotificationPublisher(notification);
-}
+    const notification: SendNotificationEventType['data'] = {
+      type: 'EMAIL',
+      recipient: email,
+      subject: 'Your Verification Code',
+      message: `Your verification code is ${pincode}`,
+    };
+    sendNotificationPublisher(notification);
+  });
+};
 
-async function signupEmailValidateEmailIsNew(email: string) {
-  const existingUser = await model.getUserByEmail(email);
-  if (existingUser) {
-    throw new AppError(appErrorCodes.EMAIL_ALREADY_REGISTERED, { email });
-  }
-}
+const signupEmailValidateEmailIsNew = async (email: string): Promise<void> => {
+  return functionWrapper(async () => {
+    const existingUser = await model.getUserByEmail(email);
+    if (existingUser) {
+      throw new AppError(appErrorCodes.EMAIL_ALREADY_REGISTERED, { email });
+    }
+  });
+};

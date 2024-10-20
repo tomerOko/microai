@@ -1,9 +1,7 @@
 // initialization.ts
 import { RabbitPublisherParams, functionWrapper, rabbitPublisherFactory } from 'common-lib-tomeroko3';
 import {
-  AuthMethodAddedEventType,
   NewPasswordSetEventType,
-  OAuthLinkedEventType,
   SendNotificationEventType,
   UserCreatedEventType,
   UserDeactivatedEventType,
@@ -20,7 +18,6 @@ export let userCreatedPublisher: (data: UserCreatedEventType['data']) => void;
 export let userUpdatedPublisher: (data: UserUpdatedEventType['data']) => void;
 export let userDeactivatedPublisher: (data: UserDeactivatedEventType['data']) => void;
 export let newPasswordSetPublisher: (data: NewPasswordSetEventType['data']) => void;
-export let oauthLinkedPublisher: (data: OAuthLinkedEventType['data']) => void;
 export let sendNotificationPublisher: (data: SendNotificationEventType['data']) => void;
 
 const userCreatedPublisherParams: RabbitPublisherParams<UserCreatedEventType> = {

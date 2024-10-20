@@ -21,6 +21,5 @@ export const userValidationProps = {
   ...userValidationPropsMinimal,
   ID: z.string(),
   hashedPassword: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  isActive: z.boolean(),
 };

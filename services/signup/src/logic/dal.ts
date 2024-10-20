@@ -1,8 +1,11 @@
 // dal.ts
-import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
+import { AppError, OptionalID, functionWrapper } from 'common-lib-tomeroko3';
 import { ObjectId } from 'mongodb';
 
+import { app } from '../app';
 import { Pincode, User, pincodesCollection, usersCollection } from '../configs/mongoDB/initialization';
+
+import { appErrorCodes } from './appErrorCodes';
 
 export const getUserByEmail = async (email: string) => {
   return functionWrapper(async () => {
@@ -40,7 +43,7 @@ export const validatePincode = async (email: string, pincode: string) => {
 export const createUser = async (user: OptionalID<User>) => {
   return functionWrapper(async () => {
     const result = await usersCollection.insertOne(user);
-    return result.insertedId.toHexString();
+    return result;
   });
 };
 
@@ -51,14 +54,12 @@ export const getUserByID = async (userID: string) => {
   });
 };
 
-export const updateUserByID = async (userID: string, update: Partial<User>) => {
+export const updateUserByID = async (userID: string, update: Partial<User>): Promise<User> => {
   return functionWrapper(async () => {
-    await usersCollection.updateOne({ _id: new ObjectId(userID) }, { $set: update });
-  });
-};
-
-export const addAuthMethod = async (userID: string, method: string) => {
-  return functionWrapper(async () => {
-    await usersCollection.updateOne({ _id: new ObjectId(userID) }, { $addToSet: { authMethods: method } });
+    const updatedUser = await usersCollection.findOneAndUpdate({ _id: new ObjectId(userID) }, { $set: update });
+    if (!updatedUser) {
+      throw new AppError(appErrorCodes.UPDATE_USER_USER_NOT_FOUND, { userID });
+    }
+    return updatedUser;
   });
 };

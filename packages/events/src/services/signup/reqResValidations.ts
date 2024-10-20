@@ -1,6 +1,6 @@
 // signup.ts (request and response validations)
 import { z } from 'zod';
-import { authenticationMethodValidation, passwordValidation, pincodeValidation, userValidationPropsMinimal } from './shared';
+import { passwordValidation, pincodeValidation, userValidationPropsMinimal } from './shared';
 
 export const signupEmailRequestValidation = z.object({
   body: z.object({
@@ -32,11 +32,7 @@ export const updateProfileResponseValidation = z.object({
   message: z.string(),
 });
 
-export const deactivateUserRequestValidation = z.object({
-  body: z.object({
-    userID: z.string(),
-  }),
-});
+export const deactivateUserRequestValidation = z.object({});
 
 export const deactivateUserResponseValidation = z.object({
   message: z.string(),

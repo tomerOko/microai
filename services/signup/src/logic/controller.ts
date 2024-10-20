@@ -54,9 +54,8 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
 export const deactivateProfile = async (req: Request, res: Response, next: NextFunction) => {
   return functionWrapper(async () => {
     try {
-      const body = req.body as DeactivateUserRequestValidation['body'];
-      const result: DeactivateUserResponseValidation = await service.deactivateProfile(body);
-      res.status(httpStatus.OK).send(result);
+      await service.deactivateProfile();
+      res.status(httpStatus.OK).send({ message: 'Profile deactivated successfully' });
     } catch (error) {
       errorHandler({})(error, next);
     }

@@ -365,7 +365,7 @@ export const pathMap = {
   },
   DEACTIVATE_USER: {
     path: '/deactivate',
-    method: 'post',
+    method: 'delete',
     service: servicesNames.signup,
     requestValidation: deactivateUserRequestValidation,
     responseValidation: deactivateUserResponseValidation,
