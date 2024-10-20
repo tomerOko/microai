@@ -7,8 +7,8 @@ export const appErrorCodes = {
   INVALID_AUTH_METHOD_DATA: 'INVALID_AUTH_METHOD_DATA',
   AUTH_METHOD_ALREADY_EXISTS: 'AUTH_METHOD_ALREADY_EXISTS',
   INVALID_AUTH_METHOD_TYPE: 'INVALID_AUTH_METHOD_TYPE',
+  CONFIG_VALIDATION_ERROR: 'CONFIG_VALIDATION_ERROR',
   // ... other error codes
 };
-
 
 export type AppErrorCode = (typeof appErrorCodes)[keyof typeof appErrorCodes];

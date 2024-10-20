@@ -10,6 +10,7 @@ local setup:
 7. connect to any of the mongodb instances with any mondodb client (like studio 3t) the connection string will be mongodb://localhost:<port> the port found in the "start.sh" file
 
 
+// add npm install -g pnpm
 
 
 
