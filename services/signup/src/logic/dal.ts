@@ -2,11 +2,20 @@
 import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
 import { ObjectId } from 'mongodb';
 
-import { User, PincodeEntry, usersCollection, pincodesCollection } from '../configs/mongoDB/initialization';
+import { Pincode, User, pincodesCollection, usersCollection } from '../configs/mongoDB/initialization';
+
+export const getUserByEmail = async (email: string) => {
+  return functionWrapper(async () => {
+    const user = await usersCollection.findOne({
+      email,
+    });
+    return user;
+  });
+};
 
 export const savePincode = async (email: string, pincode: string) => {
   return functionWrapper(async () => {
-    const pincodeEntry: PincodeEntry = { email, pincode, createdAt: new Date() };
+    const pincodeEntry: Pincode = { email, pincode, createdAt: new Date() };
     await pincodesCollection.insertOne(pincodeEntry);
   });
 };
@@ -17,8 +26,12 @@ export const validatePincode = async (email: string, pincode: string) => {
     if (!pincodeEntry) {
       return false;
     }
-    // Optionally, check for expiration
-    // Delete the pincode after validation
+    const now = new Date();
+    const diff = now.getTime() - pincodeEntry.createdAt.getTime();
+    // todo: move the 10 * 60 * 1000 to a system variable
+    if (diff > 10 * 60 * 1000) {
+      return false;
+    }
     await pincodesCollection.deleteOne({ _id: pincodeEntry._id });
     return true;
   });

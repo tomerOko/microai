@@ -49,15 +49,3 @@ export const notificationDispatchedEventValidation = z.object({
     notification: z.any(),
   }),
 });
-
-export const userUpdatedEventValidation = z.object({
-  type: z.literal('USER_UPDATED'),
-  data: z.object({
-    userID: z.string(),
-    update: z.object({
-      email: z.string().email().optional(),
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-    }),
-  }),
-});

@@ -7,33 +7,18 @@ import * as controller from './controller';
 
 export const router = express.Router();
 
-const signupEmail = pathMap['SIGNUP_EMAIL'];
+const signupEmail = pathMap['SIGNUP_EMAIL_PART1'];
 router.post(
   signupEmail.path,
   validateRequest(signupEmail.requestValidation, signupEmail.responseValidation),
   controller.signupEmail,
 );
 
-const completeClassicSignup = pathMap['COMPLETE_CLASSIC_SIGNUP'];
+const signupEmailPart2 = pathMap['SIGNUP_EMAIL_PART2'];
 router.post(
-  completeClassicSignup.path,
-  validateRequest(completeClassicSignup.requestValidation, completeClassicSignup.responseValidation),
-  controller.completeClassicSignup,
-);
-
-const signupOAuth = pathMap['SIGNUP_OAUTH'];
-router.post(
-  signupOAuth.path,
-  validateRequest(signupOAuth.requestValidation, signupOAuth.responseValidation),
-  controller.signupOAuth,
-);
-
-const addAuthMethod = pathMap['ADD_AUTH_METHOD'];
-router.post(
-  addAuthMethod.path,
-  Auth('LOGGED_IN'),
-  validateRequest(addAuthMethod.requestValidation, addAuthMethod.responseValidation),
-  controller.addAuthMethod,
+  signupEmailPart2.path,
+  validateRequest(signupEmailPart2.requestValidation, signupEmailPart2.responseValidation),
+  controller.signupEmailPart2,
 );
 
 const updateProfile = pathMap['UPDATE_PROFILE'];
@@ -44,7 +29,7 @@ router.put(
   controller.updateProfile,
 );
 
-const deactivateProfile = pathMap['DEACTIVATE_PROFILE'];
+const deactivateProfile = pathMap['DEACTIVATE_USER'];
 router.post(
   deactivateProfile.path,
   Auth('LOGGED_IN'),

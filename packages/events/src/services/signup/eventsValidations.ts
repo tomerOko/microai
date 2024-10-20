@@ -26,23 +26,6 @@ export const newPasswordSetEventValidation = z.object({
   }),
 });
 
-export const oauthLinkedEventValidation = z.object({
-  type: z.literal(signupEventsNames.OAUTH_LINKED),
-  data: z.object({
-    userID: z.string(),
-    oauthProvider: z.string(),
-  }),
-});
-
-export const authMethodAddedEventValidation = z.object({
-  type: z.literal(signupEventsNames.AUTH_METHOD_ADDED),
-  data: z.object({
-    userID: z.string(),
-    method: z.string(),
-    oauthProvider: z.string().optional(),
-  }),
-});
-
 export const sendNotificationEventValidation = z.object({
   type: z.literal(signupEventsNames.SEND_NOTIFICATION),
   data: z.object({

@@ -15,14 +15,12 @@ export const authenticationMethodValidation = z.object({
   method: z.string(),
   email: z.string().email().optional(),
   password: passwordValidation.optional(),
-  oauthProvider: z.string().optional(),
-  oauthToken: z.string().optional(),
 });
 
 export const userValidationProps = {
-  ID: z.string(),
   ...userValidationPropsMinimal,
-  authenticationMethods: z.array(authenticationMethodValidation),
+  ID: z.string(),
+  hashedPassword: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
 };

@@ -6,13 +6,13 @@ import {
   OAuthLinkedEventType,
   SendNotificationEventType,
   UserCreatedEventType,
+  UserDeactivatedEventType,
   UserUpdatedEventType,
-  authMethodAddedEventValidation,
   newPasswordSetEventValidation,
-  oauthLinkedEventValidation,
   sendNotificationEventValidation,
   signupEventsNames,
   userCreatedEventValidation,
+  userDeactivatedEventValidation,
   userUpdatedEventValidation,
 } from 'events-tomeroko3';
 
@@ -21,7 +21,6 @@ export let userUpdatedPublisher: (data: UserUpdatedEventType['data']) => void;
 export let userDeactivatedPublisher: (data: UserDeactivatedEventType['data']) => void;
 export let newPasswordSetPublisher: (data: NewPasswordSetEventType['data']) => void;
 export let oauthLinkedPublisher: (data: OAuthLinkedEventType['data']) => void;
-export let authMethodAddedPublisher: (data: AuthMethodAddedEventType['data']) => void;
 export let sendNotificationPublisher: (data: SendNotificationEventType['data']) => void;
 
 const userCreatedPublisherParams: RabbitPublisherParams<UserCreatedEventType> = {
@@ -44,16 +43,6 @@ const newPasswordSetPublisherParams: RabbitPublisherParams<NewPasswordSetEventTy
   eventSchema: newPasswordSetEventValidation,
 };
 
-const oauthLinkedPublisherParams: RabbitPublisherParams<OAuthLinkedEventType> = {
-  eventName: signupEventsNames.OAUTH_LINKED,
-  eventSchema: oauthLinkedEventValidation,
-};
-
-const authMethodAddedPublisherParams: RabbitPublisherParams<AuthMethodAddedEventType> = {
-  eventName: signupEventsNames.AUTH_METHOD_ADDED,
-  eventSchema: authMethodAddedEventValidation,
-};
-
 const sendNotificationPublisherParams: RabbitPublisherParams<SendNotificationEventType> = {
   eventName: signupEventsNames.SEND_NOTIFICATION,
   eventSchema: sendNotificationEventValidation,
@@ -65,8 +54,6 @@ export const initializeRabbitAgents = async () => {
     userUpdatedPublisher = await rabbitPublisherFactory(userUpdatedPublisherParams);
     userDeactivatedPublisher = await rabbitPublisherFactory(userDeactivatedPublisherParams);
     newPasswordSetPublisher = await rabbitPublisherFactory(newPasswordSetPublisherParams);
-    oauthLinkedPublisher = await rabbitPublisherFactory(oauthLinkedPublisherParams);
-    authMethodAddedPublisher = await rabbitPublisherFactory(authMethodAddedPublisherParams);
     sendNotificationPublisher = await rabbitPublisherFactory(sendNotificationPublisherParams);
   });
 };
