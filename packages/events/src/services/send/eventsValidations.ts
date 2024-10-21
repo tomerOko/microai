@@ -12,14 +12,6 @@ export const sendNotificationEventValidation = z.object({
   }),
 });
 
-export const sendPincodeEmailEventValidation = z.object({
-  type: z.literal(sendEventsNames.SEND_PINCODE_EMAIL),
-  data: z.object({
-    email: z.string().email(),
-    pincode: z.string(),
-  }),
-});
-
 export const deliverySucceededEventValidation = z.object({
   type: z.literal(sendEventsNames.DELIVERY_SUCCEEDED),
   data: z.object({

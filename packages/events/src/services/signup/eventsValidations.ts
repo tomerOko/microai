@@ -25,13 +25,3 @@ export const newPasswordSetEventValidation = z.object({
     userID: z.string(),
   }),
 });
-
-export const sendNotificationEventValidation = z.object({
-  type: z.literal(signupEventsNames.SEND_NOTIFICATION),
-  data: z.object({
-    type: z.enum(['EMAIL', 'SMS', 'PUSH']),
-    recipient: z.string(),
-    subject: z.string().optional(),
-    message: z.string(),
-  }),
-});

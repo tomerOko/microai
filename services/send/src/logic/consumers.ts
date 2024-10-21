@@ -1,31 +1,18 @@
 // consumers.ts
-import {
-  SendNotificationEventType,
-  SendPincodeEmailEventType,
-  UserCreatedEventType,
-  UserUpdatedEventType,
-} from 'events-tomeroko3';
+import { functionWrapper } from 'common-lib-tomeroko3';
+import { SendNotificationEventType, UserCreatedEventType, UserUpdatedEventType } from 'events-tomeroko3';
 
-import {
-  sendEmail,
-  sendSMS,
-  sendWhatsApp,
-  sendPushNotification,
-} from '../service';
-
-import {
-  deliverySucceededPublisher,
-  deliveryFailedPublisher,
-} from '../configs/rabbitMQ/initialization';
 import { usersCollection } from '../configs/mongoDB/initialization';
+import { deliveryFailedPublisher, deliverySucceededPublisher } from '../configs/rabbitMQ/initialization';
+
+import * as model from './dal';
+import { sendEmail, sendPushNotification, sendSMS, sendWhatsApp } from './service';
 
 /**
  * Handles the SEND_NOTIFICATION event by sending notifications via specified channels.
  * Publishes DELIVERY_SUCCEEDED or DELIVERY_FAILED events based on the outcome.
  */
-export const handleSendNotificationEvent = async (
-  eventData: SendNotificationEventType['data']
-) => {
+export const handleSendNotificationEvent = async (eventData: SendNotificationEventType['data']) => {
   try {
     const { userID, channels, content } = eventData;
 
@@ -74,7 +61,7 @@ export const handleSendNotificationEvent = async (
       content,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (error: any) {
     // Publish DELIVERY_FAILED event
     deliveryFailedPublisher({
       userID: eventData.userID,
@@ -85,43 +72,17 @@ export const handleSendNotificationEvent = async (
 };
 
 /**
- * Handles the SEND_PINCODE_EMAIL event by sending a pincode email to the user.
- * Publishes DELIVERY_SUCCEEDED or DELIVERY_FAILED events based on the outcome.
- */
-export const handleSendPincodeEmailEvent = async (
-  eventData: SendPincodeEmailEventType['data']
-) => {
-  try {
-    const { email, pincode } = eventData;
-
-    // Send pincode email
-    await sendEmail(email, 'Your Pincode', `Your pincode is: ${pincode}`);
-
-    // Publish DELIVERY_SUCCEEDED event
-    deliverySucceededPublisher({
-      email,
-      channel: 'EMAIL',
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    // Publish DELIVERY_FAILED event
-    deliveryFailedPublisher({
-      email: eventData.email,
-      error: error.message,
-      timestamp: new Date().toISOString(),
-    });
-  }
-};
-
-/**
  * Handles the USER_CREATED event by storing the new user in the local users collection.
  */
-export const handleUserCreatedEvent = async (
-  eventData: UserCreatedEventType['data']
-) => {
+export const handleUserCreatedEvent = async (eventData: UserCreatedEventType['data']) => {
   try {
-    // Insert the new user into the local users collection
-    await usersCollection.insertOne(eventData);
+    await usersCollection.insertOne({
+      email: eventData.email,
+      firstName: eventData.firstName,
+      lastName: eventData.lastName,
+      phoneNumber: eventData.phone,
+      userID: eventData.ID,
+    });
   } catch (error) {
     // Handle error
     console.error('Error handling UserCreatedEvent:', error);
@@ -131,13 +92,9 @@ export const handleUserCreatedEvent = async (
 /**
  * Handles the USER_UPDATED event by updating the user in the local users collection.
  */
-export const handleUserUpdatedEvent = async (
-  eventData: UserUpdatedEventType['data']
-) => {
-  try {
-    const { userID, update } = eventData;
-    await usersCollection.updateOne({ userID }, { $set: update });
-  } catch (error) {
-    console.error('Error handling UserUpdatedEvent:', error);
-  }
+export const handleUserUpdatedEvent = async (eventData: UserUpdatedEventType['data']) => {
+  return functionWrapper(async () => {
+    const { ID, email, firstName, lastName, phone } = eventData;
+    model.updateUserByID(ID, { email });
+  });
 };

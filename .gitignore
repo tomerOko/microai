@@ -3,6 +3,7 @@
 /.vscode
 /terraform.tfstate
 /terraform.tfstate.backup
+*.env
 
 
 services/signup/node_modules/

@@ -9,4 +9,5 @@ export * from './payments';
 export * from './ratings';
 export * from './search';
 export * from './signup';
+export * from './send';
 export * from './sockets';

@@ -1,11 +1,13 @@
-// dbValidations/send.ts
 import { z } from 'zod';
 import { deliveryStatusSchema, messageContentSchema } from './shared';
+import { copyFileSync } from 'fs';
 
 export const sendDbValidations = {
   user: z.object({
     userID: z.string(),
     email: z.string().email(),
+    firstName: z.string(),
+    lastName: z.string(),
     phoneNumber: z.string().optional(),
     deviceTokens: z.array(z.string()).optional(),
   }),
@@ -18,3 +20,5 @@ export const sendDbValidations = {
   }),
   deliveryStatus: deliveryStatusSchema,
 };
+
+console.log('sendDbValidations');
