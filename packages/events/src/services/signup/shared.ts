@@ -10,8 +10,6 @@ export const userValidationPropsMinimal = {
 
 export const passwordValidation = z.string().min(8);
 
-export const pincodeValidation = z.string().length(6);
-
 export const authenticationMethodValidation = z.object({
   method: z.string(),
   email: z.string().email().optional(),

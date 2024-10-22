@@ -11,6 +11,7 @@ import {
   UpdateProfileRequestType,
   UpdateProfileResponseType,
 } from 'events-tomeroko3';
+import { parse } from 'path';
 
 import { User } from '../configs/mongoDB/initialization';
 import {
@@ -75,10 +76,22 @@ export const deactivateProfile = async (): Promise<void> => {
 
 const signupEmailValidatePincode = async (email: string, pincode: string): Promise<void> => {
   return functionWrapper(async () => {
-    const valid = await model.validatePincode(email, pincode);
-    if (!valid) {
-      throw new AppError(appErrorCodes.INVALID_PINCODE, { email });
+    const pincodeEntry = await model.findPincode(email);
+    if (!pincodeEntry) {
+      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_NOT_FOUND, { email });
     }
+    const a = parseInt(pincode);
+    const b = parseInt(pincodeEntry.pincode);
+    if (a !== b) {
+      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_WRONG, { email, pincode, expectedPincode: pincodeEntry.pincode });
+    }
+    const now = new Date();
+    const diff = now.getTime() - pincodeEntry.createdAt.getTime();
+    // todo: move the 10 * 60 * 1000 to a system variable
+    if (diff > 10 * 60 * 1000) {
+      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_EXPIRED, { email });
+    }
+    await model.deletePincode(email);
   });
 };
 

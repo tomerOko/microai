@@ -19,24 +19,28 @@ export const getUserByEmail = async (email: string) => {
 export const savePincode = async (email: string, pincode: string) => {
   return functionWrapper(async () => {
     const pincodeEntry: Pincode = { email, pincode, createdAt: new Date() };
-    await pincodesCollection.insertOne(pincodeEntry);
+    await pincodesCollection.updateOne({
+      filter: { email },
+      update: { pincode },
+      options: { upsert: true },
+    });
   });
 };
 
-export const validatePincode = async (email: string, pincode: string) => {
+export const findPincode = async (email: string) => {
   return functionWrapper(async () => {
-    const pincodeEntry = await pincodesCollection.findOne({ email, pincode });
-    if (!pincodeEntry) {
-      return false;
-    }
-    const now = new Date();
-    const diff = now.getTime() - pincodeEntry.createdAt.getTime();
-    // todo: move the 10 * 60 * 1000 to a system variable
-    if (diff > 10 * 60 * 1000) {
-      return false;
-    }
-    await pincodesCollection.deleteOne({ _id: pincodeEntry._id });
-    return true;
+    const pincodeEntry = await pincodesCollection.findOne({
+      email,
+    });
+    return pincodeEntry;
+  });
+};
+
+export const deletePincode = async (email: string) => {
+  return functionWrapper(async () => {
+    await pincodesCollection.deleteOne({
+      email,
+    });
   });
 };
 
