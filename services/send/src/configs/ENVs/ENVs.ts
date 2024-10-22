@@ -32,4 +32,8 @@ export const ENVs = {
   },
   jwtSecret: validatedENVs.JWT_SECRET,
   stringEncryptionSecret: validatedENVs,
+  email: {
+    address: validatedENVs.EMAIL_ADDRESS,
+    password: validatedENVs.EMAIL_PASSWORD,
+  },
 };

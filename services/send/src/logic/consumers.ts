@@ -10,8 +10,10 @@ import {
 import { usersCollection } from '../configs/mongoDB/initialization';
 import { deliveryFailedPublisher, deliverySucceededPublisher } from '../configs/rabbitMQ/initialization';
 
+import { sendEmail } from './utils/mailer';
+
 import * as model from './dal';
-import { sendEmail, sendPushNotification, sendSMS, sendWhatsApp } from './service';
+import { sendPushNotification, sendSMS, sendWhatsApp } from './service';
 
 export const handleSendNotificationEvent = async (eventData: SendNotificationEventType['data']) => {
   return functionWrapper(async () => {

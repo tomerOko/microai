@@ -3,30 +3,6 @@ import { functionWrapper } from 'common-lib-tomeroko3';
 import nodemailer from 'nodemailer';
 
 /**
- * Sends an email using nodemailer.
- */
-export const sendEmail = async (to: string, subject: string, body: string) => {
-  return functionWrapper(async () => {
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.example.com', // Replace with your SMTP host
-      port: 587, // Replace with your SMTP port
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: 'your_email@example.com', // Replace with your email
-        pass: 'your_email_password', // Replace with your email password
-      },
-    });
-
-    await transporter.sendMail({
-      from: '"Your App" <no-reply@yourapp.com>',
-      to,
-      subject,
-      text: body,
-    });
-  });
-};
-
-/**
  * Sends an SMS using a hypothetical SMS service.
  */
 export const sendSMS = async (phoneNumber: string, message: string) => {

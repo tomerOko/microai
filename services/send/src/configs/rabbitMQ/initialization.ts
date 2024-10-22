@@ -11,6 +11,7 @@ import {
   DeliverySucceededEventType,
   RetryScheduledEventType,
   SendNotificationEventType,
+  SendNotificationFundumentalEventType,
   UserCreatedEventType,
   UserUpdatedEventType,
   deliveryFailedEventValidation,
@@ -18,12 +19,18 @@ import {
   retryScheduledEventValidation,
   sendEventsNames,
   sendNotificationEventValidation,
+  sendNotificationFundumentalEventValidation,
   signupEventsNames,
   userCreatedEventValidation,
   userUpdatedEventValidation,
 } from 'events-tomeroko3';
 
-import { handleSendNotificationEvent, handleUserCreatedEvent, handleUserUpdatedEvent } from '../../logic/consumers';
+import {
+  handleSendNotificationEvent,
+  handleSendNotificationFundeEvent,
+  handleUserCreatedEvent,
+  handleUserUpdatedEvent,
+} from '../../logic/consumers';
 
 export let deliverySucceededPublisher: (data: DeliverySucceededEventType['data']) => void;
 export let deliveryFailedPublisher: (data: DeliveryFailedEventType['data']) => void;
@@ -34,6 +41,13 @@ const sendNotificationSubscriberParams: RabbitSubscriberParams<SendNotificationE
   eventName: sendEventsNames.SEND_NOTIFICATION,
   eventSchema: sendNotificationEventValidation,
   handler: handleSendNotificationEvent,
+};
+
+const sendNotificationFundamentalSubscriberParams: RabbitSubscriberParams<SendNotificationFundumentalEventType> = {
+  thisServiceName: 'SEND_SERVICE',
+  eventName: sendEventsNames.SEND_NOTIFICATION_FUNDUMENTAL,
+  eventSchema: sendNotificationFundumentalEventValidation,
+  handler: handleSendNotificationFundeEvent,
 };
 
 const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
@@ -68,6 +82,7 @@ const retryScheduledPublisherParams: RabbitPublisherParams<RetryScheduledEventTy
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
     await initializeRabbitSubscriber(sendNotificationSubscriberParams);
+    await initializeRabbitSubscriber(sendNotificationFundamentalSubscriberParams);
     await initializeRabbitSubscriber(userCreatedSubscriberParams);
     await initializeRabbitSubscriber(userUpdatedSubscriberParams);
 
