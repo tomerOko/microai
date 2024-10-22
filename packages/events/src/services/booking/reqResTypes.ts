@@ -11,14 +11,14 @@ import {
   cancelBookingResponseValidation,
 } from './reqResValidations';
 
-export type createBookingRequestType = z.infer<typeof createBookingRequestValidation>;
-export type createBookingResponseType = z.infer<typeof createBookingResponseValidation>;
+export type CreateBookingRequestType = z.infer<typeof createBookingRequestValidation>;
+export type CreateBookingResponseType = z.infer<typeof createBookingResponseValidation>;
 
-export type processBookingResponseRequestType = z.infer<typeof processBookingResponseRequestValidation>;
-export type processBookingResponseResponseType = z.infer<typeof processBookingResponseResponseValidation>;
+export type ProcessBookingResponseRequestType = z.infer<typeof processBookingResponseRequestValidation>;
+export type ProcessBookingResponseResponseType = z.infer<typeof processBookingResponseResponseValidation>;
 
-export type rescheduleBookingRequestType = z.infer<typeof rescheduleBookingRequestValidation>;
-export type rescheduleBookingResponseType = z.infer<typeof rescheduleBookingResponseValidation>;
+export type RescheduleBookingRequestType = z.infer<typeof rescheduleBookingRequestValidation>;
+export type RescheduleBookingResponseType = z.infer<typeof rescheduleBookingResponseValidation>;
 
-export type cancelBookingRequestType = z.infer<typeof cancelBookingRequestValidation>;
-export type cancelBookingResponseType = z.infer<typeof cancelBookingResponseValidation>;
+export type CancelBookingRequestType = z.infer<typeof cancelBookingRequestValidation>;
+export type CancelBookingResponseType = z.infer<typeof cancelBookingResponseValidation>;

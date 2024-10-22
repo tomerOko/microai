@@ -1,9 +1,10 @@
 // service.ts
 import { hash } from 'bcrypt';
-import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
+import { AppError, OptionalID, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
 import 'events-tomeroko3';
 import {
   SendNotificationEventType,
+  SendNotificationFundumentalEventType,
   SignupEmailPart2RequestType,
   SignupEmailRequestType,
   SignupEmailResponseType,
@@ -11,9 +12,10 @@ import {
   UpdateProfileResponseType,
 } from 'events-tomeroko3';
 
+import { User } from '../configs/mongoDB/initialization';
 import {
   newPasswordSetPublisher,
-  sendNotificationPublisher,
+  sendNotificationFundumentalPublisher,
   userCreatedPublisher,
   userDeactivatedPublisher,
   userUpdatedPublisher,
@@ -52,6 +54,7 @@ export const updateProfile = async (props: UpdateProfileRequestType['body']): Pr
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       ID: updatedUser.ID,
+      phone: updatedUser.phone,
     });
     return { message: 'Profile updated successfully' };
   });
@@ -85,14 +88,13 @@ const signupEmailCreateNewUser = async (
   return functionWrapper(async () => {
     const { email, password, firstName, lastName } = props;
     const hashedPassword = await hash(password, 10);
-    const userProps = {
+    const userProps: OptionalID<User> = {
       email,
       firstName,
       lastName,
       hashedPassword,
       isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      phone: '',
     };
 
     const userID = await model.createUser(userProps);
@@ -105,13 +107,19 @@ const signupEmailHandleNewPincode = async (email: string): Promise<void> => {
     const pincode = generatePincode();
     await model.savePincode(email, pincode);
 
-    const notification: SendNotificationEventType['data'] = {
-      type: 'EMAIL',
-      recipient: email,
-      subject: 'Your Verification Code',
-      message: `Your verification code is ${pincode}`,
+    const notification: SendNotificationFundumentalEventType['data'] = {
+      addresses: [
+        {
+          address: email,
+          channel: 'EMAIL',
+        },
+      ],
+      content: {
+        subject: 'Your Verification Code',
+        body: `Your verification code is ${pincode}`,
+      },
     };
-    sendNotificationPublisher(notification);
+    sendNotificationFundumentalPublisher(notification);
   });
 };
 

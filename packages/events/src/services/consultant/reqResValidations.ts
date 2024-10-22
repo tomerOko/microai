@@ -1,4 +1,3 @@
-// consultant.ts (request and response validations)
 import { z } from 'zod';
 import { consultantValidationPropsMinimal, topicValidationPropsMinimal } from './shared';
 

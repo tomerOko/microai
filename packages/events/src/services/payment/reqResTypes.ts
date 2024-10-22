@@ -7,12 +7,12 @@ import {
   updatePaymentMethodResponseValidation,
   removePaymentMethodRequestValidation,
   removePaymentMethodResponseValidation,
-  addPayoutMethodRequestValidation,
   addPayoutMethodResponseValidation,
   updatePayoutMethodRequestValidation,
   updatePayoutMethodResponseValidation,
   removePayoutMethodRequestValidation,
   removePayoutMethodResponseValidation,
+  addPayoutMethodRequestValidation,
 } from './reqResValidations';
 
 export type AddPaymentMethodRequestType = z.infer<typeof addPaymentMethodRequestValidation>;
