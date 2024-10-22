@@ -78,7 +78,7 @@ import {
   updatePaymentMethodResponseValidation,
   updatePayoutMethodRequestValidation,
   updatePayoutMethodResponseValidation,
-} from '../services';
+} from './services';
 
 const servicesNames = {
   availability: 'availability',

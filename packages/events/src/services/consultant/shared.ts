@@ -1,6 +1,8 @@
 // consultant.ts (shared validations)
 import z from 'zod';
-import { countries, Country, Gender, genders, Language, languages } from '../../shared';
+import { genders, Gender } from '../../shared/dictionaries/genders';
+import { countries, Country } from '../../shared/dictionaries/countries';
+import { languages, Language } from '../../shared/dictionaries/languages';
 
 export const consultantValidationPropsMinimal = {
   age: z.number(),
