@@ -1,6 +1,6 @@
 // validations/ratingEvents.ts
 import * as z from 'zod';
-import { callEventsNames } from '../calls';
+import { callEventsNames } from '../call';
 import { ratingEventsNames } from './eventsNames';
 import { consultantRatingValidationProps, reviewValidationProps } from './shared';
 

@@ -7,27 +7,27 @@ import {
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
-  SendNotificationEventType,
-  SendPincodeEmailEventType,
-  DeliverySucceededEventType,
   DeliveryFailedEventType,
+  DeliverySucceededEventType,
   RetryScheduledEventType,
+  SendNotificationEventType,
+  SendNotificationFundumentalEventType,
   UserCreatedEventType,
   UserUpdatedEventType,
-  sendEventsNames,
-  signupEventsNames,
-  sendNotificationEventValidation,
-  sendPincodeEmailEventValidation,
-  deliverySucceededEventValidation,
   deliveryFailedEventValidation,
+  deliverySucceededEventValidation,
   retryScheduledEventValidation,
+  sendEventsNames,
+  sendNotificationEventValidation,
+  sendNotificationFundumentalEventValidation,
+  signupEventsNames,
   userCreatedEventValidation,
   userUpdatedEventValidation,
 } from 'events-tomeroko3';
 
 import {
   handleSendNotificationEvent,
-  handleSendPincodeEmailEvent,
+  handleSendNotificationFundeEvent,
   handleUserCreatedEvent,
   handleUserUpdatedEvent,
 } from '../../logic/consumers';
@@ -43,11 +43,11 @@ const sendNotificationSubscriberParams: RabbitSubscriberParams<SendNotificationE
   handler: handleSendNotificationEvent,
 };
 
-const sendPincodeEmailSubscriberParams: RabbitSubscriberParams<SendPincodeEmailEventType> = {
+const sendNotificationFundamentalSubscriberParams: RabbitSubscriberParams<SendNotificationFundumentalEventType> = {
   thisServiceName: 'SEND_SERVICE',
-  eventName: sendEventsNames.SEND_PINCODE_EMAIL,
-  eventSchema: sendPincodeEmailEventValidation,
-  handler: handleSendPincodeEmailEvent,
+  eventName: sendEventsNames.SEND_NOTIFICATION_FUNDUMENTAL,
+  eventSchema: sendNotificationFundumentalEventValidation,
+  handler: handleSendNotificationFundeEvent,
 };
 
 const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> = {
@@ -82,7 +82,7 @@ const retryScheduledPublisherParams: RabbitPublisherParams<RetryScheduledEventTy
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
     await initializeRabbitSubscriber(sendNotificationSubscriberParams);
-    await initializeRabbitSubscriber(sendPincodeEmailSubscriberParams);
+    await initializeRabbitSubscriber(sendNotificationFundamentalSubscriberParams);
     await initializeRabbitSubscriber(userCreatedSubscriberParams);
     await initializeRabbitSubscriber(userUpdatedSubscriberParams);
 

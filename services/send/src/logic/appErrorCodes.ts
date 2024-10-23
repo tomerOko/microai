@@ -6,6 +6,7 @@ export const appErrorCodes = {
   CANT_LOGIN_UNKNOWN_METHOD: 'CANT_LOGIN_UNKNOWN_METHOD',
   BAD_GOOGLE_TOKEN: 'BAD_GOOGLE_TOKEN',
   TOKEN_DOSE_NOT_MATCH_USER: 'TOKEN_DOSE_NOT_MATCH_USER',
+  UPDATE_USER_USER_NOT_FOUND: 'UPDATE_USER_USER_NOT_FOUND',
 } as const;
 
 export type AppErrorCode = (typeof appErrorCodes)[keyof typeof appErrorCodes];

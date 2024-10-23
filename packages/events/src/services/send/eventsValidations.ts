@@ -2,6 +2,7 @@
 import { z } from 'zod';
 import { sendEventsNames } from './eventsNames';
 import { channelEnum, messageContentSchema } from './shared';
+import { channel } from 'diagnostics_channel';
 
 export const sendNotificationEventValidation = z.object({
   type: z.literal(sendEventsNames.SEND_NOTIFICATION),
@@ -12,11 +13,16 @@ export const sendNotificationEventValidation = z.object({
   }),
 });
 
-export const sendPincodeEmailEventValidation = z.object({
-  type: z.literal(sendEventsNames.SEND_PINCODE_EMAIL),
+export const sendNotificationFundumentalEventValidation = z.object({
+  type: z.literal(sendEventsNames.SEND_NOTIFICATION_FUNDUMENTAL),
   data: z.object({
-    email: z.string().email(),
-    pincode: z.string(),
+    addresses: z.array(
+      z.object({
+        channel: channelEnum,
+        address: z.string(),
+      }),
+    ),
+    content: messageContentSchema,
   }),
 });
 

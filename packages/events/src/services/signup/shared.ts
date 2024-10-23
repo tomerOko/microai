@@ -3,13 +3,12 @@ import z from 'zod';
 
 export const userValidationPropsMinimal = {
   email: z.string().email(),
+  phone: z.string().min(10).max(15),
   firstName: z.string(),
   lastName: z.string(),
 };
 
 export const passwordValidation = z.string().min(8);
-
-export const pincodeValidation = z.string().length(6);
 
 export const authenticationMethodValidation = z.object({
   method: z.string(),

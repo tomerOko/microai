@@ -4,12 +4,16 @@ import { setupMongo } from './configs/mongoDB';
 import { setupRabbitMQ } from './configs/rabbitMQ';
 
 import { initializeServer } from './server';
+import { ENVs } from './configs/ENVs';
 
 const start = async () => {
   console.log('Starting server...');
 
-  initializeCommonUtils(process.env.NODE_ENV == nodeEnvironments.PROD, 'signup');
-
+  initializeCommonUtils({
+    IS_PROD: ENVs.env == nodeEnvironments.PROD,
+    JWT_SECRET: ENVs.jwtSecret,
+    SERVICE_NAME: ENVs.serviceName,
+  });
   await setupMongo();
 
   await setupRabbitMQ();

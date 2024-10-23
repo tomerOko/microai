@@ -3,11 +3,14 @@ import { RabbitPublisherParams, functionWrapper, rabbitPublisherFactory } from '
 import {
   NewPasswordSetEventType,
   SendNotificationEventType,
+  SendNotificationFundumentalEventType,
   UserCreatedEventType,
   UserDeactivatedEventType,
   UserUpdatedEventType,
   newPasswordSetEventValidation,
+  sendEventsNames,
   sendNotificationEventValidation,
+  sendNotificationFundumentalEventValidation,
   signupEventsNames,
   userCreatedEventValidation,
   userDeactivatedEventValidation,
@@ -18,7 +21,7 @@ export let userCreatedPublisher: (data: UserCreatedEventType['data']) => void;
 export let userUpdatedPublisher: (data: UserUpdatedEventType['data']) => void;
 export let userDeactivatedPublisher: (data: UserDeactivatedEventType['data']) => void;
 export let newPasswordSetPublisher: (data: NewPasswordSetEventType['data']) => void;
-export let sendNotificationPublisher: (data: SendNotificationEventType['data']) => void;
+export let sendNotificationFundumentalPublisher: (data: SendNotificationFundumentalEventType['data']) => void;
 
 const userCreatedPublisherParams: RabbitPublisherParams<UserCreatedEventType> = {
   eventName: signupEventsNames.USER_CREATED,
@@ -40,9 +43,9 @@ const newPasswordSetPublisherParams: RabbitPublisherParams<NewPasswordSetEventTy
   eventSchema: newPasswordSetEventValidation,
 };
 
-const sendNotificationPublisherParams: RabbitPublisherParams<SendNotificationEventType> = {
-  eventName: signupEventsNames.SEND_NOTIFICATION,
-  eventSchema: sendNotificationEventValidation,
+const sendNotificationFundumnetalPublisherParams: RabbitPublisherParams<SendNotificationFundumentalEventType> = {
+  eventName: sendEventsNames.SEND_NOTIFICATION_FUNDUMENTAL,
+  eventSchema: sendNotificationFundumentalEventValidation,
 };
 
 export const initializeRabbitAgents = async () => {
@@ -51,6 +54,6 @@ export const initializeRabbitAgents = async () => {
     userUpdatedPublisher = await rabbitPublisherFactory(userUpdatedPublisherParams);
     userDeactivatedPublisher = await rabbitPublisherFactory(userDeactivatedPublisherParams);
     newPasswordSetPublisher = await rabbitPublisherFactory(newPasswordSetPublisherParams);
-    sendNotificationPublisher = await rabbitPublisherFactory(sendNotificationPublisherParams);
+    sendNotificationFundumentalPublisher = await rabbitPublisherFactory(sendNotificationFundumnetalPublisherParams);
   });
 };

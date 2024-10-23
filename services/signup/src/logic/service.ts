@@ -1,19 +1,21 @@
 // service.ts
 import { hash } from 'bcrypt';
-import { AppError, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
-import 'events-tomeroko3';
+import { AppError, OptionalID, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
 import {
   SendNotificationEventType,
+  SendNotificationFundumentalEventType,
   SignupEmailPart2RequestType,
   SignupEmailRequestType,
   SignupEmailResponseType,
   UpdateProfileRequestType,
   UpdateProfileResponseType,
 } from 'events-tomeroko3';
+import { parse } from 'path';
 
+import { User } from '../configs/mongoDB/initialization';
 import {
   newPasswordSetPublisher,
-  sendNotificationPublisher,
+  sendNotificationFundumentalPublisher,
   userCreatedPublisher,
   userDeactivatedPublisher,
   userUpdatedPublisher,
@@ -52,6 +54,7 @@ export const updateProfile = async (props: UpdateProfileRequestType['body']): Pr
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       ID: updatedUser.ID,
+      phone: updatedUser.phone,
     });
     return { message: 'Profile updated successfully' };
   });
@@ -72,10 +75,21 @@ export const deactivateProfile = async (): Promise<void> => {
 
 const signupEmailValidatePincode = async (email: string, pincode: string): Promise<void> => {
   return functionWrapper(async () => {
-    const valid = await model.validatePincode(email, pincode);
-    if (!valid) {
-      throw new AppError(appErrorCodes.INVALID_PINCODE, { email });
+    const pincodeEntry = await model.findPincode(email);
+    if (!pincodeEntry) {
+      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_NOT_FOUND, { email });
     }
+    if (parseInt(pincode) !== parseInt(pincodeEntry.pincode)) {
+      // for some reason, a classic string comparison always returns false
+      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_WRONG, { email, pincode, expectedPincode: pincodeEntry.pincode });
+    }
+    const now = new Date();
+    const diff = now.getTime() - pincodeEntry.createdAt.getTime();
+    // todo: move the 10 * 60 * 1000 to a system variable
+    if (diff > 10 * 60 * 1000) {
+      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_EXPIRED, { email });
+    }
+    await model.deletePincode(email);
   });
 };
 
@@ -85,14 +99,13 @@ const signupEmailCreateNewUser = async (
   return functionWrapper(async () => {
     const { email, password, firstName, lastName } = props;
     const hashedPassword = await hash(password, 10);
-    const userProps = {
+    const userProps: OptionalID<User> = {
       email,
       firstName,
       lastName,
       hashedPassword,
       isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      phone: '',
     };
 
     const userID = await model.createUser(userProps);
@@ -105,13 +118,19 @@ const signupEmailHandleNewPincode = async (email: string): Promise<void> => {
     const pincode = generatePincode();
     await model.savePincode(email, pincode);
 
-    const notification: SendNotificationEventType['data'] = {
-      type: 'EMAIL',
-      recipient: email,
-      subject: 'Your Verification Code',
-      message: `Your verification code is ${pincode}`,
+    const notification: SendNotificationFundumentalEventType['data'] = {
+      addresses: [
+        {
+          address: email,
+          channel: 'EMAIL',
+        },
+      ],
+      content: {
+        subject: 'Your Verification Code',
+        body: `Your verification code is ${pincode}`,
+      },
     };
-    sendNotificationPublisher(notification);
+    sendNotificationFundumentalPublisher(notification);
   });
 };
 

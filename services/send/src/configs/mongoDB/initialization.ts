@@ -1,10 +1,5 @@
 // MongoDB Initialization (initialization.ts)
-import {
-  CollectionInitializerProps,
-  SafeCollection,
-  collectionInitializer,
-  functionWrapper,
-} from 'common-lib-tomeroko3';
+import { CollectionInitializerProps, SafeCollection, collectionInitializer, functionWrapper } from 'common-lib-tomeroko3';
 import { sendDbValidations } from 'events-tomeroko3';
 import { z } from 'zod';
 

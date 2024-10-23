@@ -1,8 +1,6 @@
 // controller.ts
 import { errorHandler, functionWrapper } from 'common-lib-tomeroko3';
 import {
-  DeactivateUserRequestValidation,
-  DeactivateUserResponseValidation,
   SignupEmailPart2RequestType,
   SignupEmailPart2ResponseType,
   SignupEmailRequestType,
@@ -11,7 +9,7 @@ import {
   UpdateProfileResponseType,
 } from 'events-tomeroko3';
 import { NextFunction, Request, Response } from 'express';
-import httpStatus from 'http-status';
+import httpStatus from 'http-status-codes';
 
 import * as service from './service';
 

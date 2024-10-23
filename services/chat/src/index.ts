@@ -13,8 +13,8 @@ const start = async () => {
   initializeCommonUtils({
     IS_PROD: process.env.NODE_ENV == nodeEnvironments.PROD,
     JWT_SECRET: ENVs.jwtSecret,
-    SERVICE_NAME: 'TEACH_SERVICE',
-  });
+    SERVICE_NAME: ENVs.serviceName,
+    });
 
   await setupMongo();
 

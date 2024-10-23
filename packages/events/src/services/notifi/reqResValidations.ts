@@ -1,8 +1,7 @@
-// requestResponseValidations/notificationRequestResponseValidations.ts
-
 import { z } from 'zod';
 
-// Get Notifications Response Validation
+export const getNotificationsRequestValidation = z.object({});
+
 export const getNotificationsResponseValidation = z.array(
   z.object({
     notificationID: z.string(),
@@ -12,12 +11,10 @@ export const getNotificationsResponseValidation = z.array(
   }),
 );
 
-// Update Preferences Request Validation
 export const updatePreferencesRequestValidation = z.object({
   preferences: z.record(z.string(), z.array(z.string())),
 });
 
-// Update Preferences Response Validation
 export const updatePreferencesResponseValidation = z.object({
   message: z.string(),
 });

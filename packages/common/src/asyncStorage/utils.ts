@@ -20,8 +20,8 @@ const getAsyncStore = () => {
 
 const getFromAsyncStore = (key: string) => {
   const async_store = getAsyncStore();
-  if (!async_store) return 'NO_ASYNC_STORE';
-  if (!async_store[key]) return 'NO_ASYNC_STORE_KEY';
+  if (!async_store) return 'NO ASYNC STORE';
+  if (!async_store[key]) return `NO ${key} IN THIS REQUEST ASYNC STORE`;
   return async_store[key];
 };
 
