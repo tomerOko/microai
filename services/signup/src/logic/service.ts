@@ -1,7 +1,6 @@
 // service.ts
 import { hash } from 'bcrypt';
 import { AppError, OptionalID, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
-import 'events-tomeroko3';
 import {
   SendNotificationEventType,
   SendNotificationFundumentalEventType,
