@@ -80,9 +80,8 @@ const signupEmailValidatePincode = async (email: string, pincode: string): Promi
     if (!pincodeEntry) {
       throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_NOT_FOUND, { email });
     }
-    const a = parseInt(pincode);
-    const b = parseInt(pincodeEntry.pincode);
-    if (a !== b) {
+    if (parseInt(pincode) !== parseInt(pincodeEntry.pincode)) {
+      // for some reason, a classic string comparison always returns false
       throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_WRONG, { email, pincode, expectedPincode: pincodeEntry.pincode });
     }
     const now = new Date();
