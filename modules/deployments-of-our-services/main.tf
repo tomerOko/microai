@@ -1,5 +1,5 @@
 variable "run_our_service" {
-  description = "Whether to run the deployment resources as part of the terraform apply (true) or not and instead generate yaml files that represent the resources (false) so that tilt will run them to achieve local debugger and hot reloads"
+  description = "Whether to run the deployment resources as part of the terraform apply (true) or not and instead generate yaml files that represent the resources (false) so that tilt will run them (we use Tilt to achieve local debugger and hot reloads (code sync) capabilities)"
   type        = bool
   default     = false
 }
