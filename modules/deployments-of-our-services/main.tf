@@ -9,9 +9,9 @@ locals {
   image_tag = "latest" # todo: is this smart?
 }
 
-# Conditionally generate YAML files:
+# Conditionally generate YAML files or deploy directly
 resource "local_file" "k8s_manifest" {
-  for_each = var.run_our_service ? {} : { for app in local.apps : app => app } # Generate only if not deploying locally
+  for_each = var.run_our_service ? {} : { for app in local.apps : app => app }
   content = templatefile("${path.module}/templates/deployment.yaml.tpl", {
     app_name  = each.value,
     image_tag = local.image_tag,
@@ -19,13 +19,13 @@ resource "local_file" "k8s_manifest" {
   filename = "${path.module}/../../k8s/${each.value}-d.yaml" # Save the file in the k8s directory, make sure to match the path in the tilt file
 }
 
-# Log the path to the generated YAML file:
+# Deployment resources
 output "deployment_yaml_paths" {
   value = var.run_our_service ? [] : [for app in local.apps : local_file.k8s_manifest[app].filename]
 }
 
 resource "kubernetes_deployment" "app_deployment" {
-  for_each = var.run_our_service ? { for app in local.apps : app => app } : {} # Deploy only if deploying locally
+  for_each = var.run_our_service ? { for app in local.apps : app => app } : {} # run the deployments resources only if deploying locally
 
   metadata {
     name = "${each.value}-d"
@@ -63,6 +63,13 @@ resource "kubernetes_deployment" "app_deployment" {
               cpu    = "800m"
             }
           }
+
+          # Include the envFrom to load secrets
+          env_from {
+            secret_ref {
+              name = "${each.value}-secret"
+            }
+          }
         }
       }
     }
@@ -90,3 +97,4 @@ resource "kubernetes_service" "app_service" {
     type = "ClusterIP" # this is the default
   }
 }
+

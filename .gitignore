@@ -4,7 +4,7 @@
 /terraform.tfstate
 /terraform.tfstate.backup
 *.env
-/src/**/*.env
+/modules/secrets/*.json
 
 
 services/signup/node_modules/
@@ -104,4 +104,4 @@ packages/common/dist/
 packages/events/node_modules/
 packages/events/dist/
 
-services/send/external_development.env
+

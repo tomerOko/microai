@@ -107,6 +107,10 @@ module "dbs" {
   source = "./modules/dbs"
 }
 
+module "secrets" {
+  source = "./modules/secrets"
+}
+
 //todo: export to a model
 resource "helm_release" "rabbitmq" {
   name       = "rabbitmq"
