@@ -29,7 +29,7 @@ resource "kubernetes_secret" "service_secrets" {
   # Load the JSON file and use its contents as string_data
   data = {
     for key, value in jsondecode(file(each.value)) :
-    key => base64encode(value)
+    key => value
   }
 }
 

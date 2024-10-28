@@ -14,7 +14,8 @@ const base64Decode = (base64String: string) => {
 };
 
 console.log('A');
-console.log(base64Decode(process.env.some_secret as string));
+// console.log(base64Decode(process.env.some_secret as string));
+console.log(process.env);
 console.log('B');
 
 const validatedENVs = envsValidation(unsafeENVs);

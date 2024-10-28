@@ -9,6 +9,13 @@ locals {
   image_tag = "latest" # todo: is this smart?
 }
 
+locals {
+  secret_checksums = {
+    for service in local.apps :
+    service => base64sha256(jsonencode(kubernetes_secret.service_secrets[service].data))
+  }
+}
+
 # Conditionally generate YAML files or deploy directly
 resource "local_file" "k8s_manifest" {
   for_each = var.run_our_service ? {} : { for app in local.apps : app => app }
@@ -19,16 +26,19 @@ resource "local_file" "k8s_manifest" {
   filename = "${path.module}/../../k8s/${each.value}-d.yaml" # Save the file in the k8s directory, make sure to match the path in the tilt file
 }
 
-# Deployment resources
 output "deployment_yaml_paths" {
   value = var.run_our_service ? [] : [for app in local.apps : local_file.k8s_manifest[app].filename]
 }
 
+# Deployment resources
 resource "kubernetes_deployment" "app_deployment" {
   for_each = var.run_our_service ? { for app in local.apps : app => app } : {} # run the deployments resources only if deploying locally
 
   metadata {
     name = "${each.value}-d"
+    annotations = { # This is used to trigger a rolling update when the secret changes
+      secret_checksum = local.secret_checksums[each.value]
+    }
   }
 
   spec {
@@ -76,7 +86,7 @@ resource "kubernetes_deployment" "app_deployment" {
   }
 }
 
-# Deploy the service resource:
+# ervice resource:
 resource "kubernetes_service" "app_service" {
   for_each = { for app in local.apps : app => app }
 
