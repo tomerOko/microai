@@ -18,8 +18,9 @@ locals {
 resource "local_file" "k8s_manifest" {
   for_each = var.run_our_service ? {} : { for app in local.apps : app => app }
   content = templatefile("${path.module}/templates/deployment.yaml.tpl", {
-    app_name  = each.value,
-    image_tag = local.image_tag,
+    app_name        = each.value,
+    image_tag       = local.image_tag,
+    secret_checksum = local.secret_checksums[each.value]
   })
   filename = "${path.module}/../../k8s/${each.value}-d.yaml" # Save the file in the k8s directory, make sure to match the path in the tilt file
 }

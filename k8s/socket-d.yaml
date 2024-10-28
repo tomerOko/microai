@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: socket
+      annotations:
+        secret_checksum: "nYMfR1lcMKJ1UpbeC3vKhVevgtvXNLWFQ5QpZaa+yDI="
     spec:
       containers:
       - name: socket

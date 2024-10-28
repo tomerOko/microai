@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: booking
+      annotations:
+        secret_checksum: "UrcYFpGIKyuHyzv4S+i0k3QnSTJK7O/l6a+3tk16yb8="
     spec:
       containers:
       - name: booking

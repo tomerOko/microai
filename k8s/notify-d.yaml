@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: notify
+      annotations:
+        secret_checksum: "5RGatWyACTDAA4ZO9ygtpYqEfsAUc9V8DCSrC/1rfgk="
     spec:
       containers:
       - name: notify

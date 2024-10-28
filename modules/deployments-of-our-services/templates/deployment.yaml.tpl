@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: ${app_name}
+      annotations:
+        secret_checksum: "${secret_checksum}"
     spec:
       containers:
       - name: ${app_name}

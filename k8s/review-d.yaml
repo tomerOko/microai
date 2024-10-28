@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: review
+      annotations:
+        secret_checksum: "hSsCu3KqqWuj7/4/lEOP+pNGA+PktoNUphWnfqPgyFQ="
     spec:
       containers:
       - name: review

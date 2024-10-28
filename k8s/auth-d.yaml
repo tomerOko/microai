@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: auth
+      annotations:
+        secret_checksum: "uNGK7dxxkqjAlx6h712yMMYBIeySOQBB+Uwt9bK2y54="
     spec:
       containers:
       - name: auth

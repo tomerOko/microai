@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: consultant
+      annotations:
+        secret_checksum: "6IrdnEphwV1MZ9LoYLXHP8GIK7udB4lsCwXX5kw9SJQ="
     spec:
       containers:
       - name: consultant

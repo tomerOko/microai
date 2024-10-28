@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: call
+      annotations:
+        secret_checksum: "NnOCIe4Dzk2Ml5RBXzBQQakegjmqlKygEYPpZkNqJ6s="
     spec:
       containers:
       - name: call

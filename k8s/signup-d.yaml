@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: signup
+      annotations:
+        secret_checksum: "1BXHAPU2KOUQ0Kg/QjFKw39rQVPR2pVIELb7UVNpW08="
     spec:
       containers:
       - name: signup
