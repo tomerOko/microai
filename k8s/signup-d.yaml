@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: signup
+      annotations:
+        secret_checksum: "1BXHAPU2KOUQ0Kg/QjFKw39rQVPR2pVIELb7UVNpW08="
     spec:
       containers:
       - name: signup
@@ -18,4 +20,6 @@ spec:
         ports:
         - containerPort: 3000
         - containerPort: 9229
-
+        envFrom:
+        - secretRef:
+            name: signup-secret

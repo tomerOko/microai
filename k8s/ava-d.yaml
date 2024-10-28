@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: ava
+      annotations:
+        secret_checksum: "u5M80Y2EDI2MISGyBsVs6gfiDY00ub+2Z4p/ZaehLWk="
     spec:
       containers:
       - name: ava
@@ -18,4 +20,6 @@ spec:
         ports:
         - containerPort: 3000
         - containerPort: 9229
-
+        envFrom:
+        - secretRef:
+            name: ava-secret

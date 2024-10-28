@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: payment
+      annotations:
+        secret_checksum: "quq1EK0FF63ni2CYHrF4OMUNB2oHd1bwnNd8TppRyRA="
     spec:
       containers:
       - name: payment
@@ -18,4 +20,6 @@ spec:
         ports:
         - containerPort: 3000
         - containerPort: 9229
-
+        envFrom:
+        - secretRef:
+            name: payment-secret
