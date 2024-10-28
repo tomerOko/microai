@@ -1,4 +1,3 @@
-// dal.ts
 import { AppError, OptionalID, functionWrapper } from 'common-lib-tomeroko3';
 import { ObjectId } from 'mongodb';
 

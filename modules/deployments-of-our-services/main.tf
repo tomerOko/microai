@@ -1,31 +1,37 @@
 variable "run_our_service" {
-  description = "Whether to run the deployment resources as part of the terraform apply (true) or not and instead generate yaml files that represent the resources (false) so that tilt will run them to achieve local debugger and hot reloads"
+  description = "Whether to run the deployment resources as part of the terraform apply (true) or not and instead generate yaml files that represent the resources (false) so that tilt will run them (we use Tilt to achieve local debugger and hot reloads (code sync) capabilities)"
   type        = bool
   default     = false
 }
 
-locals {
-  apps      = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payment", "review", "send", "socket"]
-  image_tag = "latest" # todo: is this smart?
+variable "secret_checksums" {
+  type = map(string)
 }
 
-# Conditionally generate YAML files:
+locals {
+  apps             = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payment", "review", "send", "socket"]
+  image_tag        = "latest" # todo: is this smart?
+  secret_checksums = var.secret_checksums
+}
+
+# Conditionally generate YAML files or deploy directly
 resource "local_file" "k8s_manifest" {
-  for_each = var.run_our_service ? {} : { for app in local.apps : app => app } # Generate only if not deploying locally
+  for_each = var.run_our_service ? {} : { for app in local.apps : app => app }
   content = templatefile("${path.module}/templates/deployment.yaml.tpl", {
-    app_name  = each.value,
-    image_tag = local.image_tag,
+    app_name        = each.value,
+    image_tag       = local.image_tag,
+    secret_checksum = local.secret_checksums[each.value]
   })
   filename = "${path.module}/../../k8s/${each.value}-d.yaml" # Save the file in the k8s directory, make sure to match the path in the tilt file
 }
 
-# Log the path to the generated YAML file:
 output "deployment_yaml_paths" {
   value = var.run_our_service ? [] : [for app in local.apps : local_file.k8s_manifest[app].filename]
 }
 
+# Deployment resources
 resource "kubernetes_deployment" "app_deployment" {
-  for_each = var.run_our_service ? { for app in local.apps : app => app } : {} # Deploy only if deploying locally
+  for_each = var.run_our_service ? { for app in local.apps : app => app } : {} # run the deployments resources only if deploying locally
 
   metadata {
     name = "${each.value}-d"
@@ -45,6 +51,9 @@ resource "kubernetes_deployment" "app_deployment" {
         labels = {
           app = each.value
         }
+        annotations = { # This is used to trigger a rolling update when the secret changes
+          secret_checksum = local.secret_checksums[each.value]
+        }
       }
 
       spec {
@@ -63,13 +72,20 @@ resource "kubernetes_deployment" "app_deployment" {
               cpu    = "800m"
             }
           }
+
+          # Include the envFrom to load secrets
+          env_from {
+            secret_ref {
+              name = "${each.value}-secret"
+            }
+          }
         }
       }
     }
   }
 }
 
-# Deploy the service resource:
+# ervice resource:
 resource "kubernetes_service" "app_service" {
   for_each = { for app in local.apps : app => app }
 
@@ -90,3 +106,4 @@ resource "kubernetes_service" "app_service" {
     type = "ClusterIP" # this is the default
   }
 }
+

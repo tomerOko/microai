@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: ${app_name}
+      annotations:
+        secret_checksum: "${secret_checksum}"
     spec:
       containers:
       - name: ${app_name}
@@ -18,4 +20,6 @@ spec:
         ports:
         - containerPort: 3000
         - containerPort: 9229
-
+        envFrom:
+        - secretRef:
+            name: ${app_name}-secret

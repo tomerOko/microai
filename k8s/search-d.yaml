@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: search
+      annotations:
+        secret_checksum: "ept4ju6Sequ+slH+wSyu0R1xl/wnIc0678nY+LKK/t4="
     spec:
       containers:
       - name: search
@@ -18,4 +20,6 @@ spec:
         ports:
         - containerPort: 3000
         - containerPort: 9229
-
+        envFrom:
+        - secretRef:
+            name: search-secret
