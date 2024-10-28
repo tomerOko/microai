@@ -9,12 +9,7 @@ if ([nodeEnvironments.EXTERANL_DEV, nodeEnvironments.EXTERNAL_TEST].includes(pro
 
 const unsafeENVs = process.env;
 
-const base64Decode = (base64String: string) => {
-  return Buffer.from(base64String, 'base64').toString('ascii');
-};
-
 console.log('A');
-// console.log(base64Decode(process.env.some_secret as string));
 console.log(process.env);
 console.log('B');
 

@@ -99,7 +99,8 @@ resource "kubernetes_ingress_v1" "ingress_rules" {
 
 # (Module) deployments of services under development
 module "deployments_of_our_services" {
-  source = "./modules/deployments-of-our-services"
+  source           = "./modules/deployments-of-our-services"
+  secret_checksums = module.secrets.secret_checksums
 }
 
 # (Module) databases

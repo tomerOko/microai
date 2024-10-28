@@ -4,16 +4,14 @@ variable "run_our_service" {
   default     = false
 }
 
-locals {
-  apps      = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payment", "review", "send", "socket"]
-  image_tag = "latest" # todo: is this smart?
+variable "secret_checksums" {
+  type = map(string)
 }
 
 locals {
-  secret_checksums = {
-    for service in local.apps :
-    service => base64sha256(jsonencode(kubernetes_secret.service_secrets[service].data))
-  }
+  apps             = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payment", "review", "send", "socket"]
+  image_tag        = "latest" # todo: is this smart?
+  secret_checksums = var.secret_checksums
 }
 
 # Conditionally generate YAML files or deploy directly
@@ -36,9 +34,6 @@ resource "kubernetes_deployment" "app_deployment" {
 
   metadata {
     name = "${each.value}-d"
-    annotations = { # This is used to trigger a rolling update when the secret changes
-      secret_checksum = local.secret_checksums[each.value]
-    }
   }
 
   spec {
@@ -54,6 +49,9 @@ resource "kubernetes_deployment" "app_deployment" {
       metadata {
         labels = {
           app = each.value
+        }
+        annotations = { # This is used to trigger a rolling update when the secret changes
+          secret_checksum = local.secret_checksums[each.value]
         }
       }
 

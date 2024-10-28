@@ -37,3 +37,10 @@ resource "kubernetes_secret" "service_secrets" {
 output "created_secrets" {
   value = [for secret in kubernetes_secret.service_secrets : secret.metadata[0].name]
 }
+
+output "secret_checksums" {
+  value = {
+    for service, secret in kubernetes_secret.service_secrets :
+    service => base64sha256(jsonencode(secret.data))
+  }
+}
