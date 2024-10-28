@@ -7,13 +7,7 @@ if ([nodeEnvironments.EXTERANL_DEV, nodeEnvironments.EXTERNAL_TEST].includes(pro
   config({ path: './external_development.env' });
 }
 
-const unsafeENVs = process.env;
-
-console.log('A');
-console.log(process.env);
-console.log('B');
-
-const validatedENVs = envsValidation(unsafeENVs);
+const validatedENVs = envsValidation(process.env);
 
 export const ENVs = {
   env: validatedENVs.NODE_ENV || nodeEnvironments.DEV,
