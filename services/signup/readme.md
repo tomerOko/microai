@@ -15,4 +15,4 @@
   - sign up to the google developer cloud
   - install the needed sdk
   - make sure it is working
-  - update types
+  - update types hallow

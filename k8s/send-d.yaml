@@ -12,7 +12,7 @@ spec:
       labels:
         app: send
       annotations:
-        secret_checksum: "p3kwXACr8yDnzMVPEei213EBP88x1bZzUtV18WRtS8w="
+        secret_checksum: "B7bMSZd8wg2qdRQiru5QVA7b8jwP0VyUynIVHSzyFOo="
     spec:
       containers:
       - name: send
