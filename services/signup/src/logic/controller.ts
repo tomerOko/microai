@@ -21,6 +21,7 @@ export const signupEmail = async (req: Request, res: Response, next: NextFunctio
       res.status(httpStatus.OK).send(result);
     } catch (error) {
       errorHandler({})(error, next);
+      console.log('error');
     }
   });
 };

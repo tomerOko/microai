@@ -36,7 +36,10 @@
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "/app",
       "sourceMaps": true,
-      "port": 9001
+      "port": 9001,
+      "preLaunchTask": "Track Logs"
     }
   ]
 }
+
+//kubectl logs -l app=signup -f --all-containers=true
