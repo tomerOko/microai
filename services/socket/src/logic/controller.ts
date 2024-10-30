@@ -12,7 +12,7 @@ export const getOnlineUsers = async (req: Request, res: Response, next: NextFunc
       const result: GetOnlineUsersResponseType = await service.getOnlineUsers();
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

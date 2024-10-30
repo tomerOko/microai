@@ -20,7 +20,7 @@ export const sendMessage = async (req: Request, res: Response, next: NextFunctio
       const result: sendMessageResponseType = await service.sendMessage(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -32,7 +32,7 @@ export const getChatRoomMessages = async (req: Request, res: Response, next: Nex
       const result: getChatRoomMessagesResponseType = await service.getChatRoomMessages(params);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -43,7 +43,7 @@ export const getChatRooms = async (req: Request, res: Response, next: NextFuncti
       const result: getChatRoomsResponseType = await service.getChatRooms();
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

@@ -7,7 +7,7 @@ export const isAppError = (error: any): error is AppError => {
 };
 
 //not all AppErrors should be handled, but still every error passing this function is an AppError
-export const shouldBeHandled = (error: any): error is AppError => {
+export const isOperatinalError = (error: any): error is AppError => {
   if (isAppError(error)) {
     return error.isOperational;
   }

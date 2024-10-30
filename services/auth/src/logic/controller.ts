@@ -18,7 +18,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       const result: loginResponseType = await service.login(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -30,7 +30,7 @@ export const oauthLogin = async (req: Request, res: Response, next: NextFunction
       const result: oauthLoginResponseType = await service.oauthLogin(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

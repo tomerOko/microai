@@ -20,7 +20,7 @@ export const startCall = async (req: Request, res: Response, next: NextFunction)
       const result: startCallResponseType = await service.startCall(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -32,7 +32,7 @@ export const endCall = async (req: Request, res: Response, next: NextFunction) =
       const result: endCallResponseType = await service.endCall(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -44,7 +44,7 @@ export const getCallDetails = async (req: Request, res: Response, next: NextFunc
       const result: getCallDetailsResponseType = await service.getCallDetails(params);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

@@ -14,6 +14,7 @@ import {
 } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import * as zod from 'zod';
+import zodToJsonSchema from 'zod-to-json-schema';
 
 import { AppError, formatZodError } from '../errors';
 import { functionWrapper } from '../logging';
@@ -180,8 +181,8 @@ export class CollectionInitializer<T extends Document> {
       const updatedTestDocument = await testCollection.findOne(filter);
       const testValidationResult = this.props.documentSchema.safeParse(updatedTestDocument);
       if (!testValidationResult.success) {
-        const error = formatZodError(testValidationResult.error);
-        throw new AppError('UPDATE_ONE_VALIDATION_ERROR', { error, updatedTestDocument });
+        const zodError = formatZodError(testValidationResult.error);
+        throw new AppError('UPDATE_ONE_VALIDATION_ERROR', { zodError }, false, 'INTERNAL_SERVER_ERROR', {}, 500);
       }
     });
   }

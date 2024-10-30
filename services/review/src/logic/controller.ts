@@ -22,7 +22,7 @@ export const submitReview = async (req: Request, res: Response, next: NextFuncti
       const result: submitReviewResponseType = await service.submitReview(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -34,7 +34,7 @@ export const submitLongTermReview = async (req: Request, res: Response, next: Ne
       const result: submitLongTermReviewResponseType = await service.submitLongTermReview(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -46,7 +46,7 @@ export const getConsultantReviews = async (req: Request, res: Response, next: Ne
       const result: getConsultantReviewsResponseType = await service.getConsultantReviews(query);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -58,7 +58,7 @@ export const getTopicReviews = async (req: Request, res: Response, next: NextFun
       const result: getTopicReviewsResponseType = await service.getTopicReviews(query);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

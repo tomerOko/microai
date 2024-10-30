@@ -1,25 +1,19 @@
 import { NextFunction } from 'express';
-import httpStatus from 'http-status';
 
 import { functionWrapper } from '../logging';
 
-import { ResponseOfError } from './ResponseOfError';
-import { shouldBeHandled } from './utils';
+import { ClientError } from './appError';
+import { isOperatinalError } from './utils';
 
-export type ErrorHandlerParams = Record<string, ConstructorParameters<typeof ResponseOfError>>;
+const generalError: ClientError = new ClientError('INTERNAL_SERVER_ERROR', {}, 500);
 
-export const errorHandler = (params: ErrorHandlerParams) => {
-  return (error: unknown, next: NextFunction) => {
-    return functionWrapper(() => {
-      if (shouldBeHandled(error)) {
-        const [statusCode, description, data] = params[error.errorCode] || [
-          httpStatus.INTERNAL_SERVER_ERROR,
-          'no handler found for this error',
-        ];
-        next(new ResponseOfError(statusCode, description, data));
-        return;
-      }
-      return next(error);
-    });
-  };
+export const errorHandler = (error: unknown, next: NextFunction) => {
+  return functionWrapper(() => {
+    if (isOperatinalError(error)) {
+      const clientError = new ClientError(error.clientErrorCode, error.clientErrorData, error.httpStatus);
+      next(clientError);
+      return;
+    }
+    return next(generalError);
+  });
 };

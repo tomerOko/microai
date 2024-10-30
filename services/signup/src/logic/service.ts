@@ -2,7 +2,6 @@
 import { hash } from 'bcrypt';
 import { AppError, OptionalID, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
 import {
-  SendNotificationEventType,
   SendNotificationFundumentalEventType,
   SignupEmailPart2RequestType,
   SignupEmailRequestType,
@@ -10,7 +9,7 @@ import {
   UpdateProfileRequestType,
   UpdateProfileResponseType,
 } from 'events-tomeroko3';
-import { parse } from 'path';
+import httpStatus from 'http-status';
 
 import { User } from '../configs/mongoDB/initialization';
 import {
@@ -48,7 +47,8 @@ export const signupEmailPart2 = async (props: SignupEmailPart2RequestType['body'
 export const updateProfile = async (props: UpdateProfileRequestType['body']): Promise<UpdateProfileResponseType> => {
   return functionWrapper(async () => {
     const userID = getAuthenticatedID() as string;
-    const updatedUser = await model.updateUserByID(userID, props);
+    const updatedUser = (await model.updateUserByID(userID, props)) as User;
+    handleUserNotFound(updatedUser, userID);
     userUpdatedPublisher({
       email: updatedUser.email,
       firstName: updatedUser.firstName,
@@ -65,9 +65,17 @@ export const deactivateProfile = async (): Promise<void> => {
     const userID = getAuthenticatedID() as string;
     const user = await model.getUserByID(userID);
     if (!user) {
-      throw new AppError(appErrorCodes.USER_NOT_FOUND, { userID });
+      throw new AppError(
+        appErrorCodes.USER_NOT_FOUND,
+        { userID, description: 'user tried to deactivate himself (delete accout) but was not found in db' },
+        false,
+        'INTERNAL_SERVER_ERROR',
+        {},
+        httpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    await model.updateUserByID(userID, { isActive: false });
+    const updatedUser = await model.updateUserByID(userID, { isActive: false });
+    handleUserNotFound(updatedUser, userID);
     userDeactivatedPublisher({ userID });
     //todo: add logout logic
   });
@@ -77,17 +85,38 @@ const signupEmailValidatePincode = async (email: string, pincode: string): Promi
   return functionWrapper(async () => {
     const pincodeEntry = await model.findPincode(email);
     if (!pincodeEntry) {
-      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_NOT_FOUND, { email });
+      throw new AppError(
+        appErrorCodes.VALIDATE_PINCODE_PINCODE_NOT_FOUND,
+        { email, description: 'pincode not found in db, maybe user skkiped previous request in the flow' },
+        true,
+        'PINCODE_NOT_EXIST_FOR_THIS_EMAIL',
+        { description: 'make sure you went through previous request in the flow' },
+        httpStatus.CONFLICT,
+      );
     }
     if (parseInt(pincode) !== parseInt(pincodeEntry.pincode)) {
       // for some reason, a classic string comparison always returns false
-      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_WRONG, { email, pincode, expectedPincode: pincodeEntry.pincode });
+      throw new AppError(
+        appErrorCodes.VALIDATE_PINCODE_PINCODE_WRONG,
+        { email, pincode, expectedPincode: pincodeEntry.pincode },
+        true,
+        'WRONG_PINCODE',
+        {},
+        httpStatus.CONFLICT,
+      );
     }
     const now = new Date();
     const diff = now.getTime() - pincodeEntry.createdAt.getTime();
     // todo: move the 10 * 60 * 1000 to a system variable
     if (diff > 10 * 60 * 1000) {
-      throw new AppError(appErrorCodes.VALIDATE_PINCODE_PINCODE_EXPIRED, { email });
+      throw new AppError(
+        appErrorCodes.VALIDATE_PINCODE_PINCODE_EXPIRED,
+        { diff },
+        true,
+        'PINCODE_EXPIRED',
+        {},
+        httpStatus.CONFLICT,
+      );
     }
     await model.deletePincode(email);
   });
@@ -138,7 +167,27 @@ const signupEmailValidateEmailIsNew = async (email: string): Promise<void> => {
   return functionWrapper(async () => {
     const existingUser = await model.getUserByEmail(email);
     if (existingUser) {
-      throw new AppError(appErrorCodes.EMAIL_ALREADY_REGISTERED, { email });
+      throw new AppError(
+        appErrorCodes.EMAIL_ALREADY_REGISTERED,
+        { email },
+        true,
+        'EMAIL_ALREADY_REGISTERED',
+        { email },
+        httpStatus.CONFLICT,
+      );
     }
   });
+};
+
+const handleUserNotFound = (updatedUser: User | null, userID: string) => {
+  if (!updatedUser) {
+    throw new AppError(
+      appErrorCodes.USER_NOT_FOUND,
+      { userID, description: 'user tried to update himself but was not found in db' },
+      false,
+      'INTERNAL_SERVER_ERROR',
+      {},
+      httpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
 };

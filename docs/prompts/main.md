@@ -64,7 +64,7 @@ export const test = async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.send('Test route');
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -76,7 +76,7 @@ export const becomeTeacher = async (req: Request, res: Response, next: NextFunct
       const result: becomeTeacherResponseType = await service.becemeTeacher(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -88,7 +88,7 @@ export const updateTeacherDetails = async (req: Request, res: Response, next: Ne
       const result: updateTeacherDetailsResponseType = await service.updateTeacherDetails(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -100,7 +100,7 @@ export const stopTeach = async (req: Request, res: Response, next: NextFunction)
       const result: stopTeachResponseType = await service.stopTeach(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -112,7 +112,7 @@ export const addTopic = async (req: Request, res: Response, next: NextFunction) 
       const result: addTopicResponseType = await service.addTopic(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -124,7 +124,7 @@ export const updateTopic = async (req: Request, res: Response, next: NextFunctio
       const result: updateTopicResponseType = await service.updateTopic(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -136,7 +136,7 @@ export const deleteTopic = async (req: Request, res: Response, next: NextFunctio
       const result: deleteTopicResponseType = await service.deleteTopic(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

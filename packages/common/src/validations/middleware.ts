@@ -2,8 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { AnyZodObject, ZodError } from 'zod';
 
-import { ResponseOfError } from '../errors/ResponseOfError';
-import { AppError } from '../errors/appError';
+import { AppError, ClientError } from '../errors/appError';
 import { formatZodError } from '../errors/utils';
 import { functionWrapper } from '../logging';
 
@@ -11,14 +10,14 @@ export const validateRequest = (reqSchema: AnyZodObject, resSchema: AnyZodObject
   return async (req: Request, res: Response, next: NextFunction) => {
     return functionWrapper(async () => {
       try {
-        await validateAndUpdateRequestWithProvidedSchema(reqSchema, req);
+        const error = await validateAndUpdateRequestWithProvidedSchema(reqSchema, req);
+        if (error) {
+          next(new ClientError('REQUEST_VALIDATION_ERROR', (error as AppError).errorData, httpStatus.NOT_ACCEPTABLE));
+          return;
+        }
         setResponseValidation(res, resSchema);
         return next();
-      } catch (error) {
-        return next(
-          new ResponseOfError(httpStatus.CONFLICT, 'request did not passed route validations', (error as AppError).errorData),
-        );
-      }
+      } catch (error) {}
     });
   };
 };
@@ -40,10 +39,10 @@ const validateAndUpdateRequestWithProvidedSchema = async (schema: AnyZodObject, 
       req.params = params;
     } catch (error: any) {
       if (!isZodError(error)) {
-        throw new AppError('COULD_NOT_VALIDATE_REQUEST', { error: error.message });
+        return { error: error.message, description: 'could not validate' };
       }
       const formattedErrorObject = formatZodError(error);
-      throw new AppError('REQUEST_VALIDATION_ERROR', formattedErrorObject);
+      return formattedErrorObject;
     }
   });
 };
@@ -51,7 +50,6 @@ const validateAndUpdateRequestWithProvidedSchema = async (schema: AnyZodObject, 
 const setResponseValidation = (res: Response, resSchema: AnyZodObject) => {
   const send = res.send;
   (res as any).send = function (body: any) {
-    const isErrorResponse = body.error;
     const isSecodndCall = typeof body === 'string';
     if (!body.error && !isSecodndCall) {
       validateResponseWithProvidedSchema(resSchema, body);
@@ -65,11 +63,15 @@ const validateResponseWithProvidedSchema = async (schema: AnyZodObject, body: an
     try {
       await schema.parseAsync(body);
     } catch (error: any) {
-      if (!isZodError(error)) {
-        throw new AppError('COULD_NOT_VALIDATE_RESPONSE', { error: error.message });
-      }
-      const formattedErrorObject = formatZodError(error);
-      throw new AppError('RESPONSE_VALIDATION_ERROR', { formattedErrorObject, body });
+      const errorData = isZodError(error) ? formatZodError(error) : { error: error.message };
+      throw new AppError(
+        'RESPONSE_VALIDATION_ERROR',
+        errorData,
+        true,
+        'INTERNAL_SERVER_ERROR',
+        {},
+        httpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   });
 };

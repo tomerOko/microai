@@ -22,7 +22,7 @@ export const setDefaultSchedule = async (req: Request, res: Response, next: Next
       const result: setDefaultScheduleResponseType = await service.setDefaultSchedule(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -34,7 +34,7 @@ export const updateWeeklySchedule = async (req: Request, res: Response, next: Ne
       const result: updateWeeklyScheduleResponseType = await service.updateWeeklySchedule(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -46,7 +46,7 @@ export const toggleAvailableNow = async (req: Request, res: Response, next: Next
       const result: toggleAvailableNowResponseType = await service.toggleAvailableNow(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -58,7 +58,7 @@ export const checkAvailability = async (req: Request, res: Response, next: NextF
       const result: checkAvailabilityResponseType = await service.checkAvailability(query);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

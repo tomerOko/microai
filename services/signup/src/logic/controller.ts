@@ -20,7 +20,7 @@ export const signupEmail = async (req: Request, res: Response, next: NextFunctio
       const result: SignupEmailResponseType = await service.signupEmail(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
       console.log('error');
     }
   });
@@ -33,7 +33,7 @@ export const signupEmailPart2 = async (req: Request, res: Response, next: NextFu
       const result: SignupEmailPart2ResponseType = await service.signupEmailPart2(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -45,7 +45,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
       const result: UpdateProfileResponseType = await service.updateProfile(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -56,7 +56,7 @@ export const deactivateProfile = async (req: Request, res: Response, next: NextF
       await service.deactivateProfile();
       res.status(httpStatus.OK).send({ message: 'Profile deactivated successfully' });
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
