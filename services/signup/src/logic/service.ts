@@ -40,6 +40,7 @@ export const signupEmailPart2 = async (props: SignupEmailPart2RequestType['body'
     const { userProps, userID } = await signupEmailCreateNewUser(props);
     userCreatedPublisher({ ...userProps, ID: userID });
     newPasswordSetPublisher({ userID });
+    await model.deletePincode(email);
     return { userID };
   });
 };
@@ -87,7 +88,6 @@ const signupEmailValidatePincode = async (email: string, pincode: string): Promi
     validatePincodeExist(pincodeEntry, email);
     validatePincodeMatch(pincode, pincodeEntry as Pincode, email);
     validatePincodeNotExpired(pincodeEntry as Pincode);
-    await model.deletePincode(email);
   });
 };
 
@@ -95,7 +95,7 @@ const signupEmailCreateNewUser = async (
   props: SignupEmailPart2RequestType['body'],
 ): Promise<{ userProps: any; userID: string }> => {
   return functionWrapper(async () => {
-    const { email, password, firstName, lastName } = props;
+    const { email, password, firstName, lastName, phone } = props;
     const hashedPassword = await hash(password, 10);
     const userProps: OptionalID<User> = {
       email,
@@ -103,10 +103,11 @@ const signupEmailCreateNewUser = async (
       lastName,
       hashedPassword,
       isActive: true,
-      phone: '',
+      phone,
     };
 
     const userID = await model.createUser(userProps);
+    //todo : add error handling for user allready exist
     return { userProps, userID };
   });
 };

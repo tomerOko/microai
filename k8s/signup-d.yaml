@@ -12,7 +12,7 @@ spec:
       labels:
         app: signup
       annotations:
-        secret_checksum: "1BXHAPU2KOUQ0Kg/QjFKw39rQVPR2pVIELb7UVNpW08="
+        secret_checksum: "1T8XHuRqQsxYvIIzOhkQZrtownh1IVHy3L1KuACTm6k="
     spec:
       containers:
       - name: signup
