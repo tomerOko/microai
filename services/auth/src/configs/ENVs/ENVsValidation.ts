@@ -62,6 +62,6 @@ export const envsValidation = (providedENVs: Record<string, string | undefined>)
     const formattedErrorObject = formatZodError(error as ZodError);
     /* we use console.error here instead of importing the logger to avoid circular dependencies */
     console.error(JSON.stringify(formattedErrorObject));
-    throw new AppError(appErrorCodes.CONFIG_VALIDATION_ERROR, formattedErrorObject);
+    throw new AppError(appErrorCodes.CONFIG_VALIDATION_ERROR, formattedErrorObject, false, 'not relevant', {}, 500);
   }
 };

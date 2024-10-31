@@ -105,7 +105,7 @@ export class CollectionInitializer<T extends Document> {
   }
 
   private insertOneFactory() {
-    const updateOne = async (doc: OptionalID<T>, options?: InsertOneOptions): Promise<string> => {
+    const insertOne = async (doc: OptionalID<T>, options?: InsertOneOptions): Promise<string> => {
       return functionWrapper(async () => {
         doc.ID = doc.ID || uuidv4();
         const validation = this.props.documentSchema.safeParse(doc);
@@ -117,7 +117,7 @@ export class CollectionInitializer<T extends Document> {
       });
     };
 
-    return updateOne;
+    return insertOne;
   }
 
   private insertManyFactory() {

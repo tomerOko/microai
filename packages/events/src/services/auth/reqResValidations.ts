@@ -8,9 +8,6 @@ export const passwordLoginRequestValidation = z.object({
   }),
 });
 
-const loginResponseValidation = z.object({
+export const passwordLoginResponseValidation = z.object({
   token: z.string(),
-  user: z.object(authUserValidationProps),
 });
-
-export const passwordLoginResponseValidation = loginResponseValidation;

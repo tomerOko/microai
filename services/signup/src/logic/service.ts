@@ -1,6 +1,5 @@
-// service.ts
-import { hash } from 'bcrypt';
 import { AppError, OptionalID, functionWrapper, getAuthenticatedID } from 'common-lib-tomeroko3';
+import crypto from 'crypto';
 import {
   SendNotificationFundumentalEventType,
   SignupEmailPart2RequestType,
@@ -13,7 +12,6 @@ import httpStatus from 'http-status';
 
 import { Pincode, User } from '../configs/mongoDB/initialization';
 import {
-  newPasswordSetPublisher,
   sendNotificationFundumentalPublisher,
   userCreatedPublisher,
   userDeactivatedPublisher,
@@ -39,7 +37,6 @@ export const signupEmailPart2 = async (props: SignupEmailPart2RequestType['body'
     await signupEmailValidatePincode(email, pincode);
     const { userProps, userID } = await signupEmailCreateNewUser(props);
     userCreatedPublisher({ ...userProps, ID: userID });
-    newPasswordSetPublisher({ userID });
     await model.deletePincode(email);
     return { userID };
   });
@@ -48,15 +45,12 @@ export const signupEmailPart2 = async (props: SignupEmailPart2RequestType['body'
 export const updateProfile = async (props: UpdateProfileRequestType['body']): Promise<UpdateProfileResponseType> => {
   return functionWrapper(async () => {
     const userID = getAuthenticatedID() as string;
-    const updatedUser = (await model.updateUserByID(userID, props)) as User;
-    handleUserNotFound(updatedUser, userID);
-    userUpdatedPublisher({
-      email: updatedUser.email,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      ID: updatedUser.ID,
-      phone: updatedUser.phone,
-    });
+    const updateResult = await model.updateUserByID(userID, props);
+    if (updateResult?.matchedCount === 0) {
+      throwUserNotFoundError(userID);
+    }
+    const updatedUser = (await model.getUserByID(userID)) as User;
+    userUpdatedPublisher(updatedUser);
     return { message: 'Profile updated successfully' };
   });
 };
@@ -75,8 +69,10 @@ export const deactivateProfile = async (): Promise<void> => {
         httpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    const updatedUser = await model.updateUserByID(userID, { isActive: false });
-    handleUserNotFound(updatedUser, userID);
+    const updateResult = await model.updateUserByID(userID, { isActive: false });
+    if (updateResult?.matchedCount === 0) {
+      throwUserNotFoundError(userID);
+    }
     userDeactivatedPublisher({ userID });
     //todo: add logout logic
   });
@@ -96,7 +92,7 @@ const signupEmailCreateNewUser = async (
 ): Promise<{ userProps: any; userID: string }> => {
   return functionWrapper(async () => {
     const { email, password, firstName, lastName, phone } = props;
-    const hashedPassword = await hash(password, 10);
+    const hashedPassword = crypto.pbkdf2Sync('password', 'fixedSalt', 1000, 64, 'sha512').toString('hex');
     const userProps: OptionalID<User> = {
       email,
       firstName,
@@ -149,17 +145,15 @@ const signupEmailValidateEmailIsNew = async (email: string): Promise<void> => {
   });
 };
 
-const handleUserNotFound = (updatedUser: User | null, userID: string) => {
-  if (!updatedUser) {
-    throw new AppError(
-      appErrorCodes.USER_NOT_FOUND,
-      { userID, description: 'user tried to update himself but was not found in db' },
-      false,
-      'INTERNAL_SERVER_ERROR',
-      {},
-      httpStatus.INTERNAL_SERVER_ERROR,
-    );
-  }
+const throwUserNotFoundError = (userID: string) => {
+  throw new AppError(
+    appErrorCodes.USER_NOT_FOUND,
+    { userID, description: 'user tried to update himself but was not found in db' },
+    false,
+    'INTERNAL_SERVER_ERROR',
+    {},
+    httpStatus.INTERNAL_SERVER_ERROR,
+  );
 };
 
 const validatePincodeNotExpired = (pincodeEntry: Pincode) => {

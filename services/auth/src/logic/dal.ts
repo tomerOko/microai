@@ -1,5 +1,6 @@
 // dal.ts
 import { OptionalID, functionWrapper } from 'common-lib-tomeroko3';
+import { ObjectId } from 'mongodb';
 
 import { User, usersCollection } from '../configs/mongoDB/initialization';
 
@@ -24,18 +25,8 @@ export const getUserByID = async (ID: string) => {
   });
 };
 
-export const getUserByOAuthProviderID = async (provider: string, providerID: string) => {
-  return functionWrapper(async () => {
-    const user = await usersCollection.findOne({
-      'oauthProviders.provider': provider,
-      'oauthProviders.providerID': providerID,
-    });
-    return user;
-  });
-};
-
 export const updateUserByID = async (ID: string, update: Partial<User>) => {
   return functionWrapper(async () => {
-    await usersCollection.updateOne({ ID }, { $set: update });
+    await usersCollection.updateOne({ filter: { ID }, update, options: { upsert: false } });
   });
 };

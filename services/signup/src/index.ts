@@ -7,7 +7,7 @@ import { setupRabbitMQ } from './configs/rabbitMQ';
 import { initializeServer } from './server';
 
 const start = async () => {
-  console.log('Starting server...');
+  console.log('Starting server..!');
 
   initializeCommonUtils({
     IS_PROD: ENVs.env == nodeEnvironments.PROD,

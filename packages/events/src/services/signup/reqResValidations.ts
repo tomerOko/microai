@@ -1,6 +1,6 @@
 // signup.ts (request and response validations)
 import { z } from 'zod';
-import { passwordValidation, userValidationPropsMinimal } from './shared';
+import { userValidationPropsMinimal } from './shared';
 
 export const signupEmailRequestValidation = z.object({
   body: z.object({
@@ -15,7 +15,7 @@ export const signupEmailResponseValidation = z.object({
 export const signupEmailPart2RequestValidation = z.object({
   body: z.object({
     pincode: z.string(),
-    password: passwordValidation,
+    password: z.string(),
     ...userValidationPropsMinimal,
   }),
 });

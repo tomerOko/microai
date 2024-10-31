@@ -1,15 +1,11 @@
 // initialization.ts
 import { RabbitPublisherParams, functionWrapper, rabbitPublisherFactory } from 'common-lib-tomeroko3';
 import {
-  NewPasswordSetEventType,
-  SendNotificationEventType,
   SendNotificationFundumentalEventType,
   UserCreatedEventType,
   UserDeactivatedEventType,
   UserUpdatedEventType,
-  newPasswordSetEventValidation,
   sendEventsNames,
-  sendNotificationEventValidation,
   sendNotificationFundumentalEventValidation,
   signupEventsNames,
   userCreatedEventValidation,
@@ -20,7 +16,6 @@ import {
 export let userCreatedPublisher: (data: UserCreatedEventType['data']) => void;
 export let userUpdatedPublisher: (data: UserUpdatedEventType['data']) => void;
 export let userDeactivatedPublisher: (data: UserDeactivatedEventType['data']) => void;
-export let newPasswordSetPublisher: (data: NewPasswordSetEventType['data']) => void;
 export let sendNotificationFundumentalPublisher: (data: SendNotificationFundumentalEventType['data']) => void;
 
 const userCreatedPublisherParams: RabbitPublisherParams<UserCreatedEventType> = {
@@ -38,11 +33,6 @@ const userDeactivatedPublisherParams: RabbitPublisherParams<UserDeactivatedEvent
   eventSchema: userDeactivatedEventValidation,
 };
 
-const newPasswordSetPublisherParams: RabbitPublisherParams<NewPasswordSetEventType> = {
-  eventName: signupEventsNames.NEW_PASSWORD_SET,
-  eventSchema: newPasswordSetEventValidation,
-};
-
 const sendNotificationFundumnetalPublisherParams: RabbitPublisherParams<SendNotificationFundumentalEventType> = {
   eventName: sendEventsNames.SEND_NOTIFICATION_FUNDUMENTAL,
   eventSchema: sendNotificationFundumentalEventValidation,
@@ -53,7 +43,6 @@ export const initializeRabbitAgents = async () => {
     userCreatedPublisher = await rabbitPublisherFactory(userCreatedPublisherParams);
     userUpdatedPublisher = await rabbitPublisherFactory(userUpdatedPublisherParams);
     userDeactivatedPublisher = await rabbitPublisherFactory(userDeactivatedPublisherParams);
-    newPasswordSetPublisher = await rabbitPublisherFactory(newPasswordSetPublisherParams);
     sendNotificationFundumentalPublisher = await rabbitPublisherFactory(sendNotificationFundumnetalPublisherParams);
   });
 };
