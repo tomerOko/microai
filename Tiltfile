@@ -54,3 +54,8 @@ k8s_resource('send-d', port_forwards=['3012:3000','9012:9229'])
 k8s_yaml("k8s/socket-d.yaml")
 docker_build("socket", "services/socket", live_update=[sync("services/socket/src", "/app/src")])
 k8s_resource('socket-d', port_forwards=['3013:3000','9013:9229'])
+
+
+
+# sh ./sync.sh /Users/tomer/code/microai/packages/events signup
+# sh ./sync.sh /Users/tomer/code/microai/packages/events auth

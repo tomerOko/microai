@@ -1,31 +1,17 @@
-// consumers.ts
-import {
-  UserCreatedEventType,
-  NewPasswordSetEventType,
-  OAuthLinkedEventType,
-  AuthMethodAddedEventType,
-} from 'events-tomeroko3';
+import { UserCreatedEventType, UserUpdatedEventType } from 'events-tomeroko3';
 
 import { usersCollection } from '../configs/mongoDB/initialization';
 
+import * as model from './dal';
+
 export const handleUserCreatedEvent = async (user: UserCreatedEventType['data']) => {
-  await usersCollection.insertOne(user);
+  await model.createUser({
+    email: user.email,
+    hasedPassword: user.hashedPassword,
+    ID: user.ID,
+  });
 };
 
-export const handleNewPasswordSetEvent = async (event: NewPasswordSetEventType['data']) => {
-  const { userID, passwordHash } = event;
-  await usersCollection.updateOne({ ID: userID }, { $set: { passwordHash } });
-};
-
-export const handleOAuthLinkedEvent = async (event: OAuthLinkedEventType['data']) => {
-  const { userID, provider, providerID } = event;
-  await usersCollection.updateOne(
-    { ID: userID },
-    { $push: { oauthProviders: { provider, providerID } } },
-  );
-};
-
-export const handleAuthMethodAddedEvent = async (event: AuthMethodAddedEventType['data']) => {
-  const { userID, authMethod } = event;
-  await usersCollection.updateOne({ ID: userID }, { $push: { authMethods: authMethod } });
+export const handleUserUpdatedEvent = async (event: UserUpdatedEventType['data']) => {
+  await model.updateUserByID(event.ID, event);
 };

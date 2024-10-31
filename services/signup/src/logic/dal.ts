@@ -1,5 +1,5 @@
 import { AppError, OptionalID, functionWrapper } from 'common-lib-tomeroko3';
-import { ObjectId } from 'mongodb';
+import { ObjectId, UpdateResult } from 'mongodb';
 
 import { app } from '../app';
 import { Pincode, User, pincodesCollection, usersCollection } from '../configs/mongoDB/initialization';
@@ -50,16 +50,20 @@ export const createUser = async (user: OptionalID<User>) => {
   });
 };
 
-export const getUserByID = async (userID: string) => {
+export const getUserByID = async (ID: string) => {
   return functionWrapper(async () => {
-    const user = await usersCollection.findOne({ _id: new ObjectId(userID) });
+    const user = await usersCollection.findOne({ ID });
     return user;
   });
 };
 
-export const updateUserByID = async (userID: string, update: Partial<User>): Promise<User | null> => {
+export const updateUserByID = async (userID: string, update: Partial<User>): Promise<UpdateResult | null> => {
   return functionWrapper(async () => {
-    const updatedUser = await usersCollection.findOneAndUpdate({ _id: new ObjectId(userID) }, { $set: update });
+    const updatedUser = await usersCollection.updateOne({
+      filter: { ID: userID },
+      update,
+      options: { upsert: false },
+    });
     return updatedUser;
   });
 };

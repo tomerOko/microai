@@ -7,28 +7,19 @@ import {
   rabbitPublisherFactory,
 } from 'common-lib-tomeroko3';
 import {
-  AuthSuccessEventType,
   AuthFailureEventType,
+  AuthSuccessEventType,
   UserCreatedEventType,
-  NewPasswordSetEventType,
-  OAuthLinkedEventType,
-  AuthMethodAddedEventType,
-  signupEventsNames,
+  UserUpdatedEventType,
   authEventsNames,
-  userCreatedEventValidation,
-  newPasswordSetEventValidation,
-  oauthLinkedEventValidation,
-  authMethodAddedEventValidation,
-  authSuccessEventValidation,
   authFailureEventValidation,
+  authSuccessEventValidation,
+  signupEventsNames,
+  userCreatedEventValidation,
+  userUpdatedEventValidation,
 } from 'events-tomeroko3';
 
-import {
-  handleUserCreatedEvent,
-  handleNewPasswordSetEvent,
-  handleOAuthLinkedEvent,
-  handleAuthMethodAddedEvent,
-} from '../../logic/consumers';
+import { handleUserCreatedEvent, handleUserUpdatedEvent } from '../../logic/consumers';
 
 export let authSuccessPublisher: (data: AuthSuccessEventType['data']) => void;
 export let authFailurePublisher: (data: AuthFailureEventType['data']) => void;
@@ -50,33 +41,17 @@ const userCreatedSubscriberParams: RabbitSubscriberParams<UserCreatedEventType> 
   handler: handleUserCreatedEvent,
 };
 
-const newPasswordSetSubscriberParams: RabbitSubscriberParams<NewPasswordSetEventType> = {
+const userUpdatedSubscriberParams: RabbitSubscriberParams<UserUpdatedEventType> = {
   thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.NEW_PASSWORD_SET,
-  eventSchema: newPasswordSetEventValidation,
-  handler: handleNewPasswordSetEvent,
-};
-
-const oauthLinkedSubscriberParams: RabbitSubscriberParams<OAuthLinkedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.OAUTH_LINKED,
-  eventSchema: oauthLinkedEventValidation,
-  handler: handleOAuthLinkedEvent,
-};
-
-const authMethodAddedSubscriberParams: RabbitSubscriberParams<AuthMethodAddedEventType> = {
-  thisServiceName: 'AUTH_SERVICE',
-  eventName: signupEventsNames.AUTH_METHOD_ADDED,
-  eventSchema: authMethodAddedEventValidation,
-  handler: handleAuthMethodAddedEvent,
+  eventName: signupEventsNames.USER_UPDATED,
+  eventSchema: userUpdatedEventValidation,
+  handler: handleUserUpdatedEvent,
 };
 
 export const initializeRabbitAgents = async () => {
   return functionWrapper(async () => {
     await initializeRabbitSubscriber(userCreatedSubscriberParams);
-    await initializeRabbitSubscriber(newPasswordSetSubscriberParams);
-    await initializeRabbitSubscriber(oauthLinkedSubscriberParams);
-    await initializeRabbitSubscriber(authMethodAddedSubscriberParams);
+    await initializeRabbitSubscriber(userUpdatedSubscriberParams);
     authSuccessPublisher = await rabbitPublisherFactory(authSuccessPublisherParams);
     authFailurePublisher = await rabbitPublisherFactory(authFailurePublisherParams);
   });
