@@ -33,7 +33,7 @@ export const updateUserByID = async (userID: string, update: Partial<User>): Pro
   return functionWrapper(async () => {
     const updatedUser = await usersCollection.findOneAndUpdate({ _id: new ObjectId(userID) }, { $set: update });
     if (!updatedUser) {
-      throw new AppError(appErrorCodes.UPDATE_USER_USER_NOT_FOUND, { userID });
+      throw new AppError(appErrorCodes.UPDATE_USER_USER_NOT_FOUND, { userID }, false, 'not relevant', {}, 500);
     }
     return updatedUser;
   });

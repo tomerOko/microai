@@ -11,7 +11,7 @@ import {
 } from 'events-tomeroko3';
 import httpStatus from 'http-status';
 
-import { User } from '../configs/mongoDB/initialization';
+import { Pincode, User } from '../configs/mongoDB/initialization';
 import {
   newPasswordSetPublisher,
   sendNotificationFundumentalPublisher,
@@ -84,40 +84,9 @@ export const deactivateProfile = async (): Promise<void> => {
 const signupEmailValidatePincode = async (email: string, pincode: string): Promise<void> => {
   return functionWrapper(async () => {
     const pincodeEntry = await model.findPincode(email);
-    if (!pincodeEntry) {
-      throw new AppError(
-        appErrorCodes.VALIDATE_PINCODE_PINCODE_NOT_FOUND,
-        { email, description: 'pincode not found in db, maybe user skkiped previous request in the flow' },
-        true,
-        'PINCODE_NOT_EXIST_FOR_THIS_EMAIL',
-        { description: 'make sure you went through previous request in the flow' },
-        httpStatus.CONFLICT,
-      );
-    }
-    if (parseInt(pincode) !== parseInt(pincodeEntry.pincode)) {
-      // for some reason, a classic string comparison always returns false
-      throw new AppError(
-        appErrorCodes.VALIDATE_PINCODE_PINCODE_WRONG,
-        { email, pincode, expectedPincode: pincodeEntry.pincode },
-        true,
-        'WRONG_PINCODE',
-        {},
-        httpStatus.CONFLICT,
-      );
-    }
-    const now = new Date();
-    const diff = now.getTime() - pincodeEntry.createdAt.getTime();
-    // todo: move the 10 * 60 * 1000 to a system variable
-    if (diff > 10 * 60 * 1000) {
-      throw new AppError(
-        appErrorCodes.VALIDATE_PINCODE_PINCODE_EXPIRED,
-        { diff },
-        true,
-        'PINCODE_EXPIRED',
-        {},
-        httpStatus.CONFLICT,
-      );
-    }
+    validatePincodeExist(pincodeEntry, email);
+    validatePincodeMatch(pincode, pincodeEntry as Pincode, email);
+    validatePincodeNotExpired(pincodeEntry as Pincode);
     await model.deletePincode(email);
   });
 };
@@ -190,4 +159,53 @@ const handleUserNotFound = (updatedUser: User | null, userID: string) => {
       httpStatus.INTERNAL_SERVER_ERROR,
     );
   }
+};
+
+const validatePincodeNotExpired = (pincodeEntry: Pincode) => {
+  return functionWrapper(() => {
+    const now = new Date();
+    const diff = now.getTime() - pincodeEntry.createdAt.getTime();
+    // todo: move the 10 * 60 * 1000 to a system variable
+    if (diff > 10 * 60 * 1000) {
+      throw new AppError(
+        appErrorCodes.VALIDATE_PINCODE_PINCODE_EXPIRED,
+        { diff },
+        true,
+        'PINCODE_EXPIRED',
+        {},
+        httpStatus.CONFLICT,
+      );
+    }
+  });
+};
+
+const validatePincodeMatch = (pincode: string, pincodeEntry: Pincode, email: string) => {
+  return functionWrapper(() => {
+    if (parseInt(pincode) !== parseInt(pincodeEntry.pincode)) {
+      // for some reason, a classic string comparison always returns false
+      throw new AppError(
+        appErrorCodes.VALIDATE_PINCODE_PINCODE_WRONG,
+        { email, pincode, expectedPincode: pincodeEntry.pincode },
+        true,
+        'WRONG_PINCODE',
+        {},
+        httpStatus.CONFLICT,
+      );
+    }
+  });
+};
+
+const validatePincodeExist = (pincodeEntry: Pincode | null, email: string) => {
+  return functionWrapper(() => {
+    if (!pincodeEntry) {
+      throw new AppError(
+        appErrorCodes.VALIDATE_PINCODE_PINCODE_NOT_FOUND,
+        { email, description: 'pincode not found in db, maybe user skkiped previous request in the flow' },
+        true,
+        'PINCODE_NOT_EXIST_FOR_THIS_EMAIL',
+        { description: 'make sure you went through previous request in the flow' },
+        httpStatus.CONFLICT,
+      );
+    }
+  });
 };
