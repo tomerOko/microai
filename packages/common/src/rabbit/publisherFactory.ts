@@ -13,7 +13,7 @@ export type RabbitPublisherParams<T extends EventStracture> = {
 
 export const rabbitPublisherFactory = async <T extends EventStracture>(params: RabbitPublisherParams<T>) => {
   if (!channel) {
-    throw new AppError('RABBIT_CHANNEL_NOT_INITIALIZED');
+    throw new AppError('RABBIT_CHANNEL_NOT_INITIALIZED', {}, false, 'INTERNAL_SERVER_ERROR', {}, 500);
   }
 
   const { eventName, eventSchema } = params;
@@ -25,7 +25,14 @@ export const rabbitPublisherFactory = async <T extends EventStracture>(params: R
       const event = { type: eventName, data };
       const isValid = eventSchema.safeParse(event);
       if (!isValid.success) {
-        throw new AppError(`INVALID_PUBLISH_EVENT_DATA`, { error: isValid.error, eventName });
+        throw new AppError(
+          `INVALID_PUBLISH_EVENT_DATA`,
+          { error: isValid.error, eventName },
+          false,
+          'INTERNAL_SERVER_ERROR',
+          {},
+          500,
+        );
       }
       const msg = JSON.stringify(event);
       channel.publish(exchange, '', Buffer.from(msg), { persistent: true });

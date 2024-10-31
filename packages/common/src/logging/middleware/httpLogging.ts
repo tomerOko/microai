@@ -11,7 +11,6 @@ export const httpLogger = (req: Request, res: Response, next: NextFunction) => {
     customMessage: `HTTP REQUEST | ${method} ${originalUrl}`,
     additionalData: { ip },
   };
-
   logger.http(logParams);
   setListenerToLogResponse(res, logParams);
   return next();
@@ -24,10 +23,11 @@ const setListenerToLogResponse = (res: Response<any, Record<string, any>>, logPa
     if (res.statusCode >= 400) {
       logParams.customMessage = (logParams.customMessage as string).replace('REQUEST', 'ERROR');
       logParams.error = getError();
+      logger.error(logParams);
     } else {
       logParams.customMessage = (logParams.customMessage as string).replace('REQUEST', 'RESPONSE');
+      logger.http(logParams);
     }
-    logger.http(logParams);
   });
 };
 

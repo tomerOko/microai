@@ -24,7 +24,7 @@ export const becomeConsultant = async (req: Request, res: Response, next: NextFu
       const result: becomeConsultantResponseType = await service.becomeConsultant(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -36,7 +36,7 @@ export const updateConsultantProfile = async (req: Request, res: Response, next:
       const result: updateConsultantProfileResponseType = await service.updateConsultantProfile(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -48,7 +48,7 @@ export const addTopic = async (req: Request, res: Response, next: NextFunction) 
       const result: addTopicResponseType = await service.addTopic(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -60,7 +60,7 @@ export const updateTopic = async (req: Request, res: Response, next: NextFunctio
       const result: updateTopicResponseType = await service.updateTopic(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -72,7 +72,7 @@ export const removeTopic = async (req: Request, res: Response, next: NextFunctio
       const result: removeTopicResponseType = await service.removeTopic(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

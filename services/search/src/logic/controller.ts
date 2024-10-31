@@ -18,7 +18,7 @@ export const search = async (req: Request, res: Response, next: NextFunction) =>
       const result: searchResponseType = await service.search(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -31,7 +31,7 @@ export const getRecommendations = async (req: Request, res: Response, next: Next
       const result: getRecommendationsResponseType = await service.getRecommendations(userID, query);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

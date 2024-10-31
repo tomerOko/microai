@@ -41,5 +41,3 @@
     }
   ]
 }
-
-//kubectl logs -l app=signup -f --all-containers=true

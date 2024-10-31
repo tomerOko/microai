@@ -20,7 +20,7 @@ export const savePincode = async (email: string, pincode: string) => {
     const pincodeEntry: Pincode = { email, pincode, createdAt: new Date() };
     await pincodesCollection.updateOne({
       filter: { email },
-      update: { pincode },
+      update: pincodeEntry,
       options: { upsert: true },
     });
   });
@@ -57,12 +57,9 @@ export const getUserByID = async (userID: string) => {
   });
 };
 
-export const updateUserByID = async (userID: string, update: Partial<User>): Promise<User> => {
+export const updateUserByID = async (userID: string, update: Partial<User>): Promise<User | null> => {
   return functionWrapper(async () => {
     const updatedUser = await usersCollection.findOneAndUpdate({ _id: new ObjectId(userID) }, { $set: update });
-    if (!updatedUser) {
-      throw new AppError(appErrorCodes.UPDATE_USER_USER_NOT_FOUND, { userID });
-    }
     return updatedUser;
   });
 };

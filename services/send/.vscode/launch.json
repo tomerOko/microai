@@ -37,7 +37,7 @@
       "remoteRoot": "/app",
       "sourceMaps": true,
       "port": 9012,
-      "outputCapture": "std"
+      "preLaunchTask": "Track Logs"
     }
   ]
 }

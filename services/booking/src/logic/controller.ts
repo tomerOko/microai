@@ -22,7 +22,7 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
       const result: createBookingResponseType = await service.createBooking(body);
       res.status(httpStatus.CREATED).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -34,7 +34,7 @@ export const processBookingResponse = async (req: Request, res: Response, next: 
       const result: processBookingResponseResponseType = await service.processBookingResponse(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -46,7 +46,7 @@ export const rescheduleBooking = async (req: Request, res: Response, next: NextF
       const result: rescheduleBookingResponseType = await service.rescheduleBooking(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };
@@ -58,7 +58,7 @@ export const cancelBooking = async (req: Request, res: Response, next: NextFunct
       const result: cancelBookingResponseType = await service.cancelBooking(body);
       res.status(httpStatus.OK).send(result);
     } catch (error) {
-      errorHandler({})(error, next);
+      errorHandler(error, next);
     }
   });
 };

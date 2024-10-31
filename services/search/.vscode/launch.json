@@ -36,6 +36,7 @@
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "/app",
       "sourceMaps": true,
+      "preLaunchTask": "Track Logs",
       "port": 9005
     }
   ]

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 
 import { setAuthenticatedID } from '../../asyncStorage';
-import { AppError, ResponseOfError } from '../../errors';
+import { AppError, ClientError } from '../../errors';
 import { functionWrapper } from '../../logging';
 import { UtilsState } from '../../shared/utilsState';
 import { parseToken } from '../jwtUtils';
@@ -48,17 +48,32 @@ const authorization = (permissionGroup: PermissionGroup, isAuthenticated: Boolea
       if (isAuthenticated) {
         return;
       } else {
-        return new ResponseOfError(httpStatus.UNAUTHORIZED, 'This route is for signed in users only');
+        return new ClientError(
+          'UNAUTHORIZED',
+          { description: 'This route is for signed in users only' },
+          httpStatus.UNAUTHORIZED,
+        );
       }
     case PermissionGroups.NOT_LOGGED_IN:
       if (!isAuthenticated) {
         return;
       } else {
-        return new ResponseOfError(httpStatus.UNAUTHORIZED, 'This route is for non-signed in users only');
+        return new ClientError(
+          'UNAUTHORIZED',
+          { description: 'This route is for non-signed in users only' },
+          httpStatus.UNAUTHORIZED,
+        );
       }
     case PermissionGroups.EVERYONE:
       return;
     default:
-      throw new AppError('Unknown permission group');
+      throw new AppError(
+        'INTERNAL_SERVER_ERROR',
+        { description: 'Permission group not found' },
+        true,
+        'INTERNAL_SERVER_ERROR',
+        {},
+        httpStatus.INTERNAL_SERVER_ERROR,
+      );
   }
 };

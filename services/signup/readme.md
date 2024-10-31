@@ -16,3 +16,5 @@
   - install the needed sdk
   - make sure it is working
   - update types hallow
+
+kubectl exec -it $(kubectl get pods -l app=signup -o jsonpath="{.items[0].metadata.name}") -- /bin/sh
