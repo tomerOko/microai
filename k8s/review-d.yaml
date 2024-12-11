@@ -12,7 +12,7 @@ spec:
       labels:
         app: review
       annotations:
-        secret_checksum: "hSsCu3KqqWuj7/4/lEOP+pNGA+PktoNUphWnfqPgyFQ="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: review

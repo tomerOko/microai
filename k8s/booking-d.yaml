@@ -12,7 +12,7 @@ spec:
       labels:
         app: booking
       annotations:
-        secret_checksum: "UrcYFpGIKyuHyzv4S+i0k3QnSTJK7O/l6a+3tk16yb8="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: booking

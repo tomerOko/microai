@@ -12,7 +12,7 @@ spec:
       labels:
         app: socket
       annotations:
-        secret_checksum: "nYMfR1lcMKJ1UpbeC3vKhVevgtvXNLWFQ5QpZaa+yDI="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: socket

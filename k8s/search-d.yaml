@@ -12,7 +12,7 @@ spec:
       labels:
         app: search
       annotations:
-        secret_checksum: "ept4ju6Sequ+slH+wSyu0R1xl/wnIc0678nY+LKK/t4="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: search

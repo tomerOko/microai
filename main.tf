@@ -1,5 +1,4 @@
 
-
 terraform {
   required_providers {
     kubernetes = {
@@ -24,6 +23,12 @@ provider "helm" {
     config_context = "docker-desktop"
   }
 }
+
+variable "current_user" {
+  description = "The current user to configure paths in the modules"
+  type        = string
+}
+
 
 resource "helm_release" "nginix-ingress-controller" {
   name       = "ingress-nginx"
@@ -106,6 +111,7 @@ module "deployments_of_our_services" {
 # (Module) databases
 module "dbs" {
   source = "./modules/dbs"
+  current_user = var.current_user
 }
 
 module "secrets" {

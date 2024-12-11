@@ -12,7 +12,7 @@ spec:
       labels:
         app: notify
       annotations:
-        secret_checksum: "5RGatWyACTDAA4ZO9ygtpYqEfsAUc9V8DCSrC/1rfgk="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: notify

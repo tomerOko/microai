@@ -12,7 +12,7 @@ spec:
       labels:
         app: consultant
       annotations:
-        secret_checksum: "6IrdnEphwV1MZ9LoYLXHP8GIK7udB4lsCwXX5kw9SJQ="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: consultant

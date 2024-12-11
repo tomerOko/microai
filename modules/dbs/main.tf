@@ -2,6 +2,11 @@ locals {
   apps = ["signup", "auth", "consultant", "ava", "search", "booking", "chat", "notify", "call", "payment", "review", "send", "socket"]
 }
 
+variable "current_user" {
+  description = "The user to configure paths in the PV"
+  type        = string
+}
+
 resource "kubernetes_persistent_volume" "mongo_pv" {
   for_each = { for key in local.apps : key => key }
 
@@ -12,7 +17,7 @@ resource "kubernetes_persistent_volume" "mongo_pv" {
   spec {
     persistent_volume_source {
       local {
-        path = "/Users/tomer/mnt/data/${each.key}"
+        path = "/Users/${var.current_user}/mnt/data/${each.key}"
       }
     }
 

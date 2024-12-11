@@ -12,7 +12,7 @@ spec:
       labels:
         app: call
       annotations:
-        secret_checksum: "NnOCIe4Dzk2Ml5RBXzBQQakegjmqlKygEYPpZkNqJ6s="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: call

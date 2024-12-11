@@ -12,7 +12,7 @@ spec:
       labels:
         app: chat
       annotations:
-        secret_checksum: "JeI7/aZAX4rorXwLLfRu5XF5y0TMe1EkX8tVAxs1x2c="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: chat

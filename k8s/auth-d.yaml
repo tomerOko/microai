@@ -12,7 +12,7 @@ spec:
       labels:
         app: auth
       annotations:
-        secret_checksum: "uNGK7dxxkqjAlx6h712yMMYBIeySOQBB+Uwt9bK2y54="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: auth

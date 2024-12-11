@@ -12,7 +12,7 @@ spec:
       labels:
         app: payment
       annotations:
-        secret_checksum: "quq1EK0FF63ni2CYHrF4OMUNB2oHd1bwnNd8TppRyRA="
+        secret_checksum: "BGbEcrob5qNXALGGfeolK8kU5G67aFIs8KLjucboaT4="
     spec:
       containers:
       - name: payment

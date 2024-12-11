@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Apply Terraform changes
-terraform apply -auto-approve
-
+terraform apply -auto-approve -var="current_user=tomeroko"
+j
 # port forward the mongo databases to enable local access (with studio 3t for example)
 
 osascript -e 'tell app "Terminal"
